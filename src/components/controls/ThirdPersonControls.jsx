@@ -1,16 +1,14 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
-import { RigidBody, CapsuleCollider, useRapier } from '@react-three/rapier';
+import { RigidBody, CapsuleCollider } from '@react-three/rapier';
 import * as THREE from 'three';
 
 const ThirdPersonControls = () => {
   const { camera } = useThree();
   const moveRef = useRef({ forward: 0, backward: 0, left: 0, right: 0 });
   const rotationRef = useRef({ x: 0, y: 0 });
-  const [isLocked, setIsLocked] = useState(false);
   const playerRef = useRef();
   const characterPos = useRef(new THREE.Vector3(0, 3, 5));
-  const { rapier, world } = useRapier();
   
   const cameraOffset = useRef({
     distance: 3,
@@ -20,7 +18,6 @@ const ThirdPersonControls = () => {
 
   useEffect(() => {
     const handleClick = () => document.body.requestPointerLock();
-    const handleLockChange = () => setIsLocked(document.pointerLockElement === document.body);
     
     const handleMouseMove = (e) => {
       if (document.pointerLockElement === document.body) {
@@ -53,14 +50,12 @@ const ThirdPersonControls = () => {
     };
 
     document.addEventListener('click', handleClick);
-    document.addEventListener('pointerlockchange', handleLockChange);
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
 
     return () => {
       document.removeEventListener('click', handleClick);
-      document.removeEventListener('pointerlockchange', handleLockChange);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);

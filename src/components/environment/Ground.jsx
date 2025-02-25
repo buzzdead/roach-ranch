@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
-import { RigidBody, CuboidCollider } from '@react-three/rapier';
+import { CuboidCollider } from '@react-three/rapier';
 
 const Ground = () => {
   const [diffuseMap, normalMap] = useLoader(THREE.TextureLoader, [

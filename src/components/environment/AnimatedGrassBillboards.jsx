@@ -128,7 +128,7 @@ const AnimatedGrassBillboards = ({ count = 15000 }) => {
     
     instancedMeshRef.current.instanceMatrix.needsUpdate = true;
     instancedMeshRef.current.count = validCount;
-  }, [count]);
+  }, [count, tempObject]);
   
   // Animate wind
   useFrame(({ clock }) => {

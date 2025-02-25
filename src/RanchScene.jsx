@@ -1,7 +1,7 @@
 // RanchScene.jsx - Adding ranch house lighting
 import React from 'react';
 import { Canvas } from '@react-three/fiber';
-import { PerspectiveCamera, Sky, Stars } from '@react-three/drei';
+import { PerspectiveCamera, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
 import ThirdPersonControls from './components/controls/ThirdPersonControls';

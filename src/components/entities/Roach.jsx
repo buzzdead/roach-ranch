@@ -48,7 +48,7 @@ const Roach = ({ position }) => {
   // Add dynamic glow based on nearby lights
   useFrame((state) => {
     // Find nearby lights in the scene
-    const nearbyLights = [];/* 
+    /* 
     state.scene.traverse((obj) => {
       if (obj.isLight && obj !== lightRef.current) {
         const distance = new THREE.Vector3().copy(obj.position).distanceTo(modelRef.current.position);

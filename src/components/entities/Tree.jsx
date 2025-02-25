@@ -42,7 +42,7 @@ const Tree = ({ position, height = 10, trunkRadius = 0.5, foliageSize = 3.5, typ
   }, []);
   
   // Foliage material with emissive properties for better visibility
-  const foliageMaterial = useMemo(() => {
+/*   const foliageMaterial = useMemo(() => {
     return new THREE.MeshStandardMaterial({
       color: '#1a6b29',
       roughness: 0.8,
@@ -51,7 +51,7 @@ const Tree = ({ position, height = 10, trunkRadius = 0.5, foliageSize = 3.5, typ
       emissiveIntensity: 0.3,
       flatShading: true,
     });
-  }, []);
+  }, []); */
   
   // Generate random foliage placement for a more natural look
   const foliageClusters = useMemo(() => {

@@ -1,6 +1,6 @@
 // components/environment/RanchHouse.jsx
 import React, { useMemo, useRef } from 'react';
-import { useFrame, useLoader } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { RigidBody, CuboidCollider } from '@react-three/rapier';
 
@@ -308,29 +308,29 @@ const RanchHouse = ({ position = [0, 0, 0], dilapidated = true }) => {
     };
   }, [textures]);
 
-  const doorFrame = () => {
-    return (
-        <>
-        {/* Door frame */}
-        <mesh position={[0, 5, 0.025]} castShadow>
-          <boxGeometry args={[2.2, 8, 0.5]} />
-          <meshStandardMaterial color="#2e2216" roughness={0.9} />
-        </mesh>
+//   const doorFrame = () => {
+//     return (
+//         <>
+//         {/* Door frame */}
+//         <mesh position={[0, 5, 0.025]} castShadow>
+//           <boxGeometry args={[2.2, 8, 0.5]} />
+//           <meshStandardMaterial color="#2e2216" roughness={0.9} />
+//         </mesh>
         
-        {/* Door (slightly ajar for creepy effect) */}
-        <mesh position={[-0.5, 5, 0.5]} rotation={[0, Math.PI / 12, 0]} castShadow>
-          <boxGeometry args={[2, 7.5, 0.3]} />
-          <meshStandardMaterial color="#1e1912" roughness={0.9} />
-        </mesh>
+//         {/* Door (slightly ajar for creepy effect) */}
+//         <mesh position={[-0.5, 5, 0.5]} rotation={[0, Math.PI / 12, 0]} castShadow>
+//           <boxGeometry args={[2, 7.5, 0.3]} />
+//           <meshStandardMaterial color="#1e1912" roughness={0.9} />
+//         </mesh>
         
-        {/* Door handle */}
-        <mesh position={[-1.2, 5, 0.7]} castShadow>
-          <sphereGeometry args={[0.2, 8, 8]} />
-          <meshStandardMaterial color="#3a3a3a" metalness={0.8} roughness={0.5} />
-        </mesh>
-        </>
-    )
-  }
+//         {/* Door handle */}
+//         <mesh position={[-1.2, 5, 0.7]} castShadow>
+//           <sphereGeometry args={[0.2, 8, 8]} />
+//           <meshStandardMaterial color="#3a3a3a" metalness={0.8} roughness={0.5} />
+//         </mesh>
+//         </>
+//     )
+//   }
 
   return (
     <group position={position} ref={houseRef}>
