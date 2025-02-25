@@ -1,20 +1,43 @@
-import React, { useEffect, useRef } from 'react';
-import { useGLTF } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber'
+import React, { useEffect, useMemo, useRef } from 'react';
+import { useGLTF, useAnimations } from '@react-three/drei';
+import { useFrame, useGraph } from '@react-three/fiber'
 import * as THREE from 'three';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { useSoundManager } from '../../context/SoundContext'; // Adjust path as needed
 
 const Roach = ({ position }) => {
-  const { scene } = useGLTF('/mutant.glb');
+    const { scene, animations } = useGLTF('/mutant-new.glb');
+    const originalScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
+   
+    const { actions, mixer } = useAnimations(animations, originalScene);
+   /*  const { nodes } = useGraph(originalScene); */
+    
   const modelRef = useRef();
   const lightRef = useRef();
 
   const soundRef = useRef(null);
   const nextScreechRef = useRef(Math.random() * 10); // Random initial time
   const soundManager = useSoundManager();
+  const isAnimatingRef = useRef(false);
+
+  useEffect(() => {
+    if (actions && actions.IdleMotion) {
+      // Configure the animation to play once and not loop
+      actions.IdleMotion.loop = THREE.LoopOnce;
+      actions.IdleMotion.clampWhenFinished = true;
+      actions.IdleMotion.timeScale = 1.5; // Adjust speed if needed
+      
+      // Set up animation completion listener
+      mixer.addEventListener('finished', (e) => {
+        if (e.action === actions.IdleMotion) {
+          isAnimatingRef.current = false;
+        }
+      });
+    }
+  }, [actions, mixer]);
   // Set up the base appearance
   useEffect(() => {
-    scene.traverse(child => {
+    originalScene.traverse(child => {
       if (child.isMesh && child.material) {
         child.material = child.material.clone();
         child.material.roughness = 1;
@@ -27,7 +50,7 @@ const Roach = ({ position }) => {
         child.material.needsUpdate = true;
       }
     });
-  }, [scene]);
+  }, [originalScene]);
   useEffect(() => {
     if (soundManager) {
       // Create a sound object for this roach
@@ -91,7 +114,11 @@ const Roach = ({ position }) => {
       
       // Play the sound
       soundRef.current.play();
-      
+      if (actions.IdleMotion) {
+        isAnimatingRef.current = true;
+        actions.IdleMotion.reset();
+        actions.IdleMotion.play();
+      }
       // Visual feedback - briefly increase emissive intensity
       // Reset timer with random interval (5-15 seconds)
       nextScreechRef.current = 5 + Math.random() * 15;
@@ -109,7 +136,7 @@ const Roach = ({ position }) => {
       />
       <primitive 
         ref={modelRef} 
-        object={scene.clone()} 
+        object={originalScene} 
         position={position} 
         scale={[1.25, 1.25, 1.25]} 
       />

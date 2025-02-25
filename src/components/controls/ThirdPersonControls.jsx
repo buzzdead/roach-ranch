@@ -81,7 +81,6 @@ const ThirdPersonControls = () => {
 
     // Get current rigid body position
     const physicsPosition = playerRef.current.translation();
-    console.log("Player Y position:", physicsPosition.y);
   
     // Emergency fallback - if player gets too low, reset position
     if (physicsPosition.y < -1) {

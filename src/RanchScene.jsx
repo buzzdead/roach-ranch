@@ -86,9 +86,13 @@ const RanchScene = () => {
       
       {/* Entities */}
       <Roach position={[-2, 0, -14]} />
-      {/* <Roach position={[-1, 0, -14]} />
+
+      <Roach position={[-1, 0, -14]} />
+
       <Roach position={[-5, 0, -14]} />
+
       <Roach position={[3, 0, -14]} />
+      {/* 
       <Roach position={[-4, 0, -14]} />
       <Roach position={[8, 0, -14]} />
       <Roach position={[7, 0, -14]} /> */}
