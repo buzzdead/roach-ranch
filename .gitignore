@@ -35,6 +35,5 @@ yarn-error.log*
 .eslintcache
 
 # Three.js specific
-*.glb
 *.gltf
 /public/assets/models
