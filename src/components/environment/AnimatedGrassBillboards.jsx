@@ -5,7 +5,6 @@ import { createGrassTextures } from '../../utils/TextureCreator';
 
 const AnimatedGrassBillboards = ({ count = 15000 }) => {
   const instancedMeshRef = useRef();
-  const tempObject = new THREE.Object3D();
   
   // Create the grass textures
   const grassTextures = useMemo(() => createGrassTextures(), []);
@@ -71,7 +70,7 @@ const AnimatedGrassBillboards = ({ count = 15000 }) => {
   // Distribute grass
   useEffect(() => {
     if (!instancedMeshRef.current) return;
-    
+    const tempObject = new THREE.Object3D();
     let validCount = 0;
     
     // Create cluster centers
@@ -128,7 +127,7 @@ const AnimatedGrassBillboards = ({ count = 15000 }) => {
     
     instancedMeshRef.current.instanceMatrix.needsUpdate = true;
     instancedMeshRef.current.count = validCount;
-  }, [count, tempObject]);
+  }, [count]);
   
   // Animate wind
   useFrame(({ clock }) => {
