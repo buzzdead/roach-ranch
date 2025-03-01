@@ -86,12 +86,21 @@ class SoundManager {
   }
   
   // Clean up all sounds
-  dispose() {
-    Object.values(this.sounds).forEach(sound => {
+  // Clean up all sounds
+dispose() {
+  Object.values(this.sounds).forEach(sound => {
+    // Check if sound exists and has a stop method
+    if (sound && typeof sound.stop === 'function') {
       sound.stop();
-    });
-    this.sounds = {};
-  }
+    } else if (sound && typeof sound.isPlaying === 'function' && sound.isPlaying()) {
+      // Some Three.js sound implementations use different methods
+      if (typeof sound.pause === 'function') {
+        sound.pause();
+      }
+    }
+  });
+  this.sounds = {};
+}
 }
 
 export default SoundManager;

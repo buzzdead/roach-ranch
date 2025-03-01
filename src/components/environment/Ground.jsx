@@ -1,5 +1,5 @@
 // Ground.jsx - Let's make this absolutely reliable
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import { CuboidCollider } from '@react-three/rapier';
@@ -22,7 +22,7 @@ const Ground = () => {
   }, [diffuseMap, normalMap]);
 
   return (
-    <>
+    <Suspense>
       {/* Visual ground */}
       <mesh position={[0, -0.1, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[100, 100]} />
@@ -37,14 +37,14 @@ const Ground = () => {
       {/* Use a direct collider instead of a RigidBody for the ground */}
       <CuboidCollider 
         position={[0, -0.5, 0]} 
-        args={[100, 1, 100]} 
+        args={[100, 0.5, 100]} 
         sensor={false}
         friction={1}
       />
 
       {/* Add some debug visualization for the ground collider */}
 
-    </>
+    </Suspense>
   );
 };
 
