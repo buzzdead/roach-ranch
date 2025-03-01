@@ -2,13 +2,16 @@ import React, { useRef, useEffect } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { RigidBody, CapsuleCollider } from '@react-three/rapier';
 import * as THREE from 'three';
+import { usePlayerContext } from '../../context/PlayerContext';
 
 const ThirdPersonControls = () => {
   const { camera } = useThree();
-  const moveRef = useRef({ forward: 0, backward: 0, left: 0, right: 0 });
+  const moveRef = useRef({ forward: 0, backward: 0, left: 0, right: 0, jump: false });
   const rotationRef = useRef({ x: 0, y: 0 });
   const playerRef = useRef();
   const characterPos = useRef(new THREE.Vector3(0, 3, 5));
+  const jumpCooldownRef = useRef(0);
+  const { setAnimationState } = usePlayerContext();
   
   const cameraOffset = useRef({
     distance: 3,
@@ -28,35 +31,79 @@ const ThirdPersonControls = () => {
         );
       }
     };
-
+  
+    const handleMouseDown = (e) => {
+      // Right mouse button (button 2)
+      if (e.button === 2) {
+        handleAim(true);
+      }
+    };
+  
+    const handleMouseUp = (e) => {
+      // Right mouse button (button 2)
+      if (e.button === 2) {
+        handleAim(false);
+      }
+    };
+  
+    const handleJump = () => {
+      // Physics logic
+      setAnimationState(prev => ({ ...prev, jumping: true }));
+      // Reset after animation would complete
+      setTimeout(() => {
+        setAnimationState(prev => ({ ...prev, jumping: false }));
+        moveRef.current.jump = false;
+      }, 1000); // Duration of jump animation
+      moveRef.current.jump = true;
+    };
+  
+    const handleAim = (isAiming) => {
+      setAnimationState(prev => ({ ...prev, aiming: isAiming }));
+    };
+  
     const handleKeyDown = (e) => {
       switch (e.code) {
         case 'KeyW': moveRef.current.forward = 1; break;
         case 'KeyS': moveRef.current.backward = 1; break;
         case 'KeyA': moveRef.current.right = 1; break;
         case 'KeyD': moveRef.current.left = 1; break;
+        case 'KeyQ': handleJump(); break;
+        // Remove E key for aiming
         default: break;
       }
     };
-
+  
     const handleKeyUp = (e) => {
       switch (e.code) {
         case 'KeyW': moveRef.current.forward = 0; break;
         case 'KeyS': moveRef.current.backward = 0; break;
         case 'KeyA': moveRef.current.right = 0; break;
         case 'KeyD': moveRef.current.left = 0; break;
+        case 'KeyQ': moveRef.current.jump = false; break;
+        // Remove E key for aiming
         default: break;
       }
     };
-
+  
+    // Prevent the context menu when right-clicking
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+  
     document.addEventListener('click', handleClick);
     document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
-
+  
     return () => {
       document.removeEventListener('click', handleClick);
       document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
     };
@@ -81,6 +128,21 @@ const ThirdPersonControls = () => {
 
     // Get current rigid body position
     const physicsPosition = playerRef.current.translation();
+    
+    // Check if player is on or near the ground (simple check)
+    const isGrounded = physicsPosition.y <= -1;
+    
+    // Handle jump with spacebar
+    if (jumpCooldownRef.current > 0) {
+      jumpCooldownRef.current -= delta;
+    }
+    
+    if (moveRef.current.jump && jumpCooldownRef.current <= 0) {
+      // Apply upward impulse for jump
+      console.log("applying jump")
+      playerRef.current.applyImpulse({ x: 0, y: 7.5, z: 0 });
+      jumpCooldownRef.current = 1; // 300ms cooldown
+    }
   
     // Emergency fallback - if player gets too low, reset position
     if (physicsPosition.y < -1) {
@@ -90,8 +152,9 @@ const ThirdPersonControls = () => {
     }
     
     characterPos.current.set(physicsPosition.x, physicsPosition.y, physicsPosition.z);
+    
     // Calculate move direction based on camera angle
-    const moveSpeed = 5 * delta; // Adjust for delta time
+    const moveSpeed = 2 * delta; // Adjust for delta time
     const direction = new THREE.Vector3();
 
     const horizontalQuat = new THREE.Quaternion();
@@ -141,6 +204,7 @@ const ThirdPersonControls = () => {
     // Store for other components
     camera.userData.characterPos = characterPos.current.clone();
     camera.userData.lastAngle = cameraOffset.current.angle;
+    camera.userData.isJumping = !isGrounded;
 
     // Update camera position to follow player
     const offset = new THREE.Vector3(
@@ -148,7 +212,7 @@ const ThirdPersonControls = () => {
       cameraOffset.current.height,
       -Math.cos(cameraOffset.current.angle) * cameraOffset.current.distance
     );
-
+                                                                                                                          
     camera.position.copy(characterPos.current).add(offset);
     camera.lookAt(
       characterPos.current.x,
@@ -158,17 +222,17 @@ const ThirdPersonControls = () => {
   });
 
   return (
-<RigidBody 
-  ref={playerRef}
-  position={[0, 2, 5]} // Start above the ground (y=2)
-  enabledRotations={[false, true, false]}
-  type="dynamic"
-  mass={1}  // Not too heavy, not too light
-  colliders={false}
-  friction={0.7}
->
-  <CapsuleCollider args={[1, 0.5]} position={[0, -1, 0]} />
-</RigidBody>
+    <RigidBody 
+      ref={playerRef}
+      position={[0, 2, 5]} // Start above the ground (y=2)
+      enabledRotations={[false, true, false]}
+      type="dynamic"
+      mass={1}  // Not too heavy, not too light
+      colliders={false}
+      friction={0.7}
+    >
+      <CapsuleCollider args={[1, 0.5]} position={[0, 0, 0]} />
+    </RigidBody>
   );
 };
 

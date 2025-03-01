@@ -5,8 +5,8 @@ import { PerspectiveCamera, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
 import ThirdPersonControls from './components/controls/ThirdPersonControls';
-import Player from './components/entities/Player';
-import Roach from './components/entities/Roach';
+import Player from './components/entities/player/Player';
+import Roach from './components/entities/roach/Roach';
 import Tree from './components/entities/Tree';
 import Ground from './components/environment/Ground';
 import RanchHouse from './components/environment/RanchHouse';
@@ -16,6 +16,7 @@ import { Physics } from '@react-three/rapier';
 import MysteriousBoundary from './components/effects/AtmosphericBoundary';
 import HorrorMoon from './components/environment/SpookyMoon';
 import { SoundProvider } from './context/SoundContext';
+import { PlayerProvider } from './context/PlayerContext';
 
 
 const RanchScene = () => {
@@ -31,6 +32,7 @@ const RanchScene = () => {
       }}
     >
     <SoundProvider>
+      <PlayerProvider>
         <Physics gravity={[0, -9.81, 0]}>
       {/* Main camera setup */}
       <PerspectiveCamera makeDefault position={[0, 6, 10]} fov={60} far={10000} />
@@ -85,13 +87,13 @@ const RanchScene = () => {
       <Tree position={[20, 0, -16]} height={14} foliageSize={5} scale={0.55} />
       
       {/* Entities */}
-      <Roach position={[-2, 0, -14]} />
+      <Roach position={[-2, 0.3, -14]} />
 
-      <Roach position={[-1, 0, -14]} />
+      <Roach position={[-1, 0.3, -14]} />
 
-      <Roach position={[-5, 0, -14]} />
+      <Roach position={[-5, 0.3, -14]} />
 
-      <Roach position={[3, 0, -14]} />
+      <Roach position={[3, 0.3, -14]} />
       {/* 
       <Roach position={[-4, 0, -14]} />
       <Roach position={[8, 0, -14]} />
@@ -101,6 +103,7 @@ const RanchScene = () => {
       {/* Slightly less dense fog for better visibility of the ranch */}
       <fog attach="fog" args={['#050505', 12, 40]} />
       <SceneEffects />
+      </PlayerProvider>
       </SoundProvider>
     </Canvas>
   );
