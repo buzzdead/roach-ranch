@@ -1,5 +1,5 @@
 // Roach.jsx
-import React, { useMemo, useRef, useState } from 'react';
+import React, { Suspense, useMemo, useRef, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
@@ -57,11 +57,13 @@ const Roach = ({ position }) => {
       />
       
       {isAttacking && camera.userData.characterPos && (
+        <Suspense>
         <RoachAttack 
           position={position}
           playerPosition={camera.userData.characterPos}
           onComplete={handleAttackComplete}
         />
+        </Suspense>
       )}
     </>
   );

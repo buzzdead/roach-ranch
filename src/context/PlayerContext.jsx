@@ -6,7 +6,8 @@ const PlayerContext = createContext();
 export const PlayerProvider = ({ children }) => {
   const [animationState, setAnimationState] = useState({
     jumping: false,
-    aiming: false
+    aiming: false,
+    fireCount: 0 
   });
   
   return (

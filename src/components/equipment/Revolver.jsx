@@ -1,7 +1,12 @@
 // Revolver.jsx
-import React, { useRef, useMemo, useEffect } from 'react';
+import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useAttachToObject } from '../../hooks/useAttachToObject';
+import { usePlayerContext } from '../../context/PlayerContext';
+import { useThree } from '@react-three/fiber';
+import * as THREE from 'three';
+import RevolverBullet from './RevolverBullet';
+import RevolverAudio from './RevolverAudio';
 
 // Constants for configuration
 const REVOLVER_CONFIG = {
@@ -16,22 +21,81 @@ const PRIMITIVE_CONFIG = {
   rotation: [-1.2, 0, 0],
 };
 
+const MUZZLE_POSITION = [0.2, 0.2, 0]; // Position of the muzzle end
+
 /**
  * Revolver component that attaches to a bone and displays a 3D revolver model
- * 
- * @param {Object} props - Component props
- * @param {THREE.Bone} props.bone - The bone to attach the revolver to
  */
 export const Revolver = ({ bone }) => {
-  // Load and memoize the 3D model
   const { scene } = useGLTF(REVOLVER_CONFIG.modelPath);
   const revolverScene = useMemo(() => scene.clone(), [scene]);
-  
-  // Create ref for the component
   const groupRef = useRef();
+  const muzzleRef = useRef();
+  const { animationState } = usePlayerContext();
+  const [lastFireCount, setLastFireCount] = useState(0);
+  const { camera } = useThree();
   
-  // Custom hook to handle attachment to bone
+  // For firing animation/effects
+  const [muzzleFlash, setMuzzleFlash] = useState(false);
+  const [isFiring, setIsFiring] = useState(false);
+  const [muzzlePosition, setMuzzlePosition] = useState([0, 0, 0]);
+  const [bullets, setBullets] = useState([]);
+  
   useAttachToObject(groupRef, bone);
+  
+  // Handle firing animation and bullet creation
+  useEffect(() => {
+    if (animationState.firing && animationState.fireCount !== lastFireCount) {
+      setLastFireCount(animationState.fireCount);
+      setMuzzleFlash(true);
+      
+      // Calculate bullet starting position and direction
+      if (groupRef.current) {
+        const muzzleWorldPos = new THREE.Vector3();
+        const worldQuat = new THREE.Quaternion();
+        
+        // Get world position of the revolver's group
+        groupRef.current.getWorldPosition(muzzleWorldPos);
+        groupRef.current.getWorldQuaternion(worldQuat);
+        
+        // Adjust for muzzle position within the group
+        const muzzleOffset = new THREE.Vector3(...MUZZLE_POSITION);
+        muzzleOffset.applyQuaternion(worldQuat);
+        muzzleWorldPos.add(muzzleOffset);
+        
+        // Update muzzle position for audio
+        setMuzzlePosition([muzzleWorldPos.x, muzzleWorldPos.y, muzzleWorldPos.z]);
+        
+        // Direction is forward vector of the camera
+        const bulletDirection = new THREE.Vector3(0, 0, -1);
+        bulletDirection.applyQuaternion(camera.quaternion);
+        
+        // Add new bullet with unique ID
+        const newBulletId = Date.now();
+        setBullets(prevBullets => [
+          ...prevBullets,
+          {
+            id: newBulletId,
+            position: muzzleWorldPos,
+            direction: bulletDirection
+          }
+        ]);
+        
+        // Trigger sound by setting isFiring to true
+        setIsFiring(true);
+        
+        // Reset firing state after a short delay
+        setTimeout(() => {
+          setIsFiring(false);
+        }, 100);
+      }
+      
+      // Hide muzzle flash after a short delay
+      setTimeout(() => {
+        setMuzzleFlash(false);
+      }, 100);
+    }
+  }, [animationState.firing, animationState.fireCount, lastFireCount, camera]);
   
   // Clean up resources when component unmounts
   useEffect(() => {
@@ -46,21 +110,59 @@ export const Revolver = ({ bone }) => {
   }, [revolverScene]);
 
   return (
-    <group ref={groupRef}>
-      <group 
-        position={REVOLVER_CONFIG.position}
-        rotation={REVOLVER_CONFIG.rotation}
-        scale={REVOLVER_CONFIG.scale}
-      >
-        <primitive 
-          object={revolverScene} 
-          position={PRIMITIVE_CONFIG.position} 
-          rotation={PRIMITIVE_CONFIG.rotation} 
-        />
+    <>
+      <group ref={groupRef}>
+        <group 
+          position={REVOLVER_CONFIG.position}
+          rotation={REVOLVER_CONFIG.rotation}
+          scale={REVOLVER_CONFIG.scale}
+        >
+          <primitive 
+            object={revolverScene} 
+            position={PRIMITIVE_CONFIG.position} 
+            rotation={PRIMITIVE_CONFIG.rotation} 
+          />
+          
+          <group 
+            ref={muzzleRef}
+            position={MUZZLE_POSITION}
+            visible={false}
+          />
+          
+          {/* Muzzle flash */}
+          {muzzleFlash && (
+            <pointLight
+              position={MUZZLE_POSITION}
+              intensity={5}
+              distance={2}
+              color="#ffaa00"
+            />
+          )}
+          {muzzleFlash && (
+            <mesh position={MUZZLE_POSITION}>
+              <sphereGeometry args={[0.03, 16, 16]} />
+              <meshBasicMaterial color="#ffff00" />
+            </mesh>
+          )}
+        </group>
       </group>
-    </group>
+      
+      {/* Audio component for revolver sounds */}
+      <RevolverAudio 
+        position={muzzlePosition}
+        isFiring={isFiring}
+      />
+      
+      {/* Render bullets */}
+      {bullets.map(bullet => (
+        <RevolverBullet 
+          key={bullet.id}
+          position={bullet.position}
+          direction={bullet.direction}
+        />
+      ))}
+    </>
   );
 };
 
-// Preload the model for better performance
 useGLTF.preload(REVOLVER_CONFIG.modelPath);

@@ -5,7 +5,7 @@ import * as THREE from 'three';
 const MutantGoo = ({ position, target, onComplete }) => {
   const particlesRef = useRef();
   const splashParticlesRef = useRef();
-  const particleCount = 250;
+  const particleCount = 50;
   const texture = useLoader(THREE.TextureLoader, './textures/goo-particle1.png');
   
   // Track ground level

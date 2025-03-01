@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 
 // List of all 3D models to preload
 const MODELS = [
@@ -8,13 +9,15 @@ const MODELS = [
   '/lantern.glb',
   '/mutant-new.glb',
   '/rancher3.glb',
-  '/rancher5.glb'
+  '/bullet.glb'
 ];
 
 // List of all textures to preload
 const TEXTURES = [
   '/gravel_road_diff_1k.jpg',
-  '/gravel_road_nor_gl_1k.jpg'
+  '/gravel_road_nor_gl_1k.jpg',
+  '/textures/goo-particle1.png',
+  '/textures/goo-particle.png'
 ];
 
 const Preload = ({ onComplete }) => {
@@ -46,6 +49,15 @@ const Preload = ({ onComplete }) => {
   useEffect(() => {
     const gltfLoader = new GLTFLoader();
     
+    // Setup Draco loader
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.5/'); // Use CDN path
+    // Alternatively use a local path if you have the Draco files in your project:
+    // dracoLoader.setDecoderPath('/draco/');
+    
+    // Attach draco loader to gltf loader
+    gltfLoader.setDRACOLoader(dracoLoader);
+    
     const loadModels = async () => {
       for (const modelPath of MODELS) {
         try {
@@ -74,6 +86,11 @@ const Preload = ({ onComplete }) => {
     };
     
     loadModels();
+    
+    // Clean up
+    return () => {
+      dracoLoader.dispose();
+    };
   }, []);
   
   // Preload textures

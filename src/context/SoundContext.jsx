@@ -25,7 +25,8 @@ export const SoundProvider = ({ children }) => {
         manager.preloadSound('Intro1', 'soundeffects/Rancher-Intro1.mp3'),
         manager.preloadSound('Intro2', 'soundeffects/Rancher-Intro2.mp3'),
         manager.preloadSound('Intro3', 'soundeffects/Rancher-Intro3.mp3'),
-        manager.preloadSound('roachAttack', 'soundeffects/Roach-Goo.mp3')
+        manager.preloadSound('roachAttack', 'soundeffects/Roach-Goo.mp3'),
+        manager.preloadSound('Revolver-Fire', 'soundeffects/revolver-fire.mp3')
         // Preload other sounds as needed
       ]).then(() => {
         setSoundManager(manager);
