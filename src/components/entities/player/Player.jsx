@@ -1,6 +1,6 @@
 // Player.jsx
 import React, { useRef, useEffect, useState } from 'react';
-import { useGLTF, useAnimations } from '@react-three/drei';
+import { useAnimations } from '@react-three/drei';
 import { useThree, useGraph } from '@react-three/fiber';
 import { PlayerModel } from './PlayerModel';
 import { PlayerLighting } from './PlayerLighting';
@@ -8,9 +8,10 @@ import { PlayerEquipment } from './PlayerEquipment';
 import { PlayerAnimation } from './PlayerAnimation';
 import { PlayerAudio } from './PlayerAudio';
 import PlayerCursor from './PlayerCursor';
+import { modelCache } from '../../../Preloader'
 
 const Player = () => {
-  const { scene, animations } = useGLTF('/rancher3.glb');
+  const { scene, animations } = modelCache['/rancher3.glb']
   const { camera } = useThree();
   const modelRef = useRef();
   const isInitializedRef = useRef(false);
@@ -64,7 +65,7 @@ const Player = () => {
     if (actions && mixer) {
       // Force an initial update of the animation system
       for (let i = 0; i < 5; i++) {
-        mixer.update(1/60);
+        mixer.update(1/30);
       }
       
       // Mark as ready after initialization

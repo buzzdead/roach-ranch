@@ -1,5 +1,5 @@
-import { useRef, useMemo } from 'react';
-import { useFrame, useLoader } from '@react-three/fiber';
+import { useRef, useMemo, useEffect } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { 
   CONSTANTS, 
@@ -11,14 +11,22 @@ import {
   addWobbleMovement,
   checkGroundHit
 } from '../../utils/particleUtils';
+import { textureCache } from '../../Preloader';
 
 const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   const particlesRef = useRef();
   const splashParticlesRef = useRef();
   const splashSystems = useRef([]);
   const particleCount = bleeding ? CONSTANTS.BLEEDING_PARTICLE_COUNT : CONSTANTS.NORMAL_PARTICLE_COUNT;
-  const texture = useLoader(THREE.TextureLoader, './textures/goo-particle1.png');
-  
+  const texture = textureCache['/textures/goo-particle1.png'];
+
+  // Make sure the texture exists
+  useEffect(() => {
+    if (!texture) {
+      console.error('Goo particle texture not found in cache');
+    }
+  }, [texture]);
+
   // Create flying particles geometry
   const particles = useMemo(() => {
     return createParticlesGeometry();

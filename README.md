@@ -28,7 +28,13 @@ Roach Ranch is an immersive horror experience where players explore a disturbing
 
 The game is currently hosted at [https://roachranch.netlify.app](https://roachranch.netlify.app)
 
+## 📷 Screenshots
+
+![Screenshot 1](public/screenshot1.png)
+![Screenshot 2](public/screenshot2.png)
+
 ### Local Development
+
 
 ```bash
 # Clone the repository
@@ -42,11 +48,6 @@ npm install
 
 # Start the development server
 npm run dev
-
-## 📷 Screenshots
-
-![Screenshot 1](public/screenshot1.png)
-![Screenshot 2](public/screenshot2.png)
 
 ## 🔮 Future Plans
 

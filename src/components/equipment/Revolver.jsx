@@ -7,7 +7,7 @@ import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import RevolverBullet from './RevolverBullet';
 import RevolverAudio from './RevolverAudio';
-
+import { modelCache } from '../../Preloader'
 // Constants for configuration
 const REVOLVER_CONFIG = {
   modelPath: '/revolver.glb',
@@ -27,7 +27,7 @@ const MUZZLE_POSITION = [0.2, 0.2, 0]; // Position of the muzzle end
  * Revolver component that attaches to a bone and displays a 3D revolver model
  */
 export const Revolver = ({ bone }) => {
-  const { scene } = useGLTF(REVOLVER_CONFIG.modelPath);
+  const { scene } = modelCache[REVOLVER_CONFIG.modelPath];
   const revolverScene = useMemo(() => scene.clone(), [scene]);
   const groupRef = useRef();
   const muzzleRef = useRef();

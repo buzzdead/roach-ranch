@@ -20,6 +20,9 @@ const TEXTURES = [
   '/textures/goo-particle.png'
 ];
 
+export const textureCache = {};
+export const modelCache = {};
+
 const Preload = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
   const [modelsLoaded, setModelsLoaded] = useState(0);
@@ -65,6 +68,7 @@ const Preload = ({ onComplete }) => {
             gltfLoader.load(
               modelPath,
               (gltf) => {
+                modelCache[modelPath] = gltf;
                 modelsLoadedRef.current += 1;
                 setModelsLoaded(modelsLoadedRef.current);
                 resolve(gltf);
@@ -104,6 +108,7 @@ const Preload = ({ onComplete }) => {
             textureLoader.load(
               texturePath,
               (texture) => {
+                textureCache[texturePath] = texture;
                 texturesLoadedRef.current += 1;
                 setTexturesLoaded(texturesLoadedRef.current);
                 resolve(texture);
