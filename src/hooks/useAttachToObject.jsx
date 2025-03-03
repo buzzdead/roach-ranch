@@ -21,5 +21,5 @@ export const useAttachToObject = (targetRef, sourceObject) => {
     
     targetRef.current.position.copy(position);
     targetRef.current.quaternion.copy(quaternion);
-  }, 1); // Higher priority number means it runs later in the frame
+  }, 0); // Higher priority number means it runs later in the frame
 };
