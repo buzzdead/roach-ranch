@@ -1,18 +1,31 @@
-import { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
+import { 
+  CONSTANTS, 
+  createParticleColor, 
+  calculateDirection, 
+  calculateVelocity, 
+  createParticleMaterial,
+  calculateSpeed,
+  addWobbleMovement,
+  checkGroundHit
+} from '../../utils/particleUtils';
 
 const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   const particlesRef = useRef();
   const splashParticlesRef = useRef();
-  const particleCount = bleeding ? 100 : 150;
+  const splashSystems = useRef([]);
+  const particleCount = bleeding ? CONSTANTS.BLEEDING_PARTICLE_COUNT : CONSTANTS.NORMAL_PARTICLE_COUNT;
   const texture = useLoader(THREE.TextureLoader, './textures/goo-particle1.png');
   
-  // Track ground level
-  const groundY = 0; // Set this to your actual ground height
-  
-  // Create flying particles
+  // Create flying particles geometry
   const particles = useMemo(() => {
+    return createParticlesGeometry();
+  }, [position, target]);
+  
+  // Particle geometry creation logic
+  function createParticlesGeometry() {
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const velocities = new Float32Array(particleCount * 3);
@@ -20,51 +33,11 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
     const sizes = new Float32Array(particleCount);
     const colors = new Float32Array(particleCount * 3);
     const prevPositions = new Float32Array(particleCount * 3);
-    const splashed = new Float32Array(particleCount); // Add splashed flag
+    const splashed = new Float32Array(particleCount);
     
     // Initialize particles in a small cluster at the emission point
     for (let i = 0; i < particleCount; i++) {
-      // Position near the starting point with slight randomness
-      const px = position[0] + (Math.random() - 0.5) * 0.1;
-      const py = position[1] + (Math.random() - 0.5) * 0.1;
-      const pz = position[2] + (Math.random() - 0.5) * 0.1;
-      
-      
-      positions[i * 3] = px;
-      positions[i * 3 + 1] = py;
-      positions[i * 3 + 2] = pz;
-      
-      // Store initial positions for trail calculation
-      prevPositions[i * 3] = px;
-      prevPositions[i * 3 + 1] = py;
-      prevPositions[i * 3 + 2] = pz;
-      
-      // Calculate direction toward target with some randomness
-      const dirX = target[0] - position[0] + (Math.random() - bleeding ? 0.25 :  0.5) * 0.2;
-      const dirY = target[1] - position[1] + (Math.random() - bleeding ? 0.25 :  0.5) * 0.2;
-      const dirZ = target[2] - position[2] + (Math.random() -  bleeding ? 0.25 : 0.5) * 0.2;
-      
-      // Normalize and set speed
-      const length = Math.sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ);
-      const speed = bleeding ? 0.085 : 0.1 + Math.random() * 0.05;
-
-      velocities[i * 3] = (dirX / length) * speed;
-      velocities[i * 3 + 1] = (dirY / length) * speed - 0.005;
-      velocities[i * 3 + 2] = (dirZ / length) * speed;
-      
-      // Random lifetime for each particle
-      lifetimes[i] = 0.7 + Math.random() * 1.8;
-      
-      // Varied sizes for particles
-      sizes[i] = 0.2 + Math.random() * 0.5;
-      
-      // Vary color slightly for more organic look
-      colors[i * 3] = 0.05 + Math.random() * 0.05;
-      colors[i * 3 + 1] = 0.5 + Math.random() * 0.2;
-      colors[i * 3 + 2] = 0.05 + Math.random() * 0.05;
-      
-      // Initialize as not splashed
-      splashed[i] = 0;
+      initializeParticle(i, positions, prevPositions, velocities, lifetimes, sizes, colors, splashed);
     }
     
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -76,15 +49,58 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
     geometry.userData.prevPositions = prevPositions;
     
     return geometry;
-  }, [position, target]);
+  }
   
-  // Splash particles are managed as a collection of independent systems
-  const splashSystems = useRef([]);
+  // Initialize a single particle
+  function initializeParticle(i, positions, prevPositions, velocities, lifetimes, sizes, colors, splashed) {
+    // Position near the starting point with slight randomness
+    const positionSpread = bleeding ? 0.45 : 0.1;
+    const px = position[0] + (Math.random() - 0.5) * positionSpread;
+    const py = position[1] + (Math.random() - 0.5) * positionSpread;
+    const pz = position[2] + (Math.random() - 0.5) * positionSpread;
+    
+    positions[i * 3] = px;
+    positions[i * 3 + 1] = py;
+    positions[i * 3 + 2] = pz;
+    
+    // Store initial positions for trail calculation
+    prevPositions[i * 3] = px;
+    prevPositions[i * 3 + 1] = py;
+    prevPositions[i * 3 + 2] = pz;
+    
+    // Calculate direction toward target with some randomness
+    const randomFactor = bleeding ? 0.25 : 0.5;
+    const directionRandomness = bleeding ? 0.35 : 0.2;
+    
+    const direction = calculateDirection(position, target, randomFactor, directionRandomness);
+    
+    // Set speed
+    const speed = bleeding ? 
+      CONSTANTS.BLEEDING_SPEED + Math.random() * 0.03 : 
+      CONSTANTS.NORMAL_SPEED_BASE + Math.random() * CONSTANTS.NORMAL_SPEED_RANDOM;
+    
+    const velocity = calculateVelocity(direction, speed);
+    
+    velocities[i * 3] = velocity.x;
+    velocities[i * 3 + 1] = velocity.y;
+    velocities[i * 3 + 2] = velocity.z;
+    
+    // Random lifetime for each particle
+    lifetimes[i] = CONSTANTS.PARTICLE_LIFETIME_BASE + Math.random() * CONSTANTS.PARTICLE_LIFETIME_RANDOM;
+    
+    // Varied sizes for particles
+    sizes[i] = CONSTANTS.PARTICLE_SIZE_BASE + Math.random() * CONSTANTS.PARTICLE_SIZE_RANDOM;
+    
+    // Vary color slightly for more organic look
+    createParticleColor(i, colors);
+    
+    // Initialize as not splashed
+    splashed[i] = 0;
+  }
   
-  // Function to create a new splash system
-  // Function to create a new splash system
-const createSplash = (x, y, z) => {
-    const splashSize = 12;
+  // Create a new splash particle system
+  const createSplash = (x, y, z) => {
+    const splashSize = CONSTANTS.SPLASH_SIZE;
     const splashGeometry = new THREE.BufferGeometry();
     
     const positions = new Float32Array(splashSize * 3);
@@ -92,27 +108,9 @@ const createSplash = (x, y, z) => {
     const sizes = new Float32Array(splashSize);
     const colors = new Float32Array(splashSize * 3);
     
-    // Remove the reference to state.clock.elapsedTime here
-    
     // Create splash particles in a tight cluster
     for (let i = 0; i < splashSize; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const radius = Math.random() * 0.07;
-      
-      positions[i * 3] = x + Math.cos(angle) * radius;
-      positions[i * 3 + 1] = y + 0.005; // Just above ground
-      positions[i * 3 + 2] = z + Math.sin(angle) * radius;
-      
-      // Longer lifetimes for splash particles
-      lifetimes[i] = 1.5 + Math.random() * 1.5;
-      
-      // Smaller sizes for splash particles
-      sizes[i] = 0.08 + Math.random() * 0.12;
-      
-      // Similar colors to flying goo
-      colors[i * 3] = 0.05 + Math.random() * 0.05;
-      colors[i * 3 + 1] = 0.5 + Math.random() * 0.2;
-      colors[i * 3 + 2] = 0.05 + Math.random() * 0.05;
+      initializeSplashParticle(i, x, y, z, positions, lifetimes, sizes, colors);
     }
     
     splashGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -121,17 +119,12 @@ const createSplash = (x, y, z) => {
     splashGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     
     // Create material
-    const splashMaterial = new THREE.PointsMaterial({
-      size: 0.13,
-      sizeAttenuation: true,
-      transparent: true,
-      opacity: 0.35,
-      vertexColors: true,
-      blending: THREE.AdditiveBlending,
-      map: texture,
-      color: bleeding ? 'red' : 'green',
-      depthWrite: false
-    });
+    const splashMaterial = createParticleMaterial(
+      texture, 
+      bleeding ? 'red' : 'green', 
+      0.13, 
+      0.35
+    );
     
     // Create points
     const splashPoints = new THREE.Points(splashGeometry, splashMaterial);
@@ -140,18 +133,45 @@ const createSplash = (x, y, z) => {
     // Add to scene
     splashParticlesRef.current.add(splashPoints);
     
-    // Add to managed systems with creation time (now using Date.now() instead)
+    // Add to managed systems with creation time
     splashSystems.current.push({
       points: splashPoints,
       geometry: splashGeometry,
       creationTime: Date.now() / 1000, // Current time in seconds
-      totalLifetime: 3.0 // Total time splash should exist
+      totalLifetime: CONSTANTS.SPLASH_LIFETIME
     });
   };
   
+  // Initialize a single splash particle
+  function initializeSplashParticle(i, x, y, z, positions, lifetimes, sizes, colors) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.random() * 0.07;
+    
+    positions[i * 3] = x + Math.cos(angle) * radius;
+    positions[i * 3 + 1] = y + 0.005; // Just above ground
+    positions[i * 3 + 2] = z + Math.sin(angle) * radius;
+    
+    // Longer lifetimes for splash particles
+    lifetimes[i] = CONSTANTS.SPLASH_PARTICLE_LIFETIME_BASE + Math.random() * CONSTANTS.SPLASH_PARTICLE_LIFETIME_RANDOM;
+    
+    // Smaller sizes for splash particles
+    sizes[i] = 0.08 + Math.random() * 0.12;
+    
+    // Similar colors to flying goo
+    createParticleColor(i, colors);
+  }
+  
   // Animation loop
   useFrame((state, delta) => {
-    // Update flying particles
+    const allDead = updateParticles(state, delta) && updateSplashSystems(state, delta);
+    
+    if (allDead) {
+      onComplete();
+    }
+  });
+  
+  // Update flying particles
+  function updateParticles(state, delta) {
     const positions = particles.attributes.position.array;
     const velocities = particles.attributes.velocity.array;
     const lifetimes = particles.attributes.lifetime.array;
@@ -163,15 +183,13 @@ const createSplash = (x, y, z) => {
     
     for (let i = 0; i < particleCount; i++) {
       // Store previous position before updating
-      prevPositions[i * 3] = positions[i * 3];
-      prevPositions[i * 3 + 1] = positions[i * 3 + 1];
-      prevPositions[i * 3 + 2] = positions[i * 3 + 2];
+      storeParticlePreviousPosition(i, positions, prevPositions);
       
       // Update lifetime
       lifetimes[i] -= delta;
       
       // Check if particle is about to die while still in air
-      if (lifetimes[i] <= 0 && positions[i * 3 + 1] > groundY && splashed[i] === 0) {
+      if (lifetimes[i] <= 0 && positions[i * 3 + 1] > CONSTANTS.GROUND_Y && splashed[i] === 0) {
         // Force it to live until it hits the ground
         lifetimes[i] = 0.1;
       }
@@ -179,60 +197,14 @@ const createSplash = (x, y, z) => {
       if (lifetimes[i] > 0) {
         allDead = false;
         
-        // Update position
-        positions[i * 3] += velocities[i * 3];
-        positions[i * 3 + 1] += velocities[i * 3 + 1];
-        positions[i * 3 + 2] += velocities[i * 3 + 2];
+        // Update particle position, velocity, and size
+        updateParticleMovement(i, positions, velocities, sizes, state);
         
-        // Add gravity effect
-        velocities[i * 3 + 1] -= 0.002; // Increased gravity
+        // Apply limited cohesion with other particles
+        applyParticleCohesion(i, positions, velocities);
         
-        // Add subtle wobbling/jiggling
-        positions[i * 3] += Math.sin(state.clock.elapsedTime * 10 + i) * 0.001;
-        positions[i * 3 + 2] += Math.cos(state.clock.elapsedTime * 8 + i) * 0.001;
-        
-        // Calculate current speed for size adjustment
-        const vx = velocities[i * 3];
-        const vy = velocities[i * 3 + 1];
-        const vz = velocities[i * 3 + 2];
-        const speed = Math.sqrt(vx*vx + vy*vy + vz*vz);
-        
-        // Make faster particles larger
-        sizes[i] = 0.2 + speed * 3;
-        
-        // Limited cohesion for better performance with high particle counts
-        for (let k = 0; k < 3; k++) { // Only check a few particles
-          const j = Math.floor(Math.random() * particleCount);
-          if (i !== j) {
-            const dx = positions[j * 3] - positions[i * 3];
-            const dy = positions[j * 3 + 1] - positions[i * 3 + 1];
-            const dz = positions[j * 3 + 2] - positions[i * 3 + 2];
-            const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
-            
-            if (dist < 0.4) { // Smaller range
-              const attractionFactor = 0.0008;
-              velocities[i * 3] += (dx / dist) * attractionFactor;
-              velocities[i * 3 + 1] += (dy / dist) * attractionFactor;
-              velocities[i * 3 + 2] += (dz / dist) * attractionFactor;
-            }
-          }
-        }
-        
-        // Check if particle crossed the ground plane this frame
-        if (prevPositions[i * 3 + 1] > groundY && positions[i * 3 + 1] <= groundY && splashed[i] === 0) {
-          // This particle just crossed the ground plane
-          positions[i * 3 + 1] = groundY; // Place it at ground level
-          splashed[i] = 1;
-          
-          // Create splash
-          createSplash(positions[i * 3], groundY, positions[i * 3 + 2]);
-        }
-        // Alternative detection if particle somehow got below ground without being detected
-        else if (positions[i * 3 + 1] < groundY - 0.2 && splashed[i] === 0) {
-          positions[i * 3 + 1] = groundY;
-          splashed[i] = 1;
-          createSplash(positions[i * 3], groundY, positions[i * 3 + 2]);
-        }
+        // Check for ground collision and create splash if needed
+        checkGroundCollision(i, positions, prevPositions, splashed);
         
         // Fade out particles near end of life
         if (lifetimes[i] < 0.3) {
@@ -241,8 +213,95 @@ const createSplash = (x, y, z) => {
       }
     }
     
-    // Update splash systems
+    // Update buffer attributes
+    particles.attributes.position.needsUpdate = true;
+    particles.attributes.lifetime.needsUpdate = true;
+    particles.attributes.size.needsUpdate = true;
+    particles.attributes.splashed.needsUpdate = true;
+    
+    return allDead;
+  }
+  
+  // Store previous position for a particle
+  function storeParticlePreviousPosition(i, positions, prevPositions) {
+    prevPositions[i * 3] = positions[i * 3];
+    prevPositions[i * 3 + 1] = positions[i * 3 + 1];
+    prevPositions[i * 3 + 2] = positions[i * 3 + 2];
+  }
+  
+  // Update particle position, velocity, and size
+  function updateParticleMovement(i, positions, velocities, sizes, state) {
+    // Update position
+    positions[i * 3] += velocities[i * 3];
+    positions[i * 3 + 1] += velocities[i * 3 + 1];
+    positions[i * 3 + 2] += velocities[i * 3 + 2];
+    
+    // Add gravity effect
+    velocities[i * 3 + 1] -= CONSTANTS.GRAVITY;
+    
+    // Add more randomness to bleeding particles motion
+    const wobbleAmount = bleeding ? 0.0015 : 0.001;
+    addWobbleMovement(positions, i, state.clock.elapsedTime, wobbleAmount);
+    
+    // For bleeding particles, add a small random drift to spread them out more
+    if (bleeding) {
+      velocities[i * 3] += (Math.random() - 0.5) * 0.0005;
+      velocities[i * 3 + 2] += (Math.random() - 0.5) * 0.0005;
+    }
+    
+    // Calculate current speed for size adjustment
+    const speed = calculateSpeed(
+      velocities[i * 3], 
+      velocities[i * 3 + 1], 
+      velocities[i * 3 + 2]
+    );
+    
+    // Make faster particles larger
+    sizes[i] = 0.2 + speed * 3;
+  }
+  
+  // Apply limited cohesion with other particles
+  function applyParticleCohesion(i, positions, velocities) {
+    for (let k = 0; k < CONSTANTS.COHESION_CHECK_COUNT; k++) {
+      const j = Math.floor(Math.random() * particleCount);
+      if (i !== j) {
+        const dx = positions[j * 3] - positions[i * 3];
+        const dy = positions[j * 3 + 1] - positions[i * 3 + 1];
+        const dz = positions[j * 3 + 2] - positions[i * 3 + 2];
+        const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        
+        if (dist < CONSTANTS.COHESION_RANGE) {
+          velocities[i * 3] += (dx / dist) * CONSTANTS.ATTRACTION_FACTOR;
+          velocities[i * 3 + 1] += (dy / dist) * CONSTANTS.ATTRACTION_FACTOR;
+          velocities[i * 3 + 2] += (dz / dist) * CONSTANTS.ATTRACTION_FACTOR;
+        }
+      }
+    }
+  }
+  
+  // Check for ground collision and create splash
+  function checkGroundCollision(i, positions, prevPositions, splashed) {
+    // Check if particle crossed the ground plane this frame
+    if (checkGroundHit(prevPositions[i * 3 + 1], positions[i * 3 + 1], CONSTANTS.GROUND_Y, splashed[i])) {
+      // This particle just crossed the ground plane
+      positions[i * 3 + 1] = CONSTANTS.GROUND_Y; // Place it at ground level
+      splashed[i] = 1;
+      
+      // Create splash
+      createSplash(positions[i * 3], CONSTANTS.GROUND_Y, positions[i * 3 + 2]);
+    }
+    // Alternative detection if particle somehow got below ground without being detected
+    else if (positions[i * 3 + 1] < CONSTANTS.GROUND_Y - 0.2 && splashed[i] === 0) {
+      positions[i * 3 + 1] = CONSTANTS.GROUND_Y;
+      splashed[i] = 1;
+      createSplash(positions[i * 3], CONSTANTS.GROUND_Y, positions[i * 3 + 2]);
+    }
+  }
+  
+  // Update splash particle systems
+  function updateSplashSystems(state, delta) {
     const currentTime = state.clock.elapsedTime;
+    let allDead = true;
     
     // Process each splash system
     for (let i = splashSystems.current.length - 1; i >= 0; i--) {
@@ -258,58 +317,57 @@ const createSplash = (x, y, z) => {
       }
       
       // Update splash particles
-      const splashPositions = system.geometry.attributes.position.array;
-      const splashLifetimes = system.geometry.attributes.lifetime.array;
-      const splashSizes = system.geometry.attributes.size.array;
+      allDead = updateSplashParticles(system, delta, currentTime) && allDead;
+    }
+    
+    return allDead;
+  }
+  
+  // Update individual splash particles within a system
+  function updateSplashParticles(system, delta, currentTime) {
+    const splashPositions = system.geometry.attributes.position.array;
+    const splashLifetimes = system.geometry.attributes.lifetime.array;
+    const splashSizes = system.geometry.attributes.size.array;
+    let allDead = true;
+    
+    for (let j = 0; j < splashLifetimes.length; j++) {
+      // Update lifetime
+      splashLifetimes[j] -= delta;
       
-      for (let j = 0; j < splashLifetimes.length; j++) {
-        // Update lifetime
-        splashLifetimes[j] -= delta;
+      if (splashLifetimes[j] > 0) {
+        allDead = false;
         
-        if (splashLifetimes[j] > 0) {
-          allDead = false;
+        // Very subtle movement
+        const fadeProgress = 1 - (splashLifetimes[j] / (1.5 + Math.random() * 1.5));
+        
+        // Slight spreading as they fade
+        if (fadeProgress < 0.7) {
+          const angle = Math.atan2(
+            splashPositions[j * 3 + 2] - system.points.position.z,
+            splashPositions[j * 3] - system.points.position.x
+          );
           
-          // Very subtle movement
-          const fadeProgress = 1 - (splashLifetimes[j] / (1.5 + Math.random() * 1.5));
-          
-          // Slight spreading as they fade
-          if (fadeProgress < 0.7) {
-            const angle = Math.atan2(
-              splashPositions[j * 3 + 2] - system.points.position.z,
-              splashPositions[j * 3] - system.points.position.x
-            );
-            
-            splashPositions[j * 3] += Math.cos(angle) * 0.0001;
-            splashPositions[j * 3 + 2] += Math.sin(angle) * 0.0001;
-          }
-          
-          // Subtle wobble
-          splashPositions[j * 3] += Math.sin(currentTime * 1.5 + j) * 0.0001;
-          splashPositions[j * 3 + 2] += Math.cos(currentTime * 1 + j) * 0.0001;
-          
-          // Fade out gradually
-          if (fadeProgress > 0.7) {
-            splashSizes[j] *= 0.98;
-          }
+          splashPositions[j * 3] += Math.cos(angle) * 0.0001;
+          splashPositions[j * 3 + 2] += Math.sin(angle) * 0.0001;
+        }
+        
+        // Subtle wobble
+        addWobbleMovement(splashPositions, j, currentTime, 0.0001);
+        
+        // Fade out gradually
+        if (fadeProgress > 0.7) {
+          splashSizes[j] *= 0.98;
         }
       }
-      
-      // Update buffer attributes
-      system.geometry.attributes.position.needsUpdate = true;
-      system.geometry.attributes.lifetime.needsUpdate = true;
-      system.geometry.attributes.size.needsUpdate = true;
     }
     
-    // Update flying particle attributes
-    particles.attributes.position.needsUpdate = true;
-    particles.attributes.lifetime.needsUpdate = true;
-    particles.attributes.size.needsUpdate = true;
-    particles.attributes.splashed.needsUpdate = true;
+    // Update buffer attributes
+    system.geometry.attributes.position.needsUpdate = true;
+    system.geometry.attributes.lifetime.needsUpdate = true;
+    system.geometry.attributes.size.needsUpdate = true;
     
-    if (allDead) {
-      onComplete();
-    }
-  });
+    return allDead;
+  }
   
   return (
     <>
@@ -318,10 +376,10 @@ const createSplash = (x, y, z) => {
         <primitive object={particles} attach="geometry" />
         <pointsMaterial
           attach="material"
-          size={bleeding ? 0.4 : 0.13}
+          size={bleeding ? 0.5 : 0.13}
           sizeAttenuation={true}
           transparent={true}
-          opacity={0.75}
+          opacity={bleeding ? 1 : 0.75}
           vertexColors={true}
           color={bleeding ? 'red' : 'green'}
           blending={THREE.AdditiveBlending}

@@ -24,6 +24,11 @@ const MainMenu = ({ onStartGame }) => {
     borderRadius: '10px',
     boxShadow: '0 0 20px rgba(255, 108, 48, 0.5)'
   };
+
+  const bannerStyle = {
+    maxWidth: '100%',
+    height: '20vh',
+  };
   
   const titleStyle = {
     fontSize: '42px',
@@ -89,6 +94,7 @@ const MainMenu = ({ onStartGame }) => {
   return (
     <div style={menuStyle}>
       <div style={contentStyle}>
+      <img src="/banner.webp" style={bannerStyle} alt="Ranch Horror" />
         <h1 style={titleStyle}>RANCH HORROR</h1>
         <p>Survive the night at the abandoned ranch. Beware of mutants.</p>
         

@@ -10,6 +10,7 @@ const RoachEffects = ({
   bleedRef, 
   onAttackComplete 
 }) => {
+  console.log("rendering")
   return (
     <>
       <RoachAttackEffect

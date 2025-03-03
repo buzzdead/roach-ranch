@@ -4,7 +4,7 @@ import MutantGoo from '../../effects/MutantGoo';
 
 const RoachBleed = ({ position, target }) => {
 const targetBlood = position.clone().add(target.clone())
-targetBlood.y += 1
+targetBlood.y += .31
   return (
     <MutantGoo 
       position={[position.x, position.y, position.z]} 

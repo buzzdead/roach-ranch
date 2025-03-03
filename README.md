@@ -1,6 +1,6 @@
 # Roach Ranch
 
-![Roach Ranch Banner](path/to/banner-image.png)
+![Roach Ranch Banner](/banner.webp)
 
 A horror game set in a mutant-infected ranch, created primarily through prompt engineering techniques.
 
@@ -32,7 +32,7 @@ The game is currently hosted at [https://roachranch.netlify.app](https://roachra
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/roach-ranch.git
+git clone https://github.com/buzzdead/roach-ranch.git
 
 # Navigate to the project directory
 cd roach-ranch
@@ -45,8 +45,8 @@ npm run dev
 
 ## 📷 Screenshots
 
-![Screenshot 1](path/to/screenshot1.png)
-![Screenshot 2](path/to/screenshot2.png)
+![Screenshot 1](/screenshot1.png)
+![Screenshot 2](/screenshot2.png)
 
 ## 🔮 Future Plans
 
