@@ -37,11 +37,9 @@ const Player = () => {
         if (object.isBone) {
           if (object.name === 'mixamorigLeftHand') {
             foundLeftHand = object;
-            console.log('Found left hand bone');
           }
           if (object.name === 'mixamorigRightHand') {
             foundRightHand = object;
-            console.log('Found right hand bone');
           }
         }
       });

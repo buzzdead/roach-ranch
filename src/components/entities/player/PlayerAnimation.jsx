@@ -15,7 +15,6 @@ export const PlayerAnimation = ({ actions, mixer, modelRef, camera, isInitialize
   // Initialize animations
   useEffect(() => {
     if (actions) {
-      console.log(actions)
       if (actions.Idle) {
         actions.Idle.setEffectiveWeight(1)
         actions.Idle.play();
@@ -125,7 +124,6 @@ export const PlayerAnimation = ({ actions, mixer, modelRef, camera, isInitialize
       
       // Apply animation changes if needed
       if (shouldStartWalking) {
-        console.log("Starting to walk");
         isMovingRef.current = true;
         
         // Switch to walking animation
@@ -133,7 +131,6 @@ export const PlayerAnimation = ({ actions, mixer, modelRef, camera, isInitialize
         if (actions.Walking) actions.Walking.reset().play();
       } 
       else if (shouldStopWalking) {
-        console.log("Stopping walk");
         isMovingRef.current = false;
         
         // Switch to idle animation

@@ -28,7 +28,7 @@ const PlayerCursor = () => {
   if (!animationState.aiming) return null;
   
   return (
-    <group ref={crosshairRef}>
+    <group ref={crosshairRef} scale={0.5}>
       {/* Horizontal line */}
       <mesh>
         <boxGeometry args={[0.1, 0.005, 0.001]} />

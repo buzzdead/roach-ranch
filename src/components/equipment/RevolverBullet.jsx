@@ -3,6 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import CollisionManager from '../../utils/CollisionManager';
 
 const BULLET_CONFIG = {
   modelPath: '/bullet.glb',
@@ -64,6 +65,21 @@ const RevolverBullet = ({ position, direction }) => {
     
     // Move bullet in direction
     const moveAmount = BULLET_CONFIG.speed * delta;
+
+    const bulletPosition = bulletGroupRef.current.position.clone();
+    const bulletRadius = 0.03; // Adjust based on your bullet size
+    
+    const collisionResult = CollisionManager.checkBulletPhysicalCollision(
+      bulletPosition,
+      bulletRadius
+    );
+    
+    // If hit something, deactivate bullet
+    if (collisionResult.hit) {
+      setIsActive(false);
+      return;
+    }
+    
     bulletGroupRef.current.position.add(bulletDirection.clone().multiplyScalar(moveAmount));
     
     // Ensure orientation stays fixed

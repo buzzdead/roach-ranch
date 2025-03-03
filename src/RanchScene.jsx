@@ -39,9 +39,16 @@ const RanchScene = () => {
       <ThirdPersonControls />
       <Player />
       <RanchHouse position={[0, 0, 0]} dilapidated={true} />
-      
+      <Roach position={[-2, 0.3, -14]} />
+
+<Roach position={[-1, 0.3, -14]} />
+
+<Roach position={[-5, 0.3, -14]} />
+
+<Roach position={[3, 0.3, -14]} />
       <Ground />
       </Physics>
+
 
       {/* Lighting - Slightly increased ambient for better visibility */}
       <ambientLight intensity={0.08} color="#111122" /> 
@@ -87,13 +94,7 @@ const RanchScene = () => {
       <Tree position={[20, 0, -16]} height={14} foliageSize={5} scale={0.55} />
       
       {/* Entities */}
-      <Roach position={[-2, 0.3, -14]} />
 
-      <Roach position={[-1, 0.3, -14]} />
-
-      <Roach position={[-5, 0.3, -14]} />
-
-      <Roach position={[3, 0.3, -14]} />
       {/* 
       <Roach position={[-4, 0, -14]} />
       <Roach position={[8, 0, -14]} />

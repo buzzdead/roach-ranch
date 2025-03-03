@@ -306,7 +306,6 @@ const createSplash = (x, y, z) => {
     particles.attributes.splashed.needsUpdate = true;
     
     if (allDead) {
-      console.log("completing")
       onComplete();
     }
   });

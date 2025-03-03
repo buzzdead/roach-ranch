@@ -70,6 +70,13 @@ export const Revolver = ({ bone }) => {
         const bulletDirection = new THREE.Vector3(0, 0, -1);
         bulletDirection.applyQuaternion(camera.quaternion);
         
+        // Create a ray from the muzzle position in the direction of the camera's forward vector
+        const targetPoint = new THREE.Vector3().copy(camera.position);
+        targetPoint.add(bulletDirection.clone().multiplyScalar(15));
+        
+        // Calculate direction from muzzle to this point on the camera's forward ray
+        const firingDirection = new THREE.Vector3().subVectors(targetPoint, muzzleWorldPos).normalize();
+        
         // Add new bullet with unique ID
         const newBulletId = Date.now();
         setBullets(prevBullets => [
@@ -77,7 +84,7 @@ export const Revolver = ({ bone }) => {
           {
             id: newBulletId,
             position: muzzleWorldPos,
-            direction: bulletDirection
+            direction: firingDirection
           }
         ]);
         
