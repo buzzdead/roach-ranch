@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useAttachToObject } from '../../hooks/useAttachToObject';
 import { LanternLight } from './LanternLight';
+import { modelCache } from '../../Preloader';
 
 // Constants for configuration
 const LANTERN_CONFIG = {
@@ -31,7 +32,7 @@ const LIGHT_CONFIG = {
  */
 export const Lantern = ({ bone }) => {
   // Load and memoize the 3D model
-  const { scene } = useGLTF(LANTERN_CONFIG.modelPath);
+  const { scene } = modelCache[LANTERN_CONFIG.modelPath];
   const lanternScene = useMemo(() => scene.clone(), [scene]);
   
   // Create refs for the component

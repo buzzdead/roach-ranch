@@ -25,7 +25,7 @@ export const useGameEffectsStore = create((set) => ({
                     id: nanoid(),
                     pos: position.clone(),
                     dir: bulletDirection.clone(),
-                    expiresAt: Date.now() + 2000, // Bleed lasts 2 second
+                    expiresAt: Date.now() + 3500, // Bleed lasts 2 second
                   },
                 ],
               },

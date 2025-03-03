@@ -4,6 +4,7 @@ import { useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import CollisionManager from '../../utils/CollisionManager';
+import { modelCache } from '../../Preloader';
 
 const BULLET_CONFIG = {
   modelPath: '/bullet.glb',
@@ -13,7 +14,7 @@ const BULLET_CONFIG = {
 };
 
 const RevolverBullet = ({ position, direction }) => {
-  const { scene } = useGLTF(BULLET_CONFIG.modelPath);
+  const { scene } = modelCache[BULLET_CONFIG.modelPath];
   const bulletGroupRef = useRef();
   const bulletModelRef = useRef();
   const startPosition = useRef(new THREE.Vector3().copy(position));
