@@ -1,6 +1,6 @@
 # Roach Ranch
 
-![Roach Ranch Banner](/banner.webp)
+![Roach Ranch Banner](public/banner.webp)
 
 A horror game set in a mutant-infected ranch, created primarily through prompt engineering techniques.
 
@@ -45,8 +45,8 @@ npm run dev
 
 ## 📷 Screenshots
 
-![Screenshot 1](/screenshot1.png)
-![Screenshot 2](/screenshot2.png)
+![Screenshot 1](public/screenshot1.png)
+![Screenshot 2](public/screenshot2.png)
 
 ## 🔮 Future Plans
 
