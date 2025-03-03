@@ -1,4 +1,4 @@
-// RoachAnimation.jsx
+// RoachAnimation.jsx (modified)
 import React, { useEffect } from 'react';
 import { useAnimations } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
@@ -12,20 +12,17 @@ const RoachAnimation = ({
   camera, 
   attackDistance, 
   attackCooldownRef, 
-  isAttacking, 
-  setIsAttacking 
+  isAttackingRef
 }) => {
   const { actions, mixer } = useAnimations(animations, originalScene);
 
   // Configure animations
   useEffect(() => {
     if (actions && actions.IdleMotion) {
-      // Configure the animation to play once and not loop
       actions.IdleMotion.loop = THREE.LoopOnce;
       actions.IdleMotion.clampWhenFinished = true;
-      actions.IdleMotion.timeScale = 1.5; // Adjust speed if needed
+      actions.IdleMotion.timeScale = 1.5;
       
-      // Set up animation completion listener
       mixer.addEventListener('finished', (e) => {
         if (e.action === actions.IdleMotion) {
           isAnimatingRef.current = false;
@@ -35,20 +32,24 @@ const RoachAnimation = ({
     if(actions && actions.WingsFlap) {
       actions.WingsFlap.timeScale = 15;
       actions.WingsFlap.clampWhenFinished = true;
-      actions.WingsFlap.loop = THREE.LoopRepeat
+      actions.WingsFlap.loop = THREE.LoopRepeat;
     }
   }, [actions, mixer, isAnimatingRef]);
 
-  useEffect(() => {
-    if(actions.WingsFlap && isAttacking) {
-      actions.WingsFlap.reset();
-      actions.WingsFlap.play();
+  // Animation update based on attack state
+  useFrame(() => {
+    if (actions.WingsFlap) {
+      if (isAttackingRef.current) {
+        if (!actions.WingsFlap.isRunning()) {
+          actions.WingsFlap.reset();
+          actions.WingsFlap.play();
+        }
+      } else if (actions.WingsFlap.isRunning()) {
+        actions.WingsFlap.reset();
+        actions.WingsFlap.stop();
+      }
     }
-    else if (actions.WingsFlap) {
-      actions.WingsFlap.reset();
-      actions.WingsFlap.stop();
-    }
-  }, [isAttacking])
+  });
   
   // Animation and attack logic
   useFrame((state, delta) => {
@@ -69,10 +70,10 @@ const RoachAnimation = ({
     // Check if player is in range and cooldown is finished
     if (distance < attackDistance && 
         attackCooldownRef.current <= 0 && 
-        !isAttacking && 
+        !isAttackingRef.current && 
         !isAnimatingRef.current) {
       
-      setIsAttacking(true);
+      isAttackingRef.current = true;
       // Trigger attack animation
       if (actions.IdleMotion) {
         isAnimatingRef.current = true;

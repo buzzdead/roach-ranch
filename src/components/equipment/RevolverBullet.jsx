@@ -71,7 +71,8 @@ const RevolverBullet = ({ position, direction }) => {
     
     const collisionResult = CollisionManager.checkBulletPhysicalCollision(
       bulletPosition,
-      bulletRadius
+      bulletRadius,
+      bulletDirection
     );
     
     // If hit something, deactivate bullet

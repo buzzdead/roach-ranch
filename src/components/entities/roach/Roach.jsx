@@ -1,36 +1,34 @@
-// Roach.jsx
-import React, { Suspense, useMemo, useRef, useState, useEffect } from 'react';
+// Roach.jsx (modified)
+import React, { Suspense, useMemo, useRef, useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useThree } from '@react-three/fiber';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import RoachModel from './RoachModel';
 import RoachAnimation from './RoachAnimation';
 import RoachAudio from './RoachAudio';
-import RoachAttack from './RoachAttack';
+import RoachEffects from './Effects/RoachEffects';
 import RoachLighting from './RoachLighting';
 import CollisionManager from '../../../utils/CollisionManager';
 import { Vector3 } from 'three'
-import RoachBleed from './RoachBleed';
 
 const Roach = ({ position }) => {
   const { scene, animations } = useGLTF('/mutant-new.glb');
   const originalScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { camera } = useThree();
   const modelRef = useRef();
-  const rbRef = useRef()
   const isAnimatingRef = useRef(false);
-  const [isAttacking, setIsAttacking] = useState(false);
   const attackCooldownRef = useRef(0);
-  const [bleed, setBleed] = useState({doesBleed: false, pos: new Vector3()})
-  const bleedRef = useRef(false)
+  
+  // References instead of state to prevent rerenders
+  const isAttackingRef = useRef(false);
+  const bleedRef = useRef({ doesBleed: false, pos: new Vector3(), bulletDirection: new Vector3() });
   
   // Constants
-  const attackDistance = 10; // Distance at which roach will attack
+  const attackDistance = 10;
 
   const handleAttackComplete = () => {
-    setIsAttacking(false);
+    isAttackingRef.current = false;
     // Schedule the next attack
-   
   };
 
   const jumpEvent = useMemo(() => {
@@ -43,9 +41,12 @@ const Roach = ({ position }) => {
   }, []);
 
   const setHealth = (p, m) => {
-    setBleed({doesBleed: true, pos: p.position.clone()});
+    console.log(p)
+    bleedRef.current = { doesBleed: true, pos: p.position.clone(), bulletDirection: p.bulletDirection.clone() };
     jumpEvent.trigger();
-    setTimeout(() => {setBleed({doesBleed: false, pos: new Vector3()})}, 2000);
+    setTimeout(() => {
+      bleedRef.current = { doesBleed: false, pos: new Vector3(), direction: new Vector3() };
+    }, 2000);
   }
 
   useEffect(() => {
@@ -57,7 +58,6 @@ const Roach = ({ position }) => {
       position,
       onHit: (p, m) => {
         setHealth(p, m);
-        // Add hit effects, sound, etc.
       }
     });
     
@@ -82,26 +82,24 @@ const Roach = ({ position }) => {
         camera={camera}
         attackDistance={attackDistance}
         attackCooldownRef={attackCooldownRef}
-        isAttacking={isAttacking}
-        setIsAttacking={setIsAttacking}
+        isAttackingRef={isAttackingRef}
       />
       
       <RoachAudio 
         position={position}
         isAnimatingRef={isAnimatingRef}
-        isAttacking={isAttacking}
+        isAttackingRef={isAttackingRef}
       />
       
-      {isAttacking && camera.userData.characterPos && (
-        <Suspense>
-        <RoachAttack 
+      <Suspense fallback={null}>
+        <RoachEffects
           position={position}
-          playerPosition={camera.userData.characterPos}
-          onComplete={handleAttackComplete}
+          camera={camera}
+          isAttackingRef={isAttackingRef}
+          bleedRef={bleedRef}
+          onAttackComplete={handleAttackComplete}
         />
-        </Suspense>
-      )}
-      {bleed.doesBleed && <Suspense><RoachBleed position={bleed.pos} /></Suspense>}
+      </Suspense>
     </>
   );
 };

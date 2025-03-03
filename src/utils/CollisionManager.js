@@ -43,7 +43,7 @@ const CollisionManager = {
     return { hit: false };
   },
 
-  checkBulletPhysicalCollision(bulletPosition, bulletRadius) {
+  checkBulletPhysicalCollision(bulletPosition, bulletRadius, bulletDirection) {
     for (const enemy of this.enemies) {
       if (!enemy.mesh) continue;
       
@@ -67,7 +67,8 @@ const CollisionManager = {
           
           enemy.onHit && enemy.onHit({
             position: hitPoint,
-            mesh: mesh
+            mesh: mesh,
+            bulletDirection: bulletDirection
           });
           
           return {

@@ -26,7 +26,7 @@ const RoachModel = forwardRef(({ originalScene, position, triggerJump  }, ref) =
     if (triggerJump) {
       const handleJump = () => {
         if (rbRef.current) { // Ensure the rigid body is ready
-          rbRef.current.applyImpulse({ x: 0, y: 7.5, z: 0 }, true); // `true` wakes the body
+          rbRef.current.applyImpulse({ x: 0, y: 5.5, z: 0 }, true); // `true` wakes the body
         }
       };
       

@@ -2,10 +2,10 @@ import { useRef, useMemo, useState } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 
-const MutantGoo = ({ position, target, onComplete }) => {
+const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   const particlesRef = useRef();
   const splashParticlesRef = useRef();
-  const particleCount = 50;
+  const particleCount = bleeding ? 100 : 150;
   const texture = useLoader(THREE.TextureLoader, './textures/goo-particle1.png');
   
   // Track ground level
@@ -40,13 +40,13 @@ const MutantGoo = ({ position, target, onComplete }) => {
       prevPositions[i * 3 + 2] = pz;
       
       // Calculate direction toward target with some randomness
-      const dirX = target[0] - position[0] + (Math.random() - 0.5) * 0.2;
-      const dirY = target[1] - position[1] + (Math.random() - 0.5) * 0.2;
-      const dirZ = target[2] - position[2] + (Math.random() - 0.5) * 0.2;
+      const dirX = target[0] - position[0] + (Math.random() - bleeding ? 0.25 :  0.5) * 0.2;
+      const dirY = target[1] - position[1] + (Math.random() - bleeding ? 0.25 :  0.5) * 0.2;
+      const dirZ = target[2] - position[2] + (Math.random() -  bleeding ? 0.25 : 0.5) * 0.2;
       
       // Normalize and set speed
       const length = Math.sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ);
-      const speed = 0.1 + Math.random() * 0.05;
+      const speed = bleeding ? 0.085 : 0.1 + Math.random() * 0.05;
 
       velocities[i * 3] = (dirX / length) * speed;
       velocities[i * 3 + 1] = (dirY / length) * speed - 0.005;
@@ -129,6 +129,7 @@ const createSplash = (x, y, z) => {
       vertexColors: true,
       blending: THREE.AdditiveBlending,
       map: texture,
+      color: bleeding ? 'red' : 'green',
       depthWrite: false
     });
     
@@ -317,11 +318,12 @@ const createSplash = (x, y, z) => {
         <primitive object={particles} attach="geometry" />
         <pointsMaterial
           attach="material"
-          size={0.13}
+          size={bleeding ? 0.4 : 0.13}
           sizeAttenuation={true}
           transparent={true}
           opacity={0.75}
           vertexColors={true}
+          color={bleeding ? 'red' : 'green'}
           blending={THREE.AdditiveBlending}
           map={texture}
           depthWrite={false}
