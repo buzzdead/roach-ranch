@@ -9,19 +9,21 @@ import RoachAudio from './RoachAudio';
 import RoachEffects from './Effects/RoachEffects';
 import RoachLighting from './RoachLighting';
 import CollisionManager from '../../../utils/CollisionManager';
-import { Vector3 } from 'three'
+import { useGameEffectsStore } from '../../../context/gameEffectsStore'
+import { useShallow } from 'zustand/react/shallow'; 
 
-const Roach = ({ position }) => {
+const Roach = ({id, position }) => {
   const { scene, animations } = useGLTF('/mutant-new.glb');
   const originalScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { camera } = useThree();
   const modelRef = useRef();
   const isAnimatingRef = useRef(false);
   const attackCooldownRef = useRef(0);
-  
+  const addBleed = useGameEffectsStore(
+    useShallow((state) => state.addBleed)
+  );
   // References instead of state to prevent rerenders
   const isAttackingRef = useRef(false);
-  const bleedRef = useRef({ doesBleed: false, pos: new Vector3(), bulletDirection: new Vector3() });
   
   // Constants
   const attackDistance = 10;
@@ -41,12 +43,9 @@ const Roach = ({ position }) => {
   }, []);
 
   const setHealth = (p, m) => {
-    console.log(p)
-    bleedRef.current = { doesBleed: true, pos: p.position.clone(), bulletDirection: p.bulletDirection.clone() };
     jumpEvent.trigger();
-    setTimeout(() => {
-      bleedRef.current = { doesBleed: false, pos: new Vector3(), direction: new Vector3() };
-    }, 2000);
+    addBleed(id, p.position, p.bulletDirection);
+    
   }
 
   useEffect(() => {
@@ -64,7 +63,7 @@ const Roach = ({ position }) => {
     // Unregister when unmounted
     return unregister;
   }, [position]);
-
+  console.log("rerendering main")
   return (
     <>
       <RoachLighting position={position} />
@@ -96,8 +95,8 @@ const Roach = ({ position }) => {
           position={position}
           camera={camera}
           isAttackingRef={isAttackingRef}
-          bleedRef={bleedRef}
           onAttackComplete={handleAttackComplete}
+          roachId={id}
         />
       </Suspense>
     </>

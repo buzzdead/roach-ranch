@@ -6,7 +6,6 @@ import * as THREE from 'three';
 
 import ThirdPersonControls from './components/controls/ThirdPersonControls';
 import Player from './components/entities/player/Player';
-import Roach from './components/entities/roach/Roach';
 import Tree from './components/entities/Tree';
 import Ground from './components/environment/Ground';
 import RanchHouse from './components/environment/RanchHouse';
@@ -17,6 +16,7 @@ import MysteriousBoundary from './components/effects/AtmosphericBoundary';
 import HorrorMoon from './components/environment/SpookyMoon';
 import { SoundProvider } from './context/SoundContext';
 import { PlayerProvider } from './context/PlayerContext';
+import Enemies from './Enemies';
 
 
 const RanchScene = () => {
@@ -39,13 +39,7 @@ const RanchScene = () => {
       <ThirdPersonControls />
       <Player />
       <RanchHouse position={[0, 0, 0]} dilapidated={true} />
-      <Roach position={[-2, 0.3, -14]} />
-
-<Roach position={[-1, 0.3, -14]} />
-
-<Roach position={[-5, 0.3, -14]} />
-
-<Roach position={[3, 0.3, -14]} />
+      <Enemies />
       <Ground />
       </Physics>
 

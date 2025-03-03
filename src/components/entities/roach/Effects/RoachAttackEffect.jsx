@@ -37,4 +37,4 @@ const RoachAttackEffect = ({
   );
 };
 
-export default RoachAttackEffect;
+export default React.memo(RoachAttackEffect);

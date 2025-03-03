@@ -15,4 +15,4 @@ targetBlood.y += .31
   );
 };
 
-export default RoachBleed;
+export default React.memo(RoachBleed);

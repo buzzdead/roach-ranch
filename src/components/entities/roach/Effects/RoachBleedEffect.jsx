@@ -1,37 +1,37 @@
-// RoachBleedEffect.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { useFrame } from '@react-three/fiber';
 import RoachBleed from '../RoachBleed';
+import { useGameEffectsStore } from '../../../../context/gameEffectsStore';
+import { useShallow } from 'zustand/react/shallow'; 
 
-const RoachBleedEffect = ({ 
-  bleedRef
-}) => {
-  const [showBleed, setShowBleed] = useState(false);
-  const [bleedPosition, setBleedPosition] = useState(null);
-  const [bulletDirection, setBulletDirection] = useState(null);
+const RoachBleedEffect = ({ roachId }) => {
+  const bleeds = useGameEffectsStore(
+    useShallow((state) =>
+      state.roaches.find((r) => r.id === roachId)?.effects.bleeds || []
+    )
+  );
+  const removeBleed = useGameEffectsStore((state) => state.removeBleed);
 
-  // Check ref and update local state for rendering
   useFrame(() => {
-    // Update bleed state
-    if (bleedRef.current.doesBleed !== showBleed) {
-      setShowBleed(bleedRef.current.doesBleed);
-      if (bleedRef.current.doesBleed) {
-        setBleedPosition(bleedRef.current.pos.clone());
-        setBulletDirection(bleedRef.current.bulletDirection);
+    const now = Date.now();
+    bleeds.forEach((bleed) => {
+      if (bleed.expiresAt <= now) {
+        removeBleed(bleed.id);
       }
-    }
+    });
   });
 
   return (
     <>
-      {showBleed && bleedPosition && (
-        <RoachBleed 
-          position={bleedPosition} 
-          target={bulletDirection}
+      {bleeds.map((bleed) => (
+        <RoachBleed
+          key={bleed.id}
+          position={bleed.pos}
+          target={bleed.dir}
         />
-      )}
+      ))}
     </>
   );
 };
 
-export default RoachBleedEffect;
+export default React.memo(RoachBleedEffect);
