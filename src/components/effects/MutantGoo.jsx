@@ -18,7 +18,7 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   const splashParticlesRef = useRef();
   const splashSystems = useRef([]);
   const particleCount = bleeding ? CONSTANTS.BLEEDING_PARTICLE_COUNT : CONSTANTS.NORMAL_PARTICLE_COUNT;
-  const texture = textureCache['/textures/goo-particle1.png'];
+  const texture = textureCache['/goo-particle1.png'];
 
   // Make sure the texture exists
   useEffect(() => {

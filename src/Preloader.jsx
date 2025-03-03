@@ -16,8 +16,8 @@ const MODELS = [
 const TEXTURES = [
   '/gravel_road_diff_1k.jpg',
   '/gravel_road_nor_gl_1k.jpg',
-  '/textures/goo-particle1.png',
-  '/textures/goo-particle.png'
+  '/goo-particle1.png',
+  '/goo-particle.png'
 ];
 
 export const textureCache = {};
@@ -66,7 +66,7 @@ const Preload = ({ onComplete }) => {
         try {
           await new Promise((resolve, reject) => {
             gltfLoader.load(
-              modelPath,
+              "/models" + modelPath,
               (gltf) => {
                 modelCache[modelPath] = gltf;
                 modelsLoadedRef.current += 1;
@@ -106,7 +106,7 @@ const Preload = ({ onComplete }) => {
         try {
           await new Promise((resolve, reject) => {
             textureLoader.load(
-              texturePath,
+              "/textures" + texturePath,
               (texture) => {
                 textureCache[texturePath] = texture;
                 texturesLoadedRef.current += 1;

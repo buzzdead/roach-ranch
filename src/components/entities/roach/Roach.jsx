@@ -11,9 +11,10 @@ import RoachLighting from './RoachLighting';
 import CollisionManager from '../../../utils/CollisionManager';
 import { useGameEffectsStore } from '../../../context/gameEffectsStore'
 import { useShallow } from 'zustand/react/shallow'; 
+import { modelCache } from '../../../Preloader';
 
 const Roach = ({id, position }) => {
-  const { scene, animations } = useGLTF('/mutant-new.glb');
+  const { scene, animations } = modelCache['/mutant-new.glb'];
   const originalScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { camera } = useThree();
   const modelRef = useRef();
