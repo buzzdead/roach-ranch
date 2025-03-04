@@ -2,6 +2,15 @@ import * as THREE from 'three'
 
 const CollisionManager = {
   enemies: [],
+  player: null,
+
+  registerPlayer(playerRef) {
+    playerRef.current.traverse(child => {
+      if(child.isMesh)
+        this.player = child
+    })
+    console.log(this.player)
+  },
   
   registerEnemy(enemy) {
     this.enemies.push(enemy);
@@ -9,6 +18,68 @@ const CollisionManager = {
       this.enemies = this.enemies.filter(e => e !== enemy);
     };
   },
+
+  // Add to your CollisionManager
+checkParticlePlayerCollision(particlePosition, particleRadius) {
+  if (!this.player) return { hit: false };
+  
+  // Option 1: Use a cone shape as we discussed
+  const playerPosition = new THREE.Vector3();
+  this.player.getWorldPosition(playerPosition);
+  
+  // Define cone parameters (adjust these to fit your player)
+  const conePosition = playerPosition.clone();
+  conePosition.y += 1.75; // Adjust to center of player
+  const coneHeight = 1.7;
+  const coneTopRadius = 0.5;
+  const coneBottomRadius = 0.2;
+  
+  if (this._isPointInConeFrustum(
+    particlePosition,
+    conePosition, 
+    new THREE.Vector3(0, -1, 0), // Down direction
+    coneHeight,
+    coneTopRadius,
+    coneBottomRadius
+  )) {
+    // Calculate hit point (this is simplified - could be improved)
+    const hitPoint = particlePosition.clone();
+    
+    // Trigger player hit event
+    if (this.player && this.player.onHit) {
+      this.player.onHit({
+        position: hitPoint,
+        particleDirection: new THREE.Vector3() // You'd calculate this from particle movement
+      });
+    }
+    
+    return {
+      hit: true,
+      position: hitPoint
+    };
+  }
+  
+  return { hit: false };
+},
+
+// Helper function for cone frustum collision (cone with different top and bottom radii)
+_isPointInConeFrustum(point, conePosition, coneDirection, coneHeight, topRadius, bottomRadius) {
+  // Convert point to local cone space
+  const localPoint = point.clone().sub(conePosition);
+  
+  // Project point onto cone axis
+  const heightProjection = localPoint.dot(coneDirection);
+  if (heightProjection < 0 || heightProjection > coneHeight) return false;
+  
+  // Calculate distance from cone axis
+  const projectedPoint = coneDirection.clone().multiplyScalar(heightProjection);
+  const distanceFromAxis = localPoint.clone().sub(projectedPoint).length();
+  
+  // Calculate radius at this height using linear interpolation
+  const radiusAtHeight = topRadius + (bottomRadius - topRadius) * (heightProjection / coneHeight);
+  
+  return distanceFromAxis <= radiusAtHeight;
+},
   
   // Main collision detection function
   checkBulletCollisions(bulletPosition, bulletDirection, maxDistance) {

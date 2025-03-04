@@ -12,6 +12,7 @@ import {
   checkGroundHit
 } from '../../utils/particleUtils';
 import { textureCache } from '../../Preloader';
+import CollisionManager from '../../utils/CollisionManager';
 
 const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   const particlesRef = useRef();
@@ -190,6 +191,7 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
     let allDead = true;
     
     for (let i = 0; i < particleCount; i++) {
+      
       // Store previous position before updating
       storeParticlePreviousPosition(i, positions, prevPositions);
       
@@ -213,7 +215,11 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
         
         // Check for ground collision and create splash if needed
         checkGroundCollision(i, positions, prevPositions, splashed);
-        
+        if(splashed[i]) {
+          lifetimes[i] = 0; sizes[i] = 0;
+          positions[i * 3 + 1] = 0; positions[i * 3 + 1] = 0;
+          positions[i * 3 + 2] = 0; positions[i * 3 + 2] = 0;
+        };
         // Fade out particles near end of life
         if (lifetimes[i] < 0.3) {
           sizes[i] *= 0.95;
@@ -289,21 +295,63 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   
   // Check for ground collision and create splash
   function checkGroundCollision(i, positions, prevPositions, splashed) {
-    // Check if particle crossed the ground plane this frame
-    if (checkGroundHit(prevPositions[i * 3 + 1], positions[i * 3 + 1], CONSTANTS.GROUND_Y, splashed[i])) {
-      // This particle just crossed the ground plane
-      positions[i * 3 + 1] = CONSTANTS.GROUND_Y; // Place it at ground level
-      splashed[i] = 1;
+    // Get the particle position as a Vector3
+    const particlePosition = new THREE.Vector3(
+      positions[i * 3],
+      positions[i * 3 + 1],
+      positions[i * 3 + 2]
+    );
+    
+    const prevParticlePosition = new THREE.Vector3(
+      prevPositions[i * 3],
+      prevPositions[i * 3 + 1],
+      prevPositions[i * 3 + 2]
+    );
+    
+    // Define particle radius
+    const particleRadius = 0.05;
+    
+    // Check player collision only if player is not already bleeding
+    if (!bleeding) {
+      const playerCollision = CollisionManager.checkParticlePlayerCollision(
+        particlePosition, 
+        particleRadius
+      );
       
-      // Create splash
-      createSplash(positions[i * 3], CONSTANTS.GROUND_Y, positions[i * 3 + 2]);
+      if (playerCollision.hit && splashed[i] === 0) {
+        // Particle hit the player
+        splashed[i] = 1;
+        // Create splash at hit position
+        createSplash(
+          playerCollision.position.x,
+          playerCollision.position.y,
+          playerCollision.position.z
+        );
+        
+        // Set player to bleeding state
+        
+        // You might want to start a bleeding effect or damage timer here
+        // startBleedingEffect();
+        
+        return true;
+      }
     }
-    // Alternative detection if particle somehow got below ground without being detected
+    
+    // Check ground collision if no player hit occurred
+    if (checkGroundHit(prevPositions[i * 3 + 1], positions[i * 3 + 1], CONSTANTS.GROUND_Y, splashed[i])) {
+      positions[i * 3 + 1] = CONSTANTS.GROUND_Y;
+      splashed[i] = 1;
+      createSplash(positions[i * 3], CONSTANTS.GROUND_Y, positions[i * 3 + 2]);
+      return true;
+    }
     else if (positions[i * 3 + 1] < CONSTANTS.GROUND_Y - 0.2 && splashed[i] === 0) {
       positions[i * 3 + 1] = CONSTANTS.GROUND_Y;
       splashed[i] = 1;
       createSplash(positions[i * 3], CONSTANTS.GROUND_Y, positions[i * 3 + 2]);
+      return true;
     }
+    
+    return false;
   }
   
   // Update splash particle systems
@@ -339,6 +387,15 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
     let allDead = true;
     
     for (let j = 0; j < splashLifetimes.length; j++) {
+      if (splashPositions[j * 3 + 1] > CONSTANTS.GROUND_Y) {
+        // Move down with gravity
+        splashPositions[j * 3 + 1] -= 0.05 * Math.random(); // Adjust this value for drip speed
+        
+        // Stop at ground level
+        if (splashPositions[j * 3 + 1] < CONSTANTS.GROUND_Y) {
+          splashPositions[j * 3 + 1] = CONSTANTS.GROUND_Y;
+        }
+      }
       // Update lifetime
       splashLifetimes[j] -= delta;
       
