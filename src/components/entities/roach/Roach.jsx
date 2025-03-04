@@ -14,10 +14,11 @@ import { useShallow } from 'zustand/react/shallow';
 import { modelCache } from '../../../Preloader';
 
 const Roach = ({id, position }) => {
-  const { scene, animations } = modelCache['/mutant-new.glb'];
+  const { scene, animations } = modelCache['/mutant-new2.glb'];
   const originalScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { camera } = useThree();
   const modelRef = useRef();
+  const deadRef = useRef(false)
   const isAnimatingRef = useRef(false);
   const attackCooldownRef = useRef(0);
   const addBleed = useGameEffectsStore(
@@ -45,7 +46,9 @@ const Roach = ({id, position }) => {
 
   const setHealth = (p, m) => {
     jumpEvent.trigger();
-    addBleed(id, p.position, p.bulletDirection);
+    const newHealth = addBleed(id, p.position, p.bulletDirection);
+    if(newHealth <= 0) deadRef.current = true
+    console.log(newHealth)
     
   }
 
@@ -67,13 +70,15 @@ const Roach = ({id, position }) => {
   console.log("rerendering main")
   return (
     <>
-      <RoachLighting position={position} />
+      
       <RoachModel 
         ref={modelRef}
         originalScene={originalScene}
         position={position}
         triggerJump={jumpEvent}
-      />
+      >
+      
+      </RoachModel>
       <RoachAnimation 
         originalScene={originalScene}
         animations={animations}
@@ -83,6 +88,7 @@ const Roach = ({id, position }) => {
         attackDistance={attackDistance}
         attackCooldownRef={attackCooldownRef}
         isAttackingRef={isAttackingRef}
+        deadRef={deadRef}
       />
       
       <RoachAudio 

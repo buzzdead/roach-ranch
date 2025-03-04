@@ -7,9 +7,9 @@ const RoachLighting = ({ position }) => {
   return (
     <pointLight
       ref={lightRef}
-      position={[position[0] + 0.2, position[1] + 0.55, position[2] + 0.35]}
-      intensity={0.151}
-      color="white"
+      position={[0.2,0.75,0.15]}
+      intensity={.7351}
+      color="orange"
     />
   );
 };

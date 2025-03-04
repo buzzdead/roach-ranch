@@ -23,6 +23,7 @@ const RanchScene = () => {
   return (
     <Canvas
       shadows
+      gl={{powerPreference: "high-performance" }}
       style={{width: '100vw', height: '100vh'}}
       onCreated={({ gl, scene }) => {
         // Make sure background is explicitly set here

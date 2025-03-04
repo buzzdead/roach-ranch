@@ -1,5 +1,5 @@
 // RoachAnimation.jsx (modified)
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAnimations } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -12,10 +12,11 @@ const RoachAnimation = ({
   camera, 
   attackDistance, 
   attackCooldownRef, 
-  isAttackingRef
+  isAttackingRef,
+  deadRef
 }) => {
   const { actions, mixer } = useAnimations(animations, originalScene);
-
+  const finished = useRef(false)
   // Configure animations
   useEffect(() => {
     if (actions && actions.IdleMotion) {
@@ -34,10 +35,17 @@ const RoachAnimation = ({
       actions.WingsFlap.clampWhenFinished = true;
       actions.WingsFlap.loop = THREE.LoopRepeat;
     }
+    if (actions && actions.Fold) {
+      actions.Fold.loop = THREE.LoopOnce; // Play once
+      actions.Fold.clampWhenFinished = true; // Stop at last keyframe
+      actions.Fold.timeScale = 5; // Adjust speed as needed
+    }
+
   }, [actions, mixer, isAnimatingRef]);
 
   // Animation update based on attack state
   useFrame(() => {
+    if(deadRef.current) return;
     if (actions.WingsFlap) {
       if (isAttackingRef.current) {
         if (!actions.WingsFlap.isRunning()) {
@@ -53,6 +61,7 @@ const RoachAnimation = ({
   
   // Animation and attack logic
   useFrame((state, delta) => {
+    if(deadRef.current) return;
     // Update attack cooldown
     if (attackCooldownRef.current > 0) {
       attackCooldownRef.current -= delta;
@@ -89,7 +98,23 @@ const RoachAnimation = ({
       mixer.update(delta);
     }
   });
-  
+  useFrame(() => {
+    if (deadRef.current && actions.Fold && !finished.current) {
+      // Stop all other animations
+      Object.values(actions).forEach((action) => {
+        if (action && action.isRunning() && action !== actions.Fold) {
+          action.stop();
+        }
+      });
+
+      // Play Fold animation if not already running
+      if (!actions.Fold.isRunning()) {
+        actions.Fold.reset();
+        actions.Fold.play();
+      }
+      finished.current = true
+    }
+  });
   return null;
 };
 

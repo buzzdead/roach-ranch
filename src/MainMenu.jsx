@@ -78,7 +78,7 @@ const MainMenu = ({ onStartGame }) => {
     fontWeight: 'bold',
     borderRadius: '5px',
     cursor: 'pointer',
-    marginTop: '20px',
+    marginBottom: '20px',
     boxShadow: '0 4px 0 #c04b20',
     transition: 'all 0.2s ease'
   };
@@ -139,9 +139,6 @@ const MainMenu = ({ onStartGame }) => {
             </div>
           </div>
         </div>
-        
-        <p>Click to lock cursor. Press ESC to unlock cursor.</p>
-        
         <button 
           style={{
             ...buttonStyle,
@@ -153,6 +150,9 @@ const MainMenu = ({ onStartGame }) => {
         >
           START GAME
         </button>
+        <p>Click to lock cursor. Press ESC to unlock cursor.</p>
+        
+       
       </div>
     </div>
   );

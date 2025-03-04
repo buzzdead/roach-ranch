@@ -2,6 +2,7 @@
 import React, { forwardRef, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { RigidBody } from '@react-three/rapier';
+import RoachLighting  from './RoachLighting'
 
 const RoachModel = forwardRef(({ originalScene, position, triggerJump  }, ref) => {
   // Set up the base appearance
@@ -46,7 +47,9 @@ const RoachModel = forwardRef(({ originalScene, position, triggerJump  }, ref) =
       object={originalScene} 
       position={position} 
       scale={[1.25, 1.25, 1.25]} 
-    />
+    >
+        <RoachLighting position={position} />
+    </primitive>
     </RigidBody>
   );
 });
