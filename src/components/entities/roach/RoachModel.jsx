@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { RigidBody } from '@react-three/rapier';
 import RoachLighting  from './RoachLighting'
 
-const RoachModel = forwardRef(({ originalScene, position, triggerJump  }, ref) => {
+const RoachModel = forwardRef(({ originalScene, position, triggerImpact, triggerJump }, ref) => {
   // Set up the base appearance
   const rbRef = useRef()
 
@@ -24,17 +24,42 @@ const RoachModel = forwardRef(({ originalScene, position, triggerJump  }, ref) =
     });
   }, [originalScene]);
   useEffect(() => {
+    const cleanupFunctions = [];
+    
+    if (triggerImpact) {
+      const handleImpact = (bulletDirection) => {
+        if (rbRef.current) {
+          const impulse = {
+            x: bulletDirection?.x * 3 || 0,
+            y: 5.5,
+            z: bulletDirection?.z * 3 || 0
+          };
+          rbRef.current.applyImpulse(impulse, true);
+        }
+      };
+      
+      triggerImpact.subscribe(handleImpact);
+      cleanupFunctions.push(() => triggerImpact.unsubscribe(handleImpact));
+    }
+  
     if (triggerJump) {
       const handleJump = () => {
-        if (rbRef.current) { // Ensure the rigid body is ready
-          rbRef.current.applyImpulse({ x: 0, y: 5.5, z: 0 }, true); // `true` wakes the body
+        if (rbRef.current) {
+          const jump = {
+            x: 0,
+            y: 21,
+            z: 0
+          };
+          rbRef.current.applyImpulse(jump, true);
         }
       };
       
       triggerJump.subscribe(handleJump);
-      return () => triggerJump.unsubscribe(handleJump);
+      cleanupFunctions.push(() => triggerJump.unsubscribe(handleJump));
     }
-  }, [triggerJump]);
+    
+    return () => cleanupFunctions.forEach(cleanup => cleanup());
+  }, [triggerImpact, triggerJump]);
 
   return (
     <RigidBody   enabledRotations={[false, true, false]}

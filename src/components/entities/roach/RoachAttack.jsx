@@ -7,12 +7,12 @@ const RoachAttack = ({ position, playerPosition, onComplete }) => {
     <MutantGoo 
       position={[
         position[0],
-        position[1] + 0.5, // Adjust to mouth position
+        position[1] + 1, // Adjust to mouth position
         position[2]
       ]} 
       target={[
         playerPosition.x,
-        playerPosition.y + 1, // Target player's center
+        playerPosition.y + 1.5, // Target player's center
         playerPosition.z
       ]}
       onComplete={onComplete}

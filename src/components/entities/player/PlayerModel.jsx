@@ -1,5 +1,5 @@
 // PlayerModel.jsx
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 
 export const PlayerModel = forwardRef(({ scene, camera }, ref) => {

@@ -1,21 +1,28 @@
-// RoachAttackEffect.jsx
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import RoachAttack from '../RoachAttack';
 
-const RoachAttackEffect = ({ 
-  position, 
-  camera, 
-  isAttackingRef, 
-  onAttackComplete 
-}) => {
+const RoachAttackEffect = ({ position, camera, isAttackingRef, onAttackComplete, handleJump }) => {
   const [showAttack, setShowAttack] = useState(false);
-
-  // Check ref and update local state for rendering
+  const jumpTriggeredRef = useRef(false);
   useFrame(() => {
-    // Update attack state
-    if (isAttackingRef.current !== showAttack) {
-      setShowAttack(isAttackingRef.current);
+    // Starting attack
+    if (isAttackingRef.current && !showAttack && !jumpTriggeredRef.current) {
+      // Mark jump as triggered
+      jumpTriggeredRef.current = true;
+      
+      // Trigger jump
+      handleJump.trigger();
+      
+      // Delay attack animation
+      setTimeout(() => {
+        setShowAttack(true);
+      }, 350);
+    } 
+    // Ending attack
+    else if (!isAttackingRef.current && showAttack) {
+      setShowAttack(false);
+      jumpTriggeredRef.current = false;
     }
   });
 

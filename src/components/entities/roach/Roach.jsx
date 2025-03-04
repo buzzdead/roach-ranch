@@ -35,6 +35,15 @@ const Roach = ({id, position }) => {
     // Schedule the next attack
   };
 
+  const impactEvent = useMemo(() => {
+    const subscribers = [];
+    return {
+      trigger: (direction) => subscribers.forEach(fn => fn(direction)),
+      subscribe: (fn) => subscribers.push(fn),
+      unsubscribe: (fn) => subscribers.splice(subscribers.indexOf(fn), 1)
+    };
+  }, []);
+
   const jumpEvent = useMemo(() => {
     const subscribers = [];
     return {
@@ -45,10 +54,9 @@ const Roach = ({id, position }) => {
   }, []);
 
   const setHealth = (p, m) => {
-    jumpEvent.trigger();
+    impactEvent.trigger(p.bulletDirection);
     const newHealth = addBleed(id, p.position, p.bulletDirection);
     if(newHealth <= 0) deadRef.current = true
-    console.log(newHealth)
     
   }
 
@@ -67,7 +75,7 @@ const Roach = ({id, position }) => {
     // Unregister when unmounted
     return unregister;
   }, [position]);
-  console.log("rerendering main")
+
   return (
     <>
       
@@ -75,10 +83,9 @@ const Roach = ({id, position }) => {
         ref={modelRef}
         originalScene={originalScene}
         position={position}
+        triggerImpact={impactEvent}
         triggerJump={jumpEvent}
-      >
-      
-      </RoachModel>
+      />
       <RoachAnimation 
         originalScene={originalScene}
         animations={animations}
@@ -104,6 +111,7 @@ const Roach = ({id, position }) => {
           isAttackingRef={isAttackingRef}
           onAttackComplete={handleAttackComplete}
           roachId={id}
+          handleJump={jumpEvent}
         />
       </Suspense>
     </>

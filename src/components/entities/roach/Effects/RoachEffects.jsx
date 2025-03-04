@@ -8,9 +8,10 @@ const RoachEffects = ({
   camera, 
   isAttackingRef, 
   onAttackComplete,
-  roachId
+  roachId,
+  handleJump
 }) => {
-  console.log("rendedring effects")
+  
   return (
     <>
       <RoachAttackEffect
@@ -18,6 +19,7 @@ const RoachEffects = ({
         camera={camera}
         isAttackingRef={isAttackingRef}
         onAttackComplete={onAttackComplete}
+        handleJump={handleJump}
       />
       <RoachBleedEffect 
         roachId={roachId}

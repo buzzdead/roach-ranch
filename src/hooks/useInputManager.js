@@ -7,7 +7,7 @@ export const useInputManager = () => {
   const inputState = useRef({
     movement: { forward: 0, backward: 0, left: 0, right: 0 },
     actions: { jump: false, aim: false, fire: false },
-    rotation: { x: 0, y: 0 },
+    rotation: { x: 3.15, y: -0.3 },
     fireCount: 0 // Counter for firing events
   });
 
@@ -16,8 +16,8 @@ export const useInputManager = () => {
       if (document.pointerLockElement === document.body) {
         inputState.current.rotation.x -= e.movementX * 0.002;
         inputState.current.rotation.y = Math.max(
-          -Math.PI / 3,
-          Math.min(Math.PI / 3, inputState.current.rotation.y - e.movementY * 0.002)
+          -Math.PI / 4.5,
+          Math.min(Math.PI / 4.5, inputState.current.rotation.y - e.movementY * 0.002)
         );
       }
     };
