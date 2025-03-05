@@ -16,7 +16,7 @@ export const useGameEffectsStore = create((set) => ({
     set((state) => ({
       roaches: state.roaches.map((roach) => {
         if (roach.id === roachId) {
-          newHealth = Math.max(roach.health - damage, 0); // Reduce health by 25, min 0
+          newHealth = Math.max(roach.health - damage, -25); // Reduce health by 25, min 0
           return {
             ...roach,
             health: newHealth, // Update health

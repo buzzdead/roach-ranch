@@ -5,11 +5,12 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 
 // List of all 3D models to preload
 const MODELS = [
-  '/revolver.glb',
-  '/lantern.glb',
+  '/revolver1.glb',
+  '/lantern1.glb',
   '/mutant-new2.glb',
   '/rancher3.glb',
-  '/bullet.glb'
+  '/bullet.glb',
+  '/Roach-Chitin.glb'
 ];
 
 // List of all textures to preload

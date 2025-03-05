@@ -1,5 +1,5 @@
 // Roach.jsx (modified)
-import React, { Suspense, useMemo, useRef, useEffect } from 'react';
+import React, { Suspense, useMemo, useRef, useEffect, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
@@ -20,6 +20,7 @@ const Roach = ({id, position }) => {
   const modelRef = useRef();
   const deadRef = useRef(false)
   const isAnimatingRef = useRef(false);
+  const [isDead, setIsDead] = useState(false)
   const attackCooldownRef = useRef(0);
   const addBleed = useGameEffectsStore(
     useShallow((state) => state.addBleed)
@@ -57,6 +58,8 @@ const Roach = ({id, position }) => {
     impactEvent.trigger(p.bulletDirection);
     const newHealth = addBleed(id, p.position, p.bulletDirection);
     if(newHealth <= 0) deadRef.current = true
+    console.log(newHealth)
+    if(newHealth < 0) setIsDead(true)
     
   }
 
@@ -85,6 +88,7 @@ const Roach = ({id, position }) => {
         position={position}
         triggerImpact={impactEvent}
         triggerJump={jumpEvent}
+        isDead={isDead}
       />
       <RoachAnimation 
         originalScene={originalScene}

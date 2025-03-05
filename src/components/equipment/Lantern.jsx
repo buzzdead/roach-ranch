@@ -9,7 +9,7 @@ import { modelCache } from '../../Preloader';
 
 // Constants for configuration
 const LANTERN_CONFIG = {
-  modelPath: '/lantern.glb',
+  modelPath: '/lantern1.glb',
   position: [-0.05, 0.3, 0],
   rotation: [0, -Math.PI/2, Math.PI],
   scale: [0.25, 0.25, 0.25],
