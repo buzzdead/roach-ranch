@@ -20,7 +20,9 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   const splashSystems = useRef([]);
   const particleCount = bleeding ? CONSTANTS.BLEEDING_PARTICLE_COUNT : CONSTANTS.NORMAL_PARTICLE_COUNT;
   const texture = textureCache['/goo-particle1.png'];
-
+  const SPLASH_DISTANCE_THRESHOLD = 0.2; // Reduce redundant splashes
+  const SPLASH_CREATION_LIMIT = 5; // Max new splashes per frame
+  let splashCreationCount = 0;
   // Make sure the texture exists
   useEffect(() => {
     if (!texture) {
@@ -109,45 +111,45 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   
   // Create a new splash particle system
   const createSplash = (x, y, z) => {
-    const splashSize = CONSTANTS.SPLASH_SIZE;
-    const splashGeometry = new THREE.BufferGeometry();
+    if (splashCreationCount >= SPLASH_CREATION_LIMIT) return; // Limit per frame
     
+    // Check if there's already a splash nearby
+    for (let i = 0; i < splashSystems.current.length; i++) {
+      const system = splashSystems.current[i];
+      const distance = Math.hypot(system.points.position.x - x, system.points.position.z - z);
+      if (distance < SPLASH_DISTANCE_THRESHOLD) {
+        return; // Skip creating a redundant splash
+      }
+    }
+  
+    splashCreationCount++;
+  
+    const splashGeometry = new THREE.BufferGeometry();
+    const splashSize = CONSTANTS.SPLASH_SIZE;
     const positions = new Float32Array(splashSize * 3);
     const lifetimes = new Float32Array(splashSize);
     const sizes = new Float32Array(splashSize);
     const colors = new Float32Array(splashSize * 3);
-    
-    // Create splash particles in a tight cluster
+  
     for (let i = 0; i < splashSize; i++) {
       initializeSplashParticle(i, x, y, z, positions, lifetimes, sizes, colors);
     }
-    
-    splashGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    splashGeometry.setAttribute('lifetime', new THREE.BufferAttribute(lifetimes, 1));
-    splashGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-    splashGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    
-    // Create material
-    const splashMaterial = createParticleMaterial(
-      texture, 
-      bleeding ? 'red' : 'green', 
-      0.13, 
-      0.35
-    );
-    
-    // Create points
+  
+    splashGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    splashGeometry.setAttribute("lifetime", new THREE.BufferAttribute(lifetimes, 1));
+    splashGeometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
+    splashGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  
+    const splashMaterial = createParticleMaterial(texture, bleeding ? "red" : "green", 0.33, 0.35);
     const splashPoints = new THREE.Points(splashGeometry, splashMaterial);
     splashPoints.position.set(0, 0, 0);
-    
-    // Add to scene
+  
     splashParticlesRef.current.add(splashPoints);
-    
-    // Add to managed systems with creation time
     splashSystems.current.push({
       points: splashPoints,
       geometry: splashGeometry,
-      creationTime: Date.now() / 1000, // Current time in seconds
-      totalLifetime: CONSTANTS.SPLASH_LIFETIME
+      creationTime: Date.now() / 1000,
+      totalLifetime: CONSTANTS.SPLASH_LIFETIME,
     });
   };
   
@@ -173,7 +175,7 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   // Animation loop
   useFrame((state, delta) => {
     const allDead = updateParticles(state, delta) && updateSplashSystems(state, delta);
-    
+    splashCreationCount = 0;
     if (allDead) {
       onComplete();
     }
@@ -217,8 +219,7 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
         checkGroundCollision(i, positions, prevPositions, splashed);
         if(splashed[i]) {
           lifetimes[i] = 0; sizes[i] = 0;
-          positions[i * 3 + 1] = 0; positions[i * 3 + 1] = 0;
-          positions[i * 3 + 2] = 0; positions[i * 3 + 2] = 0;
+          positions[i * 3 + 1] = 0;
         };
         // Fade out particles near end of life
         if (lifetimes[i] < 0.3) {
@@ -302,11 +303,6 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
       positions[i * 3 + 2]
     );
     
-    const prevParticlePosition = new THREE.Vector3(
-      prevPositions[i * 3],
-      prevPositions[i * 3 + 1],
-      prevPositions[i * 3 + 2]
-    );
     
     // Define particle radius
     const particleRadius = 0.05;
@@ -441,7 +437,7 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
         <primitive object={particles} attach="geometry" />
         <pointsMaterial
           attach="material"
-          size={bleeding ? 0.5 : 0.13}
+          size={bleeding ? 0.75 : 0.13}
           sizeAttenuation={true}
           transparent={true}
           opacity={bleeding ? 1 : 0.75}

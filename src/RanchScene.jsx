@@ -17,7 +17,7 @@ import HorrorMoon from './components/environment/SpookyMoon';
 import { SoundProvider } from './context/SoundContext';
 import { PlayerProvider } from './context/PlayerContext';
 import Enemies from './Enemies';
-
+import { Stats } from '@react-three/drei';
 
 const RanchScene = () => {
   return (
@@ -32,6 +32,7 @@ const RanchScene = () => {
         gl.setClearColor('#050505');
       }}
     >
+       <Stats />
     <SoundProvider>
       <PlayerProvider>
         <Physics gravity={[0, -9.81, 0]}>
@@ -56,19 +57,18 @@ const RanchScene = () => {
       <pointLight position={[-6, 6, 9]} intensity={0.8} color="#ff6830" distance={15} decay={2} />
       <pointLight position={[6, 6, 9]} intensity={0.8} color="#ff6830" distance={15} decay={2} />
      <HorrorMoon />
-        
-        <Stars 
-        radius={300} 
-        depth={50} 
-        count={5000} 
-        factor={4} 
-        saturation={0} 
-        fade 
-      />
+     <Stars 
+    radius={300} 
+    depth={50} 
+    count={1000} 
+    factor={4} 
+    saturation={.5} 
+    factorColors={[new THREE.Color(1, 0.8, 0.8), new THREE.Color(0.8, 0.8, 1), new THREE.Color(1, 1, 0.8)]}
+  />
       {/* Porch light */}
       <spotLight 
         position={[0, 5.5, -5.5]} 
-        intensity={1.0} 
+        intensity={3.0} 
         angle={0.5} 
         penumbra={0.7} 
         distance={15} 
