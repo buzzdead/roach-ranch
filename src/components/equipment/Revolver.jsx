@@ -115,7 +115,10 @@ export const Revolver = ({ bone }) => {
       });
     };
   }, [revolverScene]);
+  const handleRemoveBullet = (id) => {
+    setBullets(prevBullets => prevBullets.filter(pb => pb.id !== id))
 
+  }
   return (
     <>
       <group ref={groupRef}>
@@ -166,6 +169,7 @@ export const Revolver = ({ bone }) => {
           key={bullet.id}
           position={bullet.position}
           direction={bullet.direction}
+          removeBullet={() => handleRemoveBullet(bullet.id)}
         />
       ))}
     </>

@@ -19,9 +19,10 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   const splashParticlesRef = useRef();
   const splashSystems = useRef([]);
   const particleCount = bleeding ? CONSTANTS.BLEEDING_PARTICLE_COUNT : CONSTANTS.NORMAL_PARTICLE_COUNT;
-  const texture = textureCache['/goo-particle1.png'];
+  const texture = bleeding ? textureCache['/blood.png'] : textureCache['/goo-particle1.png'];
   const SPLASH_DISTANCE_THRESHOLD = 0.2; // Reduce redundant splashes
   const SPLASH_CREATION_LIMIT = 5; // Max new splashes per frame
+   const splashMaterial = createParticleMaterial(texture, bleeding ? "#880808" : "green", 0.33, bleeding ? .06 : 0.1);
   let splashCreationCount = 0;
   // Make sure the texture exists
   useEffect(() => {
@@ -140,7 +141,6 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
     splashGeometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
     splashGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
   
-    const splashMaterial = createParticleMaterial(texture, bleeding ? "red" : "green", 0.33, 0.35);
     const splashPoints = new THREE.Points(splashGeometry, splashMaterial);
     splashPoints.position.set(0, 0, 0);
   
@@ -437,13 +437,13 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
         <primitive object={particles} attach="geometry" />
         <pointsMaterial
           attach="material"
-          size={bleeding ? 0.75 : 0.13}
+          size={bleeding ? .84171 : 0.53}
           sizeAttenuation={true}
-          transparent={true}
-          opacity={bleeding ? 1 : 0.75}
           vertexColors={true}
-          color={bleeding ? 'red' : 'green'}
+          transparent={true}
+          opacity={bleeding ? 1 : 0.35}
           blending={THREE.AdditiveBlending}
+          color={bleeding ? '#880808' : 'green'}
           map={texture}
           depthWrite={false}
         />

@@ -17,7 +17,8 @@ const TEXTURES = [
   '/gravel_road_diff_1k.jpg',
   '/gravel_road_nor_gl_1k.jpg',
   '/goo-particle1.png',
-  '/goo-particle.png'
+  '/goo-particle.png',
+  '/blood.png'
 ];
 
 export const textureCache = {};

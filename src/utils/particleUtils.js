@@ -12,8 +12,8 @@ export const CONSTANTS = {
   PARTICLE_SIZE_RANDOM: 0.5,
   
   // Bleeding specific
-  BLEEDING_PARTICLE_COUNT: 85,
-  NORMAL_PARTICLE_COUNT: 150,
+  BLEEDING_PARTICLE_COUNT: 65,
+  NORMAL_PARTICLE_COUNT: 65,
   BLEEDING_SPEED: 0.085,
   BLEEDING_SPEED_RADOM: 0.02,
   NORMAL_SPEED_BASE: 0.1,
@@ -59,13 +59,14 @@ export function calculateVelocity(direction, speed) {
 
 // Create material for particles
 export function createParticleMaterial(texture, color, size, opacity = 0.75) {
+  const myColor = new THREE.Color(color)
   return new THREE.PointsMaterial({
     size,
     sizeAttenuation: true,
     transparent: true,
     opacity,
-    vertexColors: true,
-    color,
+    vertexColors: false,
+    color: myColor,
     blending: THREE.AdditiveBlending,
     map: texture,
     depthWrite: false

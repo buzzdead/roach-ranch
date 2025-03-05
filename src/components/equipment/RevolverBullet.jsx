@@ -13,14 +13,24 @@ const BULLET_CONFIG = {
   maxDistance: 100,  // Maximum travel distance before removal
 };
 
-const RevolverBullet = ({ position, direction }) => {
+const RevolverBullet = ({ position, direction, removeBullet }) => {
   const { scene } = modelCache[BULLET_CONFIG.modelPath];
+  scene.traverse((child) => {
+    if (child.isMesh && child.material) {
+     
+    }
+  });
   const bulletGroupRef = useRef();
   const bulletModelRef = useRef();
   const startPosition = useRef(new THREE.Vector3().copy(position));
   const initialQuaternion = useRef(new THREE.Quaternion());
-  const { scene: threeScene } = useThree();
   const [isActive, setIsActive] = useState(true);
+
+  useEffect(() => {
+    if(!isActive) {
+      removeBullet()
+    }
+  }, [])
   
   // Calculate rotation to face direction
   const bulletDirection = direction.clone().normalize();
