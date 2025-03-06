@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { nanoid } from 'nanoid';
 
-export const useGameEffectsStore = create((set) => ({
+export const useGameEffectsStore = create((set, get) => ({
   roaches: [
     { id: nanoid(), position: [-2, 0.3, -14], health: 75, effects: { bleeds: [] } },
     { id: nanoid(), position: [-1, 0.3, -14], health: 75, effects: { bleeds: [] } },
@@ -11,8 +11,42 @@ export const useGameEffectsStore = create((set) => ({
   ],
   loot: {
     chitin: [
-
     ]
+  },
+
+  player: {
+    resources: {
+      chitin: 0
+    }
+  },
+
+  pickupLoot: (lootId, type) => {
+    const state = get();
+    
+    // Find the loot item
+    const lootItem = state.loot[type]?.find(item => item.id === lootId);
+    
+    if (lootItem) {
+      // Add to player resources
+      set((state) => ({
+        player: {
+          ...state.player,
+          resources: {
+            ...state.player.resources,
+            [type]: (state.player.resources[type] || 0) + 1
+          }
+        },
+        // Remove the item from the world
+        loot: {
+          ...state.loot,
+          [type]: state.loot[type].filter(item => item.id !== lootId)
+        }
+      }));
+      
+      return true;
+    }
+    
+    return false;
   },
 
   // Add a bleed to a specific roach

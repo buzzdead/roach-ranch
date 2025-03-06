@@ -31,6 +31,7 @@ const RanchScene = () => {
         gl.setClearColor('#050505');
       }}
     >
+    
        <Stats />
     <SoundProvider>
       <PlayerProvider>
