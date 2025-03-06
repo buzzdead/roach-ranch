@@ -23,15 +23,27 @@ class SoundManager {
     sound.setVolume(options.volume || 1);
     sound.setLoop(options.loop || false);
     
+    // Apply playback rate if provided (this affects both speed and pitch)
+    if (options.playbackRate !== undefined) {
+      sound.setPlaybackRate(options.playbackRate);
+    }
+    
     const id = Date.now().toString(36) + Math.random().toString(36).substr(2);
     this.sounds[id] = { sound };
     
     return {
       id,
-      play: () => sound.play(),
+      play: (playOptions = {}) => {
+        // Allow overriding playback rate when playing
+        if (playOptions.playbackRate !== undefined) {
+          sound.setPlaybackRate(playOptions.playbackRate);
+        }
+        return sound.play();
+      },
       stop: () => sound.stop(),
       isPlaying: () => sound.isPlaying,
       setVolume: (vol) => sound.setVolume(vol),
+      setPlaybackRate: (rate) => sound.setPlaybackRate(rate),
       remove: () => {
         sound.stop();
         delete this.sounds[id];

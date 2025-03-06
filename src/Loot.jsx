@@ -290,8 +290,9 @@ const Loot = () => {
     if (soundManager) {
       // Create a global pickup sound (not tied to position)
       pickupSoundRef.current = soundManager.createSound('PickUp', {
-        volume: 0.15, // Adjust volume as needed
-        loop: false
+        volume: 0.15,
+        loop: false,
+        playbackRate: 1.025 // Higher pitch and faster
       });
       
       return () => {
@@ -344,7 +345,7 @@ const Loot = () => {
           if (pickupSoundRef.current.isPlaying()) {
             pickupSoundRef.current.stop();
           }
-          pickupSoundRef.current.play();
+          pickupSoundRef.current.play({playbackRate: 1.025});
         }
       }
     });

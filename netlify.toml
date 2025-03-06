@@ -1,8 +1,0 @@
-[[headers]]
-  for = "/models/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-[[redirects]]
-  from = "/*.glb"
-  to = "/models/:splat"
-  status = 200
