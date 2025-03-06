@@ -76,6 +76,3 @@ export const Lantern = ({ bone }) => {
     </group>
   );
 };
-
-// Preload the model for better performance
-useGLTF.preload(LANTERN_CONFIG.modelPath);

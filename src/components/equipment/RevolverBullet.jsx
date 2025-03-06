@@ -125,5 +125,3 @@ const RevolverBullet = ({ position, direction, removeBullet }) => {
 };
 
 export default RevolverBullet;
-
-useGLTF.preload(BULLET_CONFIG.modelPath);

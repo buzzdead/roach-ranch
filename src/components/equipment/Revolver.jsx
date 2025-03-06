@@ -175,5 +175,3 @@ export const Revolver = ({ bone }) => {
     </>
   );
 };
-
-useGLTF.preload(REVOLVER_CONFIG.modelPath);

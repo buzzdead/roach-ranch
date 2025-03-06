@@ -68,7 +68,7 @@ const Preload = ({ onComplete }) => {
         try {
           await new Promise((resolve, reject) => {
             gltfLoader.load(
-              "/models" + modelPath,
+              "models" + modelPath,
               (gltf) => {
                 modelCache[modelPath] = gltf;
                 modelsLoadedRef.current += 1;
@@ -108,7 +108,7 @@ const Preload = ({ onComplete }) => {
         try {
           await new Promise((resolve, reject) => {
             textureLoader.load(
-              "/textures" + texturePath,
+              "textures" + texturePath,
               (texture) => {
                 textureCache[texturePath] = texture;
                 texturesLoadedRef.current += 1;
