@@ -9,6 +9,11 @@ export const useGameEffectsStore = create((set) => ({
     { id: nanoid(), position: [-5, 0.3, -14], health: 75, effects: { bleeds: [] } },
     { id: nanoid(), position: [3, 0.3, -14], health: 75, effects: { bleeds: [] } },
   ],
+  loot: {
+    chitin: [
+
+    ]
+  },
 
   // Add a bleed to a specific roach
   addBleed: (roachId, position, bulletDirection, damage = 25) => {
@@ -65,4 +70,36 @@ export const useGameEffectsStore = create((set) => ({
     set((state) => ({
       roaches: [...state.roaches, { id: nanoid(), position, health: 75, effects: { bleeds: [] } }],
     })),
+  removeRoach: (roachId) => 
+    set((state) => ({
+      roaches: state.roaches.filter(r => r.id !== roachId)
+    })),
+    addLoot: (type, position) => 
+      set((state) => {
+        // Create a new loot item
+        const newLoot = {
+          id: nanoid(),
+          position: position.clone ? position.clone() : position, // Handle both Vector3 and array positions
+          type: type, // 'chitin' or other future loot types
+          model: type === 'chitin' ? 'Roach-Chitin.glb' : null, // Map type to model
+          createdAt: Date.now()
+        };
+        
+        // Add to the appropriate loot array
+        return {
+          loot: {
+            ...state.loot,
+            [type]: [...(state.loot[type] || []), newLoot]
+          }
+        };
+      }),
+    
+    // Remove a specific loot item by ID
+    removeLoot: (type, lootId) => 
+      set((state) => ({
+        loot: {
+          ...state.loot,
+          [type]: (state.loot[type] || []).filter(item => item.id !== lootId)
+        }
+      }))
 }));

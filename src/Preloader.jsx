@@ -7,8 +7,8 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 const MODELS = [
   '/revolver1.glb',
   '/lantern1.glb',
-  '/mutant-new2.glb',
-  '/rancher3.glb',
+  '/mutant-new3.glb',
+  '/rancher.glb',
   '/bullet.glb',
   '/Roach-Chitin.glb'
 ];

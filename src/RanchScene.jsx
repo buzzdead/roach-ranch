@@ -1,5 +1,5 @@
 // RanchScene.jsx - Adding ranch house lighting
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { PerspectiveCamera, Stars } from '@react-three/drei';
 import * as THREE from 'three';
@@ -18,6 +18,7 @@ import { SoundProvider } from './context/SoundContext';
 import { PlayerProvider } from './context/PlayerContext';
 import Enemies from './Enemies';
 import { Stats } from '@react-three/drei';
+import Loot from './Loot';
 
 const RanchScene = () => {
   return (
@@ -26,9 +27,7 @@ const RanchScene = () => {
       gl={{powerPreference: "high-performance" }}
       style={{width: '100vw', height: '100vh'}}
       onCreated={({ gl, scene }) => {
-        // Make sure background is explicitly set here
         scene.background = new THREE.Color('#050505');
-        // Set clear color as well
         gl.setClearColor('#050505');
       }}
     >
@@ -36,26 +35,14 @@ const RanchScene = () => {
     <SoundProvider>
       <PlayerProvider>
         <Physics gravity={[0, -9.81, 0]}>
-      {/* Main camera setup */}
       <PerspectiveCamera makeDefault position={[0, 6, 10]} fov={60} far={10000} />
       <ThirdPersonControls />
       <Player />
       <RanchHouse position={[0, 0, 0]} dilapidated={true} />
       <Enemies />
+      <Loot />
       <Ground />
       </Physics>
-
-
-      {/* Lighting - Slightly increased ambient for better visibility */}
-      <ambientLight intensity={0.08} color="#111122" /> 
-      
-      {/* Very dim environment lighting for minimal visibility */}
-      <hemisphereLight intensity={0.12} color="#222244" groundColor="#221100" />
-      
-      {/* Ranch house lighting */}
-      {/* Window lights - positioned near the windows */}
-      <pointLight position={[-6, 6, 9]} intensity={0.8} color="#ff6830" distance={15} decay={2} />
-      <pointLight position={[6, 6, 9]} intensity={0.8} color="#ff6830" distance={15} decay={2} />
      <HorrorMoon />
      <Stars 
     radius={300} 
@@ -65,40 +52,16 @@ const RanchScene = () => {
     saturation={.5} 
     factorColors={[new THREE.Color(1, 0.8, 0.8), new THREE.Color(0.8, 0.8, 1), new THREE.Color(1, 1, 0.8)]}
   />
-      {/* Porch light */}
-      <spotLight 
-        position={[0, 5.5, -5.5]} 
-        intensity={3.0} 
-        angle={0.5} 
-        penumbra={0.7} 
-        distance={15} 
-        color="#ff9c50" 
-        target-position={[0, 0, -8]} 
-        castShadow 
-      />
-      
-      {/* Subtle ground light from the doorway */}
-      <pointLight position={[0, 2, 1]} intensity={0.7} color="#ff9c50" distance={8} decay={2} />
-     
-      {/* Environment */}
 
       <AnimatedGrassBillboards count={50000} />
-      
       <Tree position={[-2, 0, -16]} height={12} foliageSize={4} scale={0.5} />
       <Tree position={[8, 0, -16]} height={9} foliageSize={3} type="dense" scale={0.4} />
       <Tree position={[20, 0, -16]} height={14} foliageSize={5} scale={0.55} />
-      
-      {/* Entities */}
-
-      {/* 
-      <Roach position={[-4, 0, -14]} />
-      <Roach position={[8, 0, -14]} />
-      <Roach position={[7, 0, -14]} /> */}
       <MysteriousBoundary radius={50} intensity={2.5} />
-
-      {/* Slightly less dense fog for better visibility of the ranch */}
-      <fog attach="fog" args={['#050505', 12, 40]} />
+      <ambientLight intensity={.1}/>
+        <Suspense>
       <SceneEffects />
+      </Suspense>
       </PlayerProvider>
       </SoundProvider>
     </Canvas>

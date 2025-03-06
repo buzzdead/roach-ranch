@@ -8,7 +8,6 @@ const MemoizedRoach = memo(Roach);
 
 const Enemies = () => {
   const roaches = useGameEffectsStore(useShallow((state) => state.roaches));
-
   return (
     <>
       {roaches.map((roach) => (
@@ -22,4 +21,4 @@ const Enemies = () => {
   );
 };
 
-export default Enemies;
+export default React.memo(Enemies);

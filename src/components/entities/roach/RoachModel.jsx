@@ -17,11 +17,9 @@ const RoachModel = forwardRef(({ originalScene, position, triggerImpact, trigger
     originalScene.traverse(child => {
       if (child.isMesh && child.material) {
         child.material = child.material.clone();
-        child.material.roughness = 1;
-        child.material.metalness = 1;
-        child.material.envMapIntensity = 5.5;
-        child.material.emissive = new THREE.Color(0x220000);
-        child.material.emissiveIntensity = 0.2;
+        child.material.metalness = 0.051;  // Makes it slightly reflective
+        child.material.roughness = 0.7;
+
         child.material.transparent = true;
         child.material.needsUpdate = true;
         materials.push(child.material);
@@ -102,7 +100,7 @@ const RoachModel = forwardRef(({ originalScene, position, triggerImpact, trigger
         position={position}
         scale={[1.25, 1.25, 1.25]}
       >
-        <RoachLighting position={position} />
+        
       </primitive>
     </RigidBody>
   );

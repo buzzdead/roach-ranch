@@ -11,7 +11,7 @@ import PlayerCursor from './PlayerCursor';
 import { modelCache } from '../../../Preloader'
 
 const Player = () => {
-  const { scene, animations } = modelCache['/rancher3.glb']
+  const { scene, animations } = modelCache['/rancher.glb']
   const { camera } = useThree();
   const modelRef = useRef();
   const isInitializedRef = useRef(false);

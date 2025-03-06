@@ -22,7 +22,7 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   const texture = bleeding ? textureCache['/blood.png'] : textureCache['/goo-particle1.png'];
   const SPLASH_DISTANCE_THRESHOLD = 0.2; // Reduce redundant splashes
   const SPLASH_CREATION_LIMIT = 5; // Max new splashes per frame
-   const splashMaterial = createParticleMaterial(texture, bleeding ? "#880808" : "green", 0.33, bleeding ? .06 : 0.1);
+   const splashMaterial = createParticleMaterial(texture, bleeding ? "#880808" : "green", bleeding ? 0.23 : 0.33, bleeding ? .06 : 0.1);
   let splashCreationCount = 0;
   // Make sure the texture exists
   useEffect(() => {
@@ -437,7 +437,7 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
         <primitive object={particles} attach="geometry" />
         <pointsMaterial
           attach="material"
-          size={bleeding ? .84171 : 0.53}
+          size={bleeding ? .64171 : 0.53}
           sizeAttenuation={true}
           vertexColors={true}
           transparent={true}

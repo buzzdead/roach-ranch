@@ -345,25 +345,10 @@ const RanchHouse = ({ position = [0, 0, 0], dilapidated = true }) => {
           <boxGeometry args={[9, 10, 0.5]} />
           <primitive object={materials.walls} attach="material" />
         </mesh>
-        <pointLight position={[-6, 6, 8]} intensity={1.2} color="#ff6830" distance={25} decay={2} />
-    <pointLight position={[6, 6, 8]} intensity={1.2} color="#ff6830" distance={25} decay={2} />
+        
     
     {/* Porch light attached to the porch */}
-    <spotLight 
-      position={[0, 5, -5.5]} 
-      intensity={1.5} 
-      angle={0.6} 
-      penumbra={0.7} 
-      distance={20} 
-      color="#ff9c50" 
-      castShadow 
-    />
-    
-    {/* Light coming from doorway */}
-    <pointLight position={[0, 5, 0.5]} intensity={5.0} color="#ff9c50" distance={15} decay={2} />
-    
-    {/* Additional glow to make the house more visible from distance */}
-    <pointLight position={[0, 8, 5]} intensity={0.8} color="#ff4400" distance={30} decay={1.5} />
+   
      <RigidBody type="fixed" colliders={false}>
     {/* Front wall colliders (with door gap) */}
     <CuboidCollider args={[4.5, 5, 0.25]} position={[-5.5, 5, 0]} />
