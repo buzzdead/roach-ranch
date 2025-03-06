@@ -1,5 +1,5 @@
 import React, { memo, useRef, useState, useEffect } from 'react';
-import { useGameEffectsStore } from './context/gameEffectsStore';
+import { useGameEffectsStore } from './store/gameEffectsStore';
 import { useFrame, useThree } from '@react-three/fiber';
 import { MeshStandardMaterial, Color, Vector3 } from 'three';
 import { Html } from '@react-three/drei';

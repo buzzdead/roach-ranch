@@ -7,7 +7,7 @@ import RoachAnimation from './RoachAnimation';
 import RoachAudio from './RoachAudio';
 import RoachEffects from './Effects/RoachEffects';
 import CollisionManager from '../../../utils/CollisionManager';
-import { useGameEffectsStore } from '../../../context/gameEffectsStore'
+import { useGameEffectsStore } from '../../../store/gameEffectsStore'
 import { useShallow } from 'zustand/react/shallow'; 
 import { modelCache } from '../../../Preloader';
 

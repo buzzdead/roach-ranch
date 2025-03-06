@@ -19,6 +19,7 @@ import { PlayerProvider } from './context/PlayerContext';
 import Enemies from './Enemies';
 import { Stats } from '@react-three/drei';
 import Loot from './Loot';
+import { PLocks } from './PLocks';
 
 const RanchScene = () => {
   return (
@@ -31,7 +32,6 @@ const RanchScene = () => {
         gl.setClearColor('#050505');
       }}
     >
-    
        <Stats />
     <SoundProvider>
       <PlayerProvider>

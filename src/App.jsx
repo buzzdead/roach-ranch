@@ -5,7 +5,8 @@ import { Suspense } from 'react';
 import { KeyboardControls } from '@react-three/drei';
 import Preload from './Preloader';
 import MainMenu from './MainMenu';
-import ResourcesUI from './ResourceUi';
+import ResourcesUI from './components/ui/ResourceUi';
+import { CraftingBenchUI } from './components/ui/BenchUI';
 
 // Common transition component for both states
 const GameTransition = ({ message = "Entering Nightmare..." }) => {
@@ -121,6 +122,7 @@ function App() {
             </Suspense>
           </KeyboardControls>
           <ResourcesUI />
+          <CraftingBenchUI />
         </div>
       )}
     </>

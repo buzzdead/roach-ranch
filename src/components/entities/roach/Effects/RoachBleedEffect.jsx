@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFrame } from '@react-three/fiber';
 import RoachBleed from '../RoachBleed';
-import { useGameEffectsStore } from '../../../../context/gameEffectsStore';
+import { useGameEffectsStore } from '../../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/react/shallow'; 
 
 const RoachBleedEffect = ({ roachId }) => {

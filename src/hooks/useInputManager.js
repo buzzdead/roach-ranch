@@ -1,9 +1,12 @@
 // hooks/useInputManager.js
 import { useEffect, useRef } from 'react';
 import { usePlayerContext } from '../context/PlayerContext';
+import { useGameEffectsStore } from '../store/gameEffectsStore';
 
 export const useInputManager = () => {
   const { setAnimationState } = usePlayerContext();
+  const controlsEnabled = useGameEffectsStore(state => state.controlsEnabled);
+  
   const inputState = useRef({
     movement: { forward: 0, backward: 0, left: 0, right: 0 },
     actions: { jump: false, aim: false, fire: false },
@@ -13,7 +16,7 @@ export const useInputManager = () => {
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      if (document.pointerLockElement === document.body) {
+      if (document.pointerLockElement === document.body && controlsEnabled) {
         inputState.current.rotation.x -= e.movementX * 0.002;
         inputState.current.rotation.y = Math.max(
           -Math.PI / 4.5,
@@ -23,6 +26,8 @@ export const useInputManager = () => {
     };
 
     const handleMouseDown = (e) => {
+      if (!controlsEnabled) return;
+      
       // Right mouse button (button 2) for aiming
       if (e.button === 2) {
         inputState.current.actions.aim = true;
@@ -47,6 +52,8 @@ export const useInputManager = () => {
     };
 
     const handleMouseUp = (e) => {
+      if (!controlsEnabled) return;
+      
       if (e.button === 2) {
         inputState.current.actions.aim = false;
         setAnimationState(prev => ({ ...prev, aiming: false }));
@@ -54,6 +61,8 @@ export const useInputManager = () => {
     };
 
     const handleKeyDown = (e) => {
+      if (!controlsEnabled) return;
+      
       switch (e.code) {
         case 'KeyW': inputState.current.movement.forward = 1; break;
         case 'KeyS': inputState.current.movement.backward = 1; break;
@@ -73,6 +82,8 @@ export const useInputManager = () => {
     };
 
     const handleKeyUp = (e) => {
+      if (!controlsEnabled) return;
+      
       switch (e.code) {
         case 'KeyW': inputState.current.movement.forward = 0; break;
         case 'KeyS': inputState.current.movement.backward = 0; break;
@@ -82,7 +93,12 @@ export const useInputManager = () => {
       }
     };
 
-    const handleClick = () => document.body.requestPointerLock();
+    // Only request pointer lock when controls are enabled
+    const handleClick = () => {
+      if (controlsEnabled && document.pointerLockElement !== document.body) {
+        document.body.requestPointerLock();
+      }
+    };
     
     const handleContextMenu = (e) => e.preventDefault();
 
@@ -105,7 +121,7 @@ export const useInputManager = () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [setAnimationState]);
+  }, [setAnimationState, controlsEnabled]);
 
   return inputState;
 };

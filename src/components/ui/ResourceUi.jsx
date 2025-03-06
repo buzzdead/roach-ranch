@@ -1,6 +1,6 @@
 // src/components/ResourcesUI.jsx
 import React, { useEffect, useState } from 'react';
-import { useGameEffectsStore } from './context/gameEffectsStore';
+import { useGameEffectsStore } from '../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
 
 const ResourcesUI = () => {

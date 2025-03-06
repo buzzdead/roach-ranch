@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { useGameEffectsStore } from './context/gameEffectsStore';
+import { useGameEffectsStore } from './store/gameEffectsStore';
 import Roach from './components/entities/roach/Roach';
 import { useShallow } from 'zustand/shallow';
 
