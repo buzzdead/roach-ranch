@@ -7,7 +7,7 @@ import CollisionManager from '../../utils/CollisionManager';
 import { modelCache } from '../../Preloader';
 
 const BULLET_CONFIG = {
-  modelPath: '/bullet.glb',
+  modelPath: '/bullet1.glb',
   scale: [0.1, 0.1, 0.1],
   speed: 25,  // Units per second
   maxDistance: 100,  // Maximum travel distance before removal

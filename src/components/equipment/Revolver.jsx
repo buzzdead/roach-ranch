@@ -10,7 +10,7 @@ import RevolverAudio from './RevolverAudio';
 import { modelCache } from '../../Preloader'
 // Constants for configuration
 const REVOLVER_CONFIG = {
-  modelPath: '/revolver1.glb',
+  modelPath: '/revolver.glb',
   position: [0.1, 0.20, -0.02],
   rotation: [Math.PI, Math.PI * 1.5, 0],
   scale: [0.25, 0.25, 0.25],
