@@ -8,6 +8,7 @@ import MainMenu from './MainMenu';
 import ResourcesUI from './components/ui/ResourceUi';
 import { CraftingBenchUI } from './components/ui/BenchUI';
 
+
 // Common transition component for both states
 const GameTransition = ({ message = "Entering Nightmare..." }) => {
   return (
@@ -108,6 +109,7 @@ function App() {
           width: '100%',
           height: '100%'
         }}>
+          
           <KeyboardControls
             map={[
               { name: "forward", keys: ["ArrowUp", "w", "W"] },
@@ -117,7 +119,7 @@ function App() {
               { name: "jump", keys: ["Space"] },
             ]}
           >
-            <Suspense fallback={null}>
+            <Suspense  fallback={null}>
               <RanchScene />
             </Suspense>
           </KeyboardControls>

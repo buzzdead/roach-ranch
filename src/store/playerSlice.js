@@ -1,9 +1,38 @@
 
 export const createPlayerSlice = (set, get) => ({
     player: {
+      baseHealth: 100,
       resources: {
-        chitin: 0
+        chitin: 12
+      },
+      upgrades: {
+        maxHealth: {
+          level: 0,
+          maxLevel: 3,
+          cost: { chitin: 8 },
+          increment: 25,  // +25 health per level
+          available: true,
+          displayName: "Max Health"
+        }
       }
+    },
+    updatePlayerResource: (resourceType, amount) => {
+      if(get().player.resources[resourceType]) {
+        const newAmount = get().player.resources[resourceType] + amount
+        if(newAmount >= 0) {
+          set((state) => ({
+            player: {
+              ...state.player,
+              resources: {
+                ...state.player.resources,
+                [resourceType]: newAmount
+              }
+            }
+          }))
+          return true;
+        }
+      }
+      return false
     },
     
     pickupLoot: (lootId, type) => {

@@ -1,67 +1,113 @@
 export const createCraftingSlice = (set, get) => ({
+  craftingBench: {
+    active: false,
+    position: [1.75, 1.1, 7.25],
+    selectedCategory: "weapons", // Can be "weapons" or "player"
+    selectedWeapon: "revolver"   // Currently selected weapon to upgrade
+  },
+  
+  setCraftingActive: (active) => set((state) => ({
     craftingBench: {
-      active: false,
-      position: [1.75, 1.1, 7.25],
-      upgrades: {
-        shootingSpeed: {
-          level: 0,
-          maxLevel: 3,
-          cost: { chitin: 5 },
-          increment: 0.2,  // 20% increase per level
-          available: true
-        },
-        maxHealth: {
-          level: 0,
-          maxLevel: 3,
-          cost: { chitin: 8 },
-          increment: 25,  // +25 health per level
-          available: true
-        },
-        damage: {
-          level: 0,
-          maxLevel: 3,
-          cost: { chitin: 6 },
-          increment: 5,  // +5 damage per level
-          available: true
-        }
-      },
-    },
+      ...state.craftingBench,
+      active: active,
+    }
+  })),
+  
+  setSelectedCategory: (category) => set((state) => ({
+    craftingBench: {
+      ...state.craftingBench,
+      selectedCategory: category
+    }
+  })),
+  
+  setSelectedWeapon: (weaponType) => set((state) => ({
+    craftingBench: {
+      ...state.craftingBench,
+      selectedWeapon: weaponType
+    }
+  })),
+  
+  // Universal purchase method that works for both weapons and player upgrades
+  purchaseUpgrade: (upgradeType) => {
+    const state = get();
+    const { selectedCategory, selectedWeapon } = state.craftingBench;
     
-    setCraftingActive: (active) => set((state) => ({
-      craftingBench: {
-        ...state.craftingBench,
-        active: active,
-      }
-    })),
+    // Determine what we're upgrading
+    let upgradePath;
+    let upgradeObject;
     
-    purchase: (category, type) => {
-        const state = get();
-        
-        if (!state.craftingBench[category]?.[type]?.available) {
-          return false;
-        }
+    if (selectedCategory === "weapons") {
+      upgradePath = `weapons.${selectedWeapon}.upgrades.${upgradeType}`;
+      upgradeObject = state.weapons[selectedWeapon]?.upgrades[upgradeType];
+    } else if (selectedCategory === "player") {
+      upgradePath = `player.upgrades.${upgradeType}`;
+      upgradeObject = state.player.upgrades[upgradeType];
+    }
     
-        const cost = state.craftingBench[category][type].cost.chitin;
-        
-        if (state.player.resources.chitin < cost) {
-          return false;
-        }
+    // Check if valid upgrade
+    if (!upgradeObject?.available) {
+      return false;
+    }
     
-        set((state) => ({
-          craftingBench: {
-            ...state.craftingBench,
-            [category]: {
-              ...state.craftingBench[category],
-              [type]: {
-                ...state.craftingBench[category][type],
-                level: state.craftingBench[category][type].level + 1
+    // Check if maxed out
+    if (upgradeObject.level >= upgradeObject.maxLevel) {
+      return false;
+    }
+    
+    // Check if can afford
+    const cost = upgradeObject.cost.chitin;
+    if (state.player.resources.chitin < cost) {
+      return false;
+    }
+    
+    // Perform the upgrade based on category
+    if (selectedCategory === "weapons") {
+      set((state) => ({
+        weapons: {
+          ...state.weapons,
+          [selectedWeapon]: {
+            ...state.weapons[selectedWeapon],
+            upgrades: {
+              ...state.weapons[selectedWeapon].upgrades,
+              [upgradeType]: {
+                ...state.weapons[selectedWeapon].upgrades[upgradeType],
+                level: state.weapons[selectedWeapon].upgrades[upgradeType].level + 1
               }
             }
           }
-        }));
-
-        get().updatePlayerResource('chitin', -cost);
+        }
+      }));
+    } else if (selectedCategory === "player") {
+      set((state) => ({
+        player: {
+          ...state.player,
+          upgrades: {
+            ...state.player.upgrades,
+            [upgradeType]: {
+              ...state.player.upgrades[upgradeType],
+              level: state.player.upgrades[upgradeType].level + 1
+            }
+          }
+        }
+      }));
+    }
     
-        return true;
-      },
-    });
+    // Deduct resources
+    get().updatePlayerResource('chitin', -cost);
+    return true;
+  },
+  
+  // Helper to get available upgrades for the current selection
+  getAvailableUpgrades: () => {
+    const state = get();
+    const { selectedCategory, selectedWeapon } = state.craftingBench;
+    
+    if (selectedCategory === "weapons" && state.weapons[selectedWeapon]) {
+      return state.weapons[selectedWeapon].upgrades;
+    } else if (selectedCategory === "player") {
+      return state.player.upgrades;
+    }
+    
+    return {};
+  }
+});

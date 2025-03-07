@@ -62,7 +62,6 @@ const Roach = ({id, position }) => {
     impactEvent.trigger(p.bulletDirection);
     const newHealth = addBleed(id, p.position, p.bulletDirection);
     if(newHealth <= 0) deadRef.current = true
-    console.log(newHealth)
     if(newHealth < 0) setIsDead(true)
     
   }

@@ -27,7 +27,13 @@ const ThirdPersonControls = () => {
     ));
     camera.lookAt(characterPos.current);
     camera.userData.characterPos = characterPos.current.clone();
+    document.body.requestPointerLock();
   }, [camera]);
+
+  
+    
+    // Re-lock pointer
+    
 
   useFrame((_, delta) => {
     if (!playerRef.current) return;

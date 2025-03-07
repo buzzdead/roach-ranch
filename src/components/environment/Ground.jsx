@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { CuboidCollider } from '@react-three/rapier';
-import { textureCache } from '../../Preloader';
+import { modelCache, textureCache } from '../../Preloader';
 
 const Ground = () => {
   const [maps, setMaps] = useState({
@@ -10,7 +10,7 @@ const Ground = () => {
     normalMap: null,
     ready: false
   });
-
+  const {scene} = modelCache['/well.glb']
   useEffect(() => {
     // Get textures from cache
     const diffuseMap = textureCache['/gravel_road_diff_1k.jpg'];
@@ -38,6 +38,7 @@ const Ground = () => {
 
   return (
     <>
+    <primitive object={scene} scale={1.5} position={[18, .71, -8]}/>
       {/* Visual ground */}
       {maps.ready && (
         <mesh position={[0, -0.1, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>

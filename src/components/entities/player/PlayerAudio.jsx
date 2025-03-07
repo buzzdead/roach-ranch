@@ -14,7 +14,7 @@ export const PlayerAudio = () => {
       const introSoundName = `Intro${introNumber}`;
       
       const introSound = soundManager.createSound(introSoundName, {
-        volume: 1.0,
+        volume: .50,
         loop: false
       });
       

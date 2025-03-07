@@ -9,7 +9,6 @@ const CollisionManager = {
       if(child.isMesh)
         this.player = child
     })
-    console.log(this.player)
   },
   
   registerEnemy(enemy) {

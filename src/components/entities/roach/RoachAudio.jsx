@@ -19,7 +19,7 @@ const RoachAudio = ({ position, isAnimatingRef, isAttacking }) => {
         screech: soundManager.createPositionalSound('roachScreech', position, {
           refDistance: 5,
           maxDistance: 50,
-          volume: 0.5
+          volume: 0.25
         }),
         attack: soundManager.createPositionalSound('roachAttack', position, {
           refDistance: 5,
