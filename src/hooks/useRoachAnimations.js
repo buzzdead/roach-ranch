@@ -38,7 +38,7 @@ export const useRoachAnimations = (originalScene, animations, isAnimatingRef) =>
     // Configure Move animation
     if (actions.Move) {
       actions.Move.loop = THREE.LoopRepeat;
-      actions.Move.timeScale = 1.0;
+      actions.Move.timeScale = 4.5;
     }
   }, [actions, mixer, isAnimatingRef]);
 

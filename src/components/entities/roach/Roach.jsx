@@ -3,7 +3,7 @@ import React, { Suspense, useMemo, useRef, useEffect, useState } from 'react';
 import { useThree } from '@react-three/fiber';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import RoachModel from './RoachModel';
-import RoachAnimation from './RoachAnimation';
+import RoachAction from './RoachActions';
 import RoachAudio from './RoachAudio';
 import RoachEffects from './Effects/RoachEffects';
 import CollisionManager from '../../../utils/CollisionManager';
@@ -16,6 +16,7 @@ const Roach = ({ id, position }) => {
   const originalScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { camera } = useThree();
   const modelRef = useRef();
+  const rigidBodyRef = useRef()
   const deadRef = useRef(false);
   const isAnimatingRef = useRef(false);
   const [isDead, setIsDead] = useState(false);
@@ -94,8 +95,9 @@ const Roach = ({ id, position }) => {
         triggerJump={jumpEvent}
         isDead={isDead}
         onDeathComplete={handleDeath}
+        rigidBodyRef={rigidBodyRef}
       />
-      <RoachAnimation
+      <RoachAction
         originalScene={originalScene}
         animations={animations}
         isAnimatingRef={isAnimatingRef}
@@ -105,6 +107,7 @@ const Roach = ({ id, position }) => {
         attackCooldownRef={attackCooldownRef}
         isAttackingRef={isAttackingRef}
         deadRef={deadRef}
+        rigidBodyRef={rigidBodyRef}
       />
 
       <RoachAudio

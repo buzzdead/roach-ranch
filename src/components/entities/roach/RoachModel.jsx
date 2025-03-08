@@ -14,10 +14,11 @@ const RoachModel = forwardRef(
       triggerJump,
       isDead = false,
       onDeathComplete,
+      rigidBodyRef
     },
     ref
   ) => {
-    const rbRef = useRef();
+ 
     const materialsRef = useRef([]);
     const meshesRef = useRef([]);
 
@@ -45,7 +46,7 @@ const RoachModel = forwardRef(
     const { deathProgress } = useRoachDeathEffect({
       isDead,
       onDeathComplete,
-      rbRef,
+      rigidBodyRef,
       modelRef: ref, // Renamed for clarity
       materialsRef,
       meshesRef,
@@ -57,13 +58,13 @@ const RoachModel = forwardRef(
       const cleanupFunctions = [];
       if (triggerImpact) {
         const handleImpact = (bulletDirection) => {
-          if (rbRef.current) {
+          if (rigidBodyRef.current) {
             const impulse = {
               x: bulletDirection?.x * 3 || 0,
               y: 5.5,
               z: bulletDirection?.z * 3 || 0,
             };
-            rbRef.current.applyImpulse(impulse, true);
+            rigidBodyRef.current.applyImpulse(impulse, true);
           }
         };
         triggerImpact.subscribe(handleImpact);
@@ -72,9 +73,9 @@ const RoachModel = forwardRef(
 
       if (triggerJump) {
         const handleJump = () => {
-          if (rbRef.current) {
+          if (rigidBodyRef.current) {
             const jump = { x: 0, y: 21, z: 0 };
-            rbRef.current.applyImpulse(jump, true);
+            rigidBodyRef.current.applyImpulse(jump, true);
           }
         };
         triggerJump.subscribe(handleJump);
@@ -107,14 +108,14 @@ const RoachModel = forwardRef(
         mass={1}
         colliders="cuboid"
         friction={0.7}
-        ref={rbRef}
+        ref={rigidBodyRef}
       >
         <primitive
           ref={ref}
           object={originalScene}
           position={position}
           scale={[1.25, 1.25, 1.25]}
-        ></primitive>
+        />
       </RigidBody>
     );
   }
