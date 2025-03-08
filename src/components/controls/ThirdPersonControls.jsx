@@ -4,6 +4,8 @@ import { useThree, useFrame } from '@react-three/fiber';
 import { RigidBody, CapsuleCollider } from '@react-three/rapier';
 import * as THREE from 'three';
 import { useInputManager } from '../../hooks/useInputManager';
+import { useGameEffectsStore } from '../../store/gameEffectsStore';
+import { useShallow } from 'zustand/shallow';
 
 const ThirdPersonControls = () => {
   const { camera } = useThree();
@@ -11,7 +13,8 @@ const ThirdPersonControls = () => {
   const playerRef = useRef();
   const characterPos = useRef(new THREE.Vector3(0, 3, 5));
   const jumpCooldownRef = useRef(0);
-  
+  const setRigidBody = useGameEffectsStore(useShallow((state) => state.setRigidBody));
+
   const cameraOffset = useRef({
     distance: 3,
     height: 1,
@@ -31,7 +34,9 @@ const ThirdPersonControls = () => {
   }, [camera]);
 
   
-    
+  useEffect(() => {
+    setRigidBody(playerRef)
+  }, [playerRef])
     // Re-lock pointer
     
 

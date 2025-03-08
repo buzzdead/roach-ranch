@@ -1,5 +1,6 @@
 
 export const createPlayerSlice = (set, get) => ({
+    rigidBody: null,
     player: {
       baseHealth: 100,
       resources: {
@@ -16,6 +17,9 @@ export const createPlayerSlice = (set, get) => ({
         }
       }
     },
+    setRigidBody: (rigidBodyRef) => set(() => ({
+      rigidBody: rigidBodyRef,
+    })),
     updatePlayerResource: (resourceType, amount) => {
       if(get().player.resources[resourceType]) {
         const newAmount = get().player.resources[resourceType] + amount

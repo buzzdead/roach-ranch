@@ -19,6 +19,7 @@ import { PlayerProvider } from './context/PlayerContext';
 import Enemies from './Enemies';
 import { Stats } from '@react-three/drei';
 import Loot from './Loot';
+import MysteriousWall from './components/effects/MysteriousWall';
 
 const RanchScene = () => {
   return (
@@ -42,6 +43,7 @@ const RanchScene = () => {
       <Enemies />
       <Loot />
       <Ground />
+      <MysteriousWall />
       </Physics>
      <HorrorMoon />
      <Stars 
@@ -57,7 +59,8 @@ const RanchScene = () => {
       <Tree position={[-2, 0, -16]} height={12} foliageSize={4} scale={0.5} />
       <Tree position={[8, 0, -16]} height={9} foliageSize={3} type="dense" scale={0.4} />
       <Tree position={[20, 0, -16]} height={14} foliageSize={5} scale={0.55} />
-      <MysteriousBoundary radius={50} intensity={2.5} />
+      <MysteriousBoundary />
+    
       <ambientLight intensity={.1}/>
         <Suspense>
       <SceneEffects />
