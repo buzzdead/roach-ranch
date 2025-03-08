@@ -1,5 +1,11 @@
 // context/SoundContext.jsx
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react';
 import { useThree } from '@react-three/fiber';
 import SoundManager from '../utils/SoundManager';
 
@@ -11,14 +17,14 @@ export const SoundProvider = ({ children }) => {
   const { camera } = useThree();
   const [soundManager, setSoundManager] = useState(null);
   const initialized = useRef(false);
-  
+
   useEffect(() => {
     if (camera && !initialized.current) {
       initialized.current = true;
-      
+
       // Create sound manager
       const manager = new SoundManager(camera);
-      
+
       // Preload sounds
       Promise.all([
         manager.preloadSound('roachScreech', '/soundeffects/screech.mp3'),
@@ -27,21 +33,27 @@ export const SoundProvider = ({ children }) => {
         manager.preloadSound('Intro3', 'soundeffects/Rancher-Intro3.mp3'),
         manager.preloadSound('roachAttack', 'soundeffects/Roach-Goo.mp3'),
         manager.preloadSound('Revolver-Fire', 'soundeffects/revolver-fire.mp3'),
-        manager.preloadSound("PickUp", "soundeffects/Pickup.mp3"),
-        manager.preloadSound('UpgradeWeapon', 'soundeffects/weapon-upgrade.mp3'),
+        manager.preloadSound('PickUp', 'soundeffects/Pickup.mp3'),
+        manager.preloadSound(
+          'UpgradeWeapon',
+          'soundeffects/weapon-upgrade.mp3'
+        ),
         manager.preloadSound('UpgradeOther', 'soundeffects/other-upgrade.mp3'),
-        manager.preloadSound('UpgradeUnlock', 'soundeffects/unlock-upgrade.mp3'),
+        manager.preloadSound(
+          'UpgradeUnlock',
+          'soundeffects/unlock-upgrade.mp3'
+        ),
         // Preload other sounds as needed
       ]).then(() => {
         setSoundManager(manager);
       });
-      
+
       return () => {
         manager.dispose();
       };
     }
   }, [camera]);
-  
+
   return (
     <SoundContext.Provider value={soundManager}>
       {children}

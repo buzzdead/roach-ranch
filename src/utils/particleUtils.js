@@ -4,13 +4,13 @@ import * as THREE from 'three';
 export const CONSTANTS = {
   GRAVITY: 0.002,
   GROUND_Y: 0, // Default ground level
-  
+
   // Flying particles
   PARTICLE_LIFETIME_BASE: 0.7,
   PARTICLE_LIFETIME_RANDOM: 1.8,
   PARTICLE_SIZE_BASE: 0.2,
   PARTICLE_SIZE_RANDOM: 0.5,
-  
+
   // Bleeding specific
   BLEEDING_PARTICLE_COUNT: 65,
   NORMAL_PARTICLE_COUNT: 65,
@@ -18,13 +18,13 @@ export const CONSTANTS = {
   BLEEDING_SPEED_RADOM: 0.02,
   NORMAL_SPEED_BASE: 0.1,
   NORMAL_SPEED_RANDOM: 0.05,
-  
+
   // Splash particles
   SPLASH_SIZE: 5,
   SPLASH_LIFETIME: 3.0,
   SPLASH_PARTICLE_LIFETIME_BASE: 1.5,
   SPLASH_PARTICLE_LIFETIME_RANDOM: 1.5,
-  
+
   // Cohesion
   ATTRACTION_FACTOR: 0.0008,
   COHESION_RANGE: 0.4,
@@ -75,7 +75,7 @@ export function createParticleMaterial(texture, color, size, opacity = 0.75) {
 
 // Calculate particle speed
 export function calculateSpeed(vx, vy, vz) {
-  return Math.sqrt(vx*vx + vy*vy + vz*vz);
+  return Math.sqrt(vx * vx + vy * vy + vz * vz);
 }
 
 // Add wobble movement to particle

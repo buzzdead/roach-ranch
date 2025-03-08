@@ -8,18 +8,14 @@ import RoachSpawn from './RoachSpawn';
 const MemoizedRoach = memo(Roach);
 
 const Enemies = () => {
-  const spawn = false
+  const spawn = false;
   const roaches = useGameEffectsStore(useShallow((state) => state.roaches));
   return (
     <>
       {roaches.map((roach) => (
-        <MemoizedRoach 
-          key={roach.id} 
-          id={roach.id} 
-          position={roach.position} 
-        />
+        <MemoizedRoach key={roach.id} id={roach.id} position={roach.position} />
       ))}
-      {spawn &&<RoachSpawn />}
+      {spawn && <RoachSpawn />}
     </>
   );
 };

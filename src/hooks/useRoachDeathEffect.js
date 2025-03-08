@@ -203,8 +203,8 @@ const useRoachDeathEffect = ({
         }
 
         if ((newProgress > 0.4 && !emitterCreated.current) ||
-            (newProgress > 0.6 && emitterCreatedCount.current < 2) ||
-            (newProgress > 0.8 && emitterCreatedCount.current < 3)) {
+          (newProgress > 0.6 && emitterCreatedCount.current < 2) ||
+          (newProgress > 0.8 && emitterCreatedCount.current < 3)) {
           emitterCreated.current = true;
           emitterCreatedCount.current++;
           createEmberParticles(newProgress);
@@ -231,10 +231,10 @@ const useRoachDeathEffect = ({
               deathCompleted.current = true
             }
             setTimeout(() => {
-            meshesRef.current.forEach(mesh => { mesh.visible = false; });
-           
-            onDeathComplete();
-          }, 1000)
+              meshesRef.current.forEach(mesh => { mesh.visible = false; });
+
+              onDeathComplete();
+            }, 1000)
           }
         }
 

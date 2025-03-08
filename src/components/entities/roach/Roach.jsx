@@ -7,31 +7,27 @@ import RoachAnimation from './RoachAnimation';
 import RoachAudio from './RoachAudio';
 import RoachEffects from './Effects/RoachEffects';
 import CollisionManager from '../../../utils/CollisionManager';
-import { useGameEffectsStore } from '../../../store/gameEffectsStore'
-import { useShallow } from 'zustand/react/shallow'; 
+import { useGameEffectsStore } from '../../../store/gameEffectsStore';
+import { useShallow } from 'zustand/react/shallow';
 import { modelCache } from '../../../Preloader';
 
-const Roach = ({id, position }) => {
+const Roach = ({ id, position }) => {
   const { scene, animations } = modelCache['/mutant.glb'];
   const originalScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { camera } = useThree();
   const modelRef = useRef();
-  const deadRef = useRef(false)
+  const deadRef = useRef(false);
   const isAnimatingRef = useRef(false);
-  const [isDead, setIsDead] = useState(false)
+  const [isDead, setIsDead] = useState(false);
   const attackCooldownRef = useRef(0);
-  const addBleed = useGameEffectsStore(
-    useShallow((state) => state.addBleed)
-  );
+  const addBleed = useGameEffectsStore(useShallow((state) => state.addBleed));
   const removeRoach = useGameEffectsStore(
     useShallow((state) => state.removeRoach)
   );
-  const addLoot = useGameEffectsStore(
-    useShallow((state) => state.addLoot)
-  )
+  const addLoot = useGameEffectsStore(useShallow((state) => state.addLoot));
   // References instead of state to prevent rerenders
   const isAttackingRef = useRef(false);
-  
+
   // Constants
   const attackDistance = 10;
 
@@ -43,57 +39,54 @@ const Roach = ({id, position }) => {
   const impactEvent = useMemo(() => {
     const subscribers = [];
     return {
-      trigger: (direction) => subscribers.forEach(fn => fn(direction)),
+      trigger: (direction) => subscribers.forEach((fn) => fn(direction)),
       subscribe: (fn) => subscribers.push(fn),
-      unsubscribe: (fn) => subscribers.splice(subscribers.indexOf(fn), 1)
+      unsubscribe: (fn) => subscribers.splice(subscribers.indexOf(fn), 1),
     };
   }, []);
 
   const jumpEvent = useMemo(() => {
     const subscribers = [];
     return {
-      trigger: () => subscribers.forEach(fn => fn()),
+      trigger: () => subscribers.forEach((fn) => fn()),
       subscribe: (fn) => subscribers.push(fn),
-      unsubscribe: (fn) => subscribers.splice(subscribers.indexOf(fn), 1)
+      unsubscribe: (fn) => subscribers.splice(subscribers.indexOf(fn), 1),
     };
   }, []);
 
   const setHealth = (p, m) => {
     impactEvent.trigger(p.bulletDirection);
     const newHealth = addBleed(id, p.position, p.bulletDirection);
-    if(newHealth <= 0) deadRef.current = true
-    if(newHealth < 0) setIsDead(true)
-    
-  }
+    if (newHealth <= 0) deadRef.current = true;
+    if (newHealth < 0) setIsDead(true);
+  };
 
   useEffect(() => {
     if (!modelRef.current) return;
-    
+
     // Register with collision manager when mounted
     const unregister = CollisionManager.registerEnemy({
       mesh: modelRef.current,
       position,
       onHit: (p, m) => {
         setHealth(p, m);
-      }
+      },
     });
-    
+
     // Unregister when unmounted
     return unregister;
   }, [position]);
   const handleDeath = () => {
     if (Math.random() > 0) {
-      
       // Add chitin at the roach's position
-      position[1] += 0.25
+      position[1] += 0.25;
       addLoot('chitin', position);
     }
-    removeRoach(id)
-  }
+    removeRoach(id);
+  };
   return (
     <>
-      
-      <RoachModel 
+      <RoachModel
         ref={modelRef}
         originalScene={originalScene}
         position={position}
@@ -102,7 +95,7 @@ const Roach = ({id, position }) => {
         isDead={isDead}
         onDeathComplete={handleDeath}
       />
-      <RoachAnimation 
+      <RoachAnimation
         originalScene={originalScene}
         animations={animations}
         isAnimatingRef={isAnimatingRef}
@@ -113,13 +106,13 @@ const Roach = ({id, position }) => {
         isAttackingRef={isAttackingRef}
         deadRef={deadRef}
       />
-      
-      <RoachAudio 
+
+      <RoachAudio
         position={position}
         isAnimatingRef={isAnimatingRef}
         isAttackingRef={isAttackingRef}
       />
-      
+
       <Suspense fallback={null}>
         <RoachEffects
           position={position}

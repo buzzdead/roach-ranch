@@ -6,7 +6,7 @@ import { useGameEffectsStore } from '../store/gameEffectsStore';
 export const useInputManager = () => {
   const { setAnimationState } = usePlayerContext();
   const controlsEnabled = useGameEffectsStore(state => state.controlsEnabled);
-  
+
   const inputState = useRef({
     movement: { forward: 0, backward: 0, left: 0, right: 0 },
     actions: { jump: false, aim: false, fire: false },
@@ -27,7 +27,7 @@ export const useInputManager = () => {
 
     const handleMouseDown = (e) => {
       if (!controlsEnabled) return;
-      
+
       // Right mouse button (button 2) for aiming
       if (e.button === 2) {
         inputState.current.actions.aim = true;
@@ -37,12 +37,12 @@ export const useInputManager = () => {
       if (e.button === 0 && inputState.current.actions.aim) {
         inputState.current.actions.fire = true;
         inputState.current.fireCount++; // Increment fire counter
-        setAnimationState(prev => ({ 
-          ...prev, 
+        setAnimationState(prev => ({
+          ...prev,
           firing: true,
-          fireCount: inputState.current.fireCount 
+          fireCount: inputState.current.fireCount
         }));
-        
+
         // Reset firing state after animation would complete
         setTimeout(() => {
           inputState.current.actions.fire = false;
@@ -53,7 +53,7 @@ export const useInputManager = () => {
 
     const handleMouseUp = (e) => {
       if (!controlsEnabled) return;
-      
+
       if (e.button === 2) {
         inputState.current.actions.aim = false;
         setAnimationState(prev => ({ ...prev, aiming: false }));
@@ -62,13 +62,13 @@ export const useInputManager = () => {
 
     const handleKeyDown = (e) => {
       if (!controlsEnabled) return;
-      
+
       switch (e.code) {
         case 'KeyW': inputState.current.movement.forward = 1; break;
         case 'KeyS': inputState.current.movement.backward = 1; break;
         case 'KeyA': inputState.current.movement.right = 1; break;
         case 'KeyD': inputState.current.movement.left = 1; break;
-        case 'KeyQ': 
+        case 'KeyQ':
         case 'Space':
           inputState.current.actions.jump = true;
           setAnimationState(prev => ({ ...prev, jumping: true }));
@@ -83,7 +83,7 @@ export const useInputManager = () => {
 
     const handleKeyUp = (e) => {
       if (!controlsEnabled) return;
-      
+
       switch (e.code) {
         case 'KeyW': inputState.current.movement.forward = 0; break;
         case 'KeyS': inputState.current.movement.backward = 0; break;
@@ -99,7 +99,7 @@ export const useInputManager = () => {
         document.body.requestPointerLock();
       }
     };
-    
+
     const handleContextMenu = (e) => e.preventDefault();
 
     // Add event listeners

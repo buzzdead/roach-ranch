@@ -9,7 +9,7 @@ export const PlayerProvider = ({ children }) => {
     aiming: false,
     fireCount: 0,
   });
-  
+
   return (
     <PlayerContext.Provider value={{ animationState, setAnimationState }}>
       {children}

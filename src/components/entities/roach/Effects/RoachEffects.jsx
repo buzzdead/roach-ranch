@@ -3,15 +3,14 @@ import React from 'react';
 import RoachAttackEffect from './RoachAttackEffect';
 import RoachBleedEffect from './RoachBleedEffect';
 
-const RoachEffects = ({ 
-  position, 
-  camera, 
-  isAttackingRef, 
+const RoachEffects = ({
+  position,
+  camera,
+  isAttackingRef,
   onAttackComplete,
   roachId,
-  handleJump
+  handleJump,
 }) => {
-  
   return (
     <>
       <RoachAttackEffect
@@ -21,9 +20,7 @@ const RoachEffects = ({
         onAttackComplete={onAttackComplete}
         handleJump={handleJump}
       />
-      <RoachBleedEffect 
-        roachId={roachId}
-      />
+      <RoachBleedEffect roachId={roachId} />
     </>
   );
 };

@@ -10,19 +10,22 @@ const createNoiseTexture = () => {
   const data = new Uint8Array(size * size * 4);
   for (let i = 0; i < size * size; i++) {
     const value = Math.random() * 255;
-    data[i * 4] = value;     // R
+    data[i * 4] = value; // R
     data[i * 4 + 1] = value; // G
     data[i * 4 + 2] = value; // B
-    data[i * 4 + 3] = 255;   // A
+    data[i * 4 + 3] = 255; // A
   }
   const texture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
   texture.needsUpdate = true;
   return texture;
 };
 
-
-
-const EnhancedMysteriousWall = ({ radius = 49, triggerRadius = 40, repulsionStrength = 500, wallHeight = 2 }) => {
+const EnhancedMysteriousWall = ({
+  radius = 49,
+  triggerRadius = 40,
+  repulsionStrength = 500,
+  wallHeight = 2,
+}) => {
   const rigidBody = useGameEffectsStore(useShallow((state) => state.rigidBody));
   const { camera } = useThree();
   const wallRef = useRef(null);
@@ -30,19 +33,26 @@ const EnhancedMysteriousWall = ({ radius = 49, triggerRadius = 40, repulsionStre
 
   useEffect(() => {
     camera.layers.enableAll();
-  }, [camera])
+  }, [camera]);
 
   useEffect(() => {
     if (!wallRef.current) {
       console.log('Creating wall geometry and material...');
-      const geometry = new THREE.CylinderGeometry(radius - 0.5, radius * 0.8, wallHeight, 64, 1, true); // Tapered top
+      const geometry = new THREE.CylinderGeometry(
+        radius - 0.5,
+        radius * 0.8,
+        wallHeight,
+        64,
+        1,
+        true
+      ); // Tapered top
       const material = new THREE.ShaderMaterial({
         transparent: true,
         side: THREE.DoubleSide,
         uniforms: {
           time: { value: 0 },
           colorBase: { value: new THREE.Color('#09061a') }, // Darker base
-          colorTop: { value: new THREE.Color('#4B0082') },  // Dark purple top
+          colorTop: { value: new THREE.Color('#4B0082') }, // Dark purple top
           playerPosition: { value: new THREE.Vector2(0, 0) },
           radius: { value: radius },
           wallHeight: { value: wallHeight },
@@ -88,7 +98,7 @@ const EnhancedMysteriousWall = ({ radius = 49, triggerRadius = 40, repulsionStre
           
           gl_FragColor = vec4(finalColor, alpha);
         }
-      `
+      `,
       });
 
       const mesh = new THREE.Mesh(geometry, material);
@@ -96,7 +106,7 @@ const EnhancedMysteriousWall = ({ radius = 49, triggerRadius = 40, repulsionStre
       materialRef.current = material;
       console.log('Wall mesh created:', mesh);
     }
-    wallRef.current.renderOrder = 10;
+    wallRef.current.renderOrder = 5;
 
     return () => {
       if (wallRef.current) {
@@ -114,19 +124,31 @@ const EnhancedMysteriousWall = ({ radius = 49, triggerRadius = 40, repulsionStre
     const playerPosition = camera.userData.characterPos;
     if (!playerPosition) return;
 
-    const distanceToCenter = Math.sqrt(playerPosition.x * playerPosition.x + playerPosition.z * playerPosition.z);
+    const distanceToCenter = Math.sqrt(
+      playerPosition.x * playerPosition.x + playerPosition.z * playerPosition.z
+    );
 
-    materialRef.current.uniforms.playerPosition.value.set(playerPosition.x, playerPosition.z);
+    materialRef.current.uniforms.playerPosition.value.set(
+      playerPosition.x,
+      playerPosition.z
+    );
 
     if (distanceToCenter > triggerRadius) {
       const dirX = -playerPosition.x / distanceToCenter;
       const dirZ = -playerPosition.z / distanceToCenter;
-      const repulsionFactor = Math.min(1.0, (distanceToCenter - triggerRadius) / (radius - triggerRadius));
+      const repulsionFactor = Math.min(
+        1.0,
+        (distanceToCenter - triggerRadius) / (radius - triggerRadius)
+      );
       const force = repulsionStrength * repulsionFactor * delta;
-      rigidBody.current.applyImpulse({ x: dirX * force, y: 0, z: dirZ * force });
+      rigidBody.current.applyImpulse({
+        x: dirX * force,
+        y: 0,
+        z: dirZ * force,
+      });
 
       if (distanceToCenter > radius - 1) {
-        console.log("Player hit boundary!");
+        console.log('Player hit boundary!');
       }
     }
   });

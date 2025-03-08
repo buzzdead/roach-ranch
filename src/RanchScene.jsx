@@ -24,6 +24,7 @@ import MysteriousWall from './components/effects/MysteriousWall';
 const RanchScene = () => {
   return (
     <Canvas
+   
       shadows
       gl={{powerPreference: "high-performance" }}
       style={{width: '100vw', height: '100vh'}}
@@ -36,7 +37,7 @@ const RanchScene = () => {
     <SoundProvider>
       <PlayerProvider>
         <Physics gravity={[0, -9.81, 0]}>
-      <PerspectiveCamera makeDefault position={[0, 6, 10]} fov={60} far={10000} />
+      <PerspectiveCamera makeDefault position={[0, 6, 10]} fov={65} far={10000} near={0.1}/>
       <ThirdPersonControls />
       <Player />
       <RanchHouse position={[0, 0, 0]} dilapidated={true} />
@@ -46,6 +47,7 @@ const RanchScene = () => {
       <MysteriousWall />
       </Physics>
      <HorrorMoon />
+     <group renderOrder={9}>
      <Stars 
     radius={300} 
     depth={50} 
@@ -54,6 +56,7 @@ const RanchScene = () => {
     saturation={.5} 
     factorColors={[new THREE.Color(1, 0.8, 0.8), new THREE.Color(0.8, 0.8, 1), new THREE.Color(1, 1, 0.8)]}
   />
+  </group>
 
       <AnimatedGrassBillboards count={50000} />
       <Tree position={[-2, 0, -16]} height={12} foliageSize={4} scale={0.5} />

@@ -8,10 +8,10 @@ import { PlayerEquipment } from './PlayerEquipment';
 import { PlayerAnimation } from './PlayerAnimation';
 import { PlayerAudio } from './PlayerAudio';
 import PlayerCursor from './PlayerCursor';
-import { modelCache } from '../../../Preloader'
+import { modelCache } from '../../../Preloader';
 
 const Player = () => {
-  const { scene, animations } = modelCache['/rancher.glb']
+  const { scene, animations } = modelCache['/rancher.glb'];
   const { camera } = useThree();
   const modelRef = useRef();
   const isInitializedRef = useRef(false);
@@ -30,7 +30,7 @@ const Player = () => {
       let foundSkeleton = null;
       let foundLeftHand = null;
       let foundRightHand = null;
-      
+
       scene.traverse((object) => {
         if (object.isSkinnedMesh && object.skeleton) {
           foundSkeleton = object.skeleton;
@@ -44,11 +44,11 @@ const Player = () => {
           }
         }
       });
-      
+
       if (foundSkeleton) setSkeleton(foundSkeleton);
       if (foundLeftHand) setLeftHandBone(foundLeftHand);
       if (foundRightHand) setRightHandBone(foundRightHand);
-      
+
       if (!foundLeftHand || !foundRightHand) {
         console.warn('Could not find hand bones. Printing all bones:');
         scene.traverse((object) => {
@@ -65,43 +65,37 @@ const Player = () => {
     if (actions && mixer) {
       // Force an initial update of the animation system
       for (let i = 0; i < 5; i++) {
-        mixer.update(1/30);
+        mixer.update(1 / 30);
       }
-      
+
       // Mark as ready after initialization
       setIsReady(true);
       isInitializedRef.current = true;
     }
   }, [actions, mixer]);
-  
+
   return (
     <>
-      <PlayerModel 
-        ref={modelRef} 
-        scene={scene} 
-        camera={camera} 
-      />
-      
-      <PlayerAnimation 
-        actions={actions} 
+      <PlayerModel ref={modelRef} scene={scene} camera={camera} />
+
+      <PlayerAnimation
+        actions={actions}
         mixer={mixer}
         modelRef={modelRef}
         camera={camera}
         isInitializedRef={isInitializedRef}
       />
-      
+
       <PlayerAudio />
-      
+
       {isReady && (
         <>
-          <PlayerEquipment 
-            leftHandBone={leftHandBone} 
-            rightHandBone={rightHandBone} 
+          <PlayerEquipment
+            leftHandBone={leftHandBone}
+            rightHandBone={rightHandBone}
           />
-          
-          <PlayerLighting 
-            camera={camera} 
-          />
+
+          <PlayerLighting camera={camera} />
         </>
       )}
       <PlayerCursor />

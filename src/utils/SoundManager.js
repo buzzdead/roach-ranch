@@ -5,7 +5,7 @@ class SoundManager {
   constructor(camera) {
     this.listener = new THREE.AudioListener();
     camera.add(this.listener);
-    
+
     this.audioLoader = new THREE.AudioLoader();
     this.sounds = {};
     this.buffers = {};
@@ -16,21 +16,21 @@ class SoundManager {
       console.warn(`Sound ${name} not preloaded`);
       return null;
     }
-    
+
     // Create a regular (non-positional) audio
     const sound = new THREE.Audio(this.listener);
     sound.setBuffer(this.buffers[name]);
     sound.setVolume(options.volume || 1);
     sound.setLoop(options.loop || false);
-    
+
     // Apply playback rate if provided (this affects both speed and pitch)
     if (options.playbackRate !== undefined) {
       sound.setPlaybackRate(options.playbackRate);
     }
-    
+
     const id = Date.now().toString(36) + Math.random().toString(36).substr(2);
     this.sounds[id] = { sound };
-    
+
     return {
       id,
       play: (playOptions = {}) => {
@@ -50,7 +50,7 @@ class SoundManager {
       }
     };
   }
-  
+
   // Preload sounds
   preloadSound(name, path) {
     return new Promise((resolve, reject) => {
@@ -60,14 +60,14 @@ class SoundManager {
       }, undefined, reject);
     });
   }
-  
+
   // Create a positional sound source
   createPositionalSound(name, position, options = {}) {
     if (!this.buffers[name]) {
       console.warn(`Sound ${name} not preloaded`);
       return null;
     }
-    
+
     const sound = new THREE.PositionalAudio(this.listener);
     sound.setBuffer(this.buffers[name]);
     sound.setRefDistance(options.refDistance || 5);
@@ -75,14 +75,14 @@ class SoundManager {
     sound.setRolloffFactor(options.rolloffFactor || 1);
     sound.setVolume(options.volume || 1);
     sound.setLoop(options.loop || false);
-    
+
     if (position) {
       sound.position.set(position[0], position[1], position[2]);
     }
-    
+
     const id = Date.now().toString(36) + Math.random().toString(36).substr(2);
     this.sounds[id] = sound;
-    
+
     return {
       id,
       play: () => sound.play(),
@@ -96,23 +96,23 @@ class SoundManager {
       }
     };
   }
-  
+
   // Clean up all sounds
   // Clean up all sounds
-dispose() {
-  Object.values(this.sounds).forEach(sound => {
-    // Check if sound exists and has a stop method
-    if (sound && typeof sound.stop === 'function') {
-      sound.stop();
-    } else if (sound && typeof sound.isPlaying === 'function' && sound.isPlaying()) {
-      // Some Three.js sound implementations use different methods
-      if (typeof sound.pause === 'function') {
-        sound.pause();
+  dispose() {
+    Object.values(this.sounds).forEach(sound => {
+      // Check if sound exists and has a stop method
+      if (sound && typeof sound.stop === 'function') {
+        sound.stop();
+      } else if (sound && typeof sound.isPlaying === 'function' && sound.isPlaying()) {
+        // Some Three.js sound implementations use different methods
+        if (typeof sound.pause === 'function') {
+          sound.pause();
+        }
       }
-    }
-  });
-  this.sounds = {};
-}
+    });
+    this.sounds = {};
+  }
 }
 
 export default SoundManager;

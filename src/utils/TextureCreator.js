@@ -7,7 +7,7 @@ export const createGrassTextures = () => {
     canvas.height = 128;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, 64, 128);
-    
+
     // Slightly different grass shapes for each texture
     if (idx === 0) {
       // Tall thin grass
@@ -37,7 +37,7 @@ export const createGrassTextures = () => {
       ctx.closePath();
       ctx.fill();
     }
-    
+
     return new THREE.CanvasTexture(canvas);
   });
 };

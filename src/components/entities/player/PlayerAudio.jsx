@@ -5,24 +5,24 @@ import { useSoundManager } from '../../../context/SoundContext';
 export const PlayerAudio = () => {
   const introPlayedRef = useRef(false);
   const soundManager = useSoundManager();
-  
+
   // Play random intro voice
   useEffect(() => {
     if (soundManager && !introPlayedRef.current) {
       introPlayedRef.current = true;
       const introNumber = Math.floor(Math.random() * 3) + 1;
       const introSoundName = `Intro${introNumber}`;
-      
+
       const introSound = soundManager.createSound(introSoundName, {
-        volume: .50,
-        loop: false
+        volume: 0.5,
+        loop: false,
       });
-      
+
       setTimeout(() => {
         if (introSound) introSound.play();
       }, 500);
     }
   }, [soundManager]);
-  
+
   return null;
 };
