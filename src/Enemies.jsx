@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { useGameEffectsStore } from './store/gameEffectsStore';
 import Roach from './components/entities/roach/Roach';
 import { useShallow } from 'zustand/shallow';
@@ -8,7 +8,7 @@ import RoachSpawn from './RoachSpawn';
 const MemoizedRoach = memo(Roach);
 
 const Enemies = () => {
-  const spawn = false;
+  const [spawn, setSpawn] = useState(false)
   const roaches = useGameEffectsStore(useShallow((state) => state.roaches));
   return (
     <>
@@ -20,4 +20,4 @@ const Enemies = () => {
   );
 };
 
-export default React.memo(Enemies);
+export default memo(Enemies)

@@ -8,6 +8,8 @@ import * as THREE from 'three';
 import RevolverBullet from './RevolverBullet';
 import RevolverAudio from './RevolverAudio';
 import { modelCache } from '../../Preloader'
+import { useGameEffectsStore } from '../../store/gameEffectsStore';
+import { useShallow } from 'zustand/shallow';
 // Constants for configuration
 const REVOLVER_CONFIG = {
   modelPath: '/revolver.glb',
@@ -34,7 +36,7 @@ export const Revolver = ({ bone }) => {
   const { animationState } = usePlayerContext();
   const [lastFireCount, setLastFireCount] = useState(0);
   const { camera } = useThree();
-  
+  const weapons = useGameEffectsStore(useShallow((state) => state.weapons))
   // For firing animation/effects
   const [muzzleFlash, setMuzzleFlash] = useState(false);
   const [isFiring, setIsFiring] = useState(false);
@@ -45,7 +47,7 @@ export const Revolver = ({ bone }) => {
   
   // Handle firing animation and bullet creation
   useEffect(() => {
-    if (animationState.firing && animationState.fireCount !== lastFireCount) {
+    if (animationState.firing && animationState.fireCount !== lastFireCount && !isFiring) {
       setLastFireCount(animationState.fireCount);
       setMuzzleFlash(true);
       
@@ -94,7 +96,7 @@ export const Revolver = ({ bone }) => {
         // Reset firing state after a short delay
         setTimeout(() => {
           setIsFiring(false);
-        }, 100);
+        }, 750 * (1 - weapons.revolver.upgrades.shootingSpeed.level * weapons.revolver.upgrades.shootingSpeed.increment));
       }
       
       // Hide muzzle flash after a short delay

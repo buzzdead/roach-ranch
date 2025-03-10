@@ -14,6 +14,7 @@ import { modelCache } from '../../../Preloader';
 const Roach = ({ id, position }) => {
   const { scene, animations } = modelCache['/mutant.glb'];
   const originalScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
+
   const { camera } = useThree();
   const modelRef = useRef();
   const rigidBodyRef = useRef()

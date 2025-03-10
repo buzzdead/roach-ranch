@@ -2,10 +2,11 @@
 import { useEffect, useRef } from 'react';
 import { usePlayerContext } from '../context/PlayerContext';
 import { useGameEffectsStore } from '../store/gameEffectsStore';
+import { useShallow } from 'zustand/shallow';
 
 export const useInputManager = () => {
   const { setAnimationState } = usePlayerContext();
-  const controlsEnabled = useGameEffectsStore(state => state.controlsEnabled);
+  const controlsEnabled = useGameEffectsStore(useShallow((state) => state.controlsEnabled));
 
   const inputState = useRef({
     movement: { forward: 0, backward: 0, left: 0, right: 0 },

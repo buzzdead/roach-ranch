@@ -11,7 +11,7 @@ const RoachBleedEffect = ({ roachId }) => {
         state.roaches.find((r) => r.id === roachId)?.effects.bleeds || []
     )
   );
-  const removeBleed = useGameEffectsStore((state) => state.removeBleed);
+  const removeBleed = useGameEffectsStore(useShallow((state) => state.removeBleed));
 
   useFrame(() => {
     const now = Date.now();

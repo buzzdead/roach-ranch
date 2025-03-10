@@ -46,7 +46,7 @@ const RoachModel = forwardRef(
     const { deathProgress } = useRoachDeathEffect({
       isDead,
       onDeathComplete,
-      rigidBodyRef,
+      rbRef: rigidBodyRef,
       modelRef: ref, // Renamed for clarity
       materialsRef,
       meshesRef,

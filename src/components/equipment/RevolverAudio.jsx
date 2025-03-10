@@ -10,9 +10,12 @@ const RevolverAudio = ({ position, isFiring }) => {
   useEffect(() => {
     if (soundManager) {
       soundRef.current = soundManager.createPositionalSound('Revolver-Fire', position, {
-        refDistance: 5,
-        maxDistance: 100,
-        volume: 0.8
+        poolSize: 3,
+  minInterval: 1000,    // At least 1 second between growls
+  randomizePitch: true,
+  refDistance: 3,
+  maxDistance: 30,
+  rate: 1.15,
       });
       
       return () => {

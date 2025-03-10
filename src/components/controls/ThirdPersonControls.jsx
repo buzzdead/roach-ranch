@@ -1,5 +1,5 @@
 // ThirdPersonControls.jsx
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { RigidBody, CapsuleCollider } from '@react-three/rapier';
 import * as THREE from 'three';
@@ -13,6 +13,10 @@ const ThirdPersonControls = () => {
   const playerRef = useRef();
   const characterPos = useRef(new THREE.Vector3(0, 3, 5));
   const jumpCooldownRef = useRef(0);
+  const [loading, setLoading] = useState(true)
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 500)
+  }, [])
   const setRigidBody = useGameEffectsStore(
     useShallow((state) => state.setRigidBody)
   );
@@ -45,8 +49,9 @@ const ThirdPersonControls = () => {
   // Re-lock pointer
 
   useFrame((_, delta) => {
+    if(loading) return
     if (!playerRef.current) return;
-
+    
     // Update camera angle from mouse movement
     cameraOffset.current.angle = inputState.current.rotation.x;
 
@@ -158,13 +163,13 @@ const ThirdPersonControls = () => {
     );
   });
 
-  return (
+  return loading ? null : (
     <RigidBody
       ref={playerRef}
       position={[0, 2, 5]} // Start above the ground (y=2)
       enabledRotations={[false, true, false]}
       type="dynamic"
-      mass={1} // Not too heavy, not too light
+      mass={1} // Not too heavy, not too light 
       colliders={false}
       friction={0.7}
     >
