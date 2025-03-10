@@ -7,11 +7,15 @@ import React, {
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import CollisionManager from '../../../utils/CollisionManager';
+import { useThirdPersonCamera } from '../../../hooks/useThirdPersonCamera';
+import PlayerPhysics from './PlayerPhysics';
 
 export const PlayerModel = forwardRef(
   ({ scene, camera, showHitbox = false }, ref) => {
     const localRef = useRef();
+    const playerRef = useRef()
     const coneHelperRef = useRef();
+    useThirdPersonCamera(playerRef);
 
     useImperativeHandle(ref, () => localRef.current);
 
@@ -89,7 +93,8 @@ export const PlayerModel = forwardRef(
       };
     }, [localRef]);
 
-    return (
+    return (<>
+    <PlayerPhysics playerRef={playerRef} />
       <primitive
         ref={localRef}
         object={scene}
@@ -97,6 +102,7 @@ export const PlayerModel = forwardRef(
         scale={[1, 1, 1]}
         castShadow
       />
+      </>
     );
   }
 );

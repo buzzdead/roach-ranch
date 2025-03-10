@@ -4,7 +4,6 @@ import { Canvas } from '@react-three/fiber';
 import { PerspectiveCamera, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
-import ThirdPersonControls from './components/controls/ThirdPersonControls';
 import Player from './components/entities/player/Player';
 import Tree from './components/entities/Tree';
 import Ground from './components/environment/Ground';
@@ -38,7 +37,7 @@ const RanchScene = () => {
       <PlayerProvider>
         <Physics gravity={[0, -9.81, 0]}>
       <PerspectiveCamera makeDefault position={[0, 6, 10]} fov={65} far={10000} near={0.1}/>
-      <ThirdPersonControls />
+    
       <Player />
       <RanchHouse position={[0, 0, 0]} dilapidated={true} />
       <Enemies />
