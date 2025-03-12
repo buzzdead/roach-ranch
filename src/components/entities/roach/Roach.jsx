@@ -13,19 +13,11 @@ import { SkeletonUtils } from 'three/examples/jsm/Addons.js';
 
 const Roach = ({ id, position }) => {
   const { scene, animations } = modelCache['/mutant.glb'];
-  const [loading, setLoading] = useState(true)
   
   // Clone the scene
   const originalScene = useMemo(() => {
     const cloned = SkeletonUtils.clone(scene);
-    
-    // Pre-compute bounding spheres for all geometries in the model
-    cloned.traverse((object) => {
-      if (object.geometry && !object.geometry.boundingSphere) {
-        object.geometry.computeBoundingSphere();
-      }
-    });
-    setTimeout(() => setLoading(false), 1000)
+
     return cloned;
   }, [scene]);
 
@@ -91,16 +83,16 @@ const Roach = ({ id, position }) => {
 
     // Unregister when unmounted
     return unregister;
-  }, [position, loading]);
+  }, [position]);
   const handleDeath = () => {
-    if (Math.random() > 0) {
+    if (Math.random() > 0.3) {
       // Add chitin at the roach's position
       const pos = modelRef.current.position.clone()
       addLoot('chitin', position);
     }
     removeRoach(id);
   };
-  return loading ? null : (
+  return (
     <>
       <RoachModel
         ref={modelRef}

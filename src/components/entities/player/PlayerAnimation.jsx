@@ -39,6 +39,7 @@ export const PlayerAnimation = ({
         actions.Jump.setEffectiveWeight(0.75);
       }
       if (actions.Aim) {
+        actions.Aim.timeScale = 2.5;
         actions.Aim.setEffectiveWeight(5.5);
       }
       if (actions['Mesh1_Mesh1.025Action']) {

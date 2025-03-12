@@ -16,6 +16,7 @@ const RevolverAudio = ({ position, isFiring }) => {
   refDistance: 3,
   maxDistance: 30,
   rate: 1.15,
+  volume: 0.4,
       });
       
       return () => {
