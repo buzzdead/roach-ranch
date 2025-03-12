@@ -17,18 +17,7 @@ const Roach = ({ id, position }) => {
   const [loading, setLoading] = useState(true)
   
   // Clone the scene
-  const originalScene = useMemo(() => {
-    const cloned = SkeletonUtils.clone(scene);
-    
-    // Pre-compute bounding spheres for all geometries in the model
-    cloned.traverse((object) => {
-      if (object.geometry && !object.geometry.boundingSphere) {
-        object.geometry.computeBoundingSphere();
-      }
-    });
-    setTimeout(() => setLoading(false), 1000)
-    return cloned;
-  }, [scene]);
+  const originalScene = getOrCreateClone(scene)
 
   const { camera } = useThree();
   const modelRef = useRef();
