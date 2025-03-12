@@ -7,6 +7,9 @@ const ResourcesUI = () => {
   const resources = useGameEffectsStore(
     useShallow(state => state.player.resources)
   );
+  const totalLoot = useGameEffectsStore(
+    useShallow(state => state.player.totalLoot)
+  );
   
   // Animation state for resource changes
   const [animatedResources, setAnimatedResources] = useState({});
@@ -79,6 +82,35 @@ const ResourcesUI = () => {
             </span>
           </div>
         ))}
+        
+        {/* Score section */}
+        <div style={{ 
+          marginTop: '10px',
+          paddingTop: '10px',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span style={{ 
+            fontWeight: '500',
+            color: '#ffcc00',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
+            Score
+          </span>
+          <span style={{ 
+            fontWeight: '700',
+            marginLeft: '15px',
+            color: '#ffcc00',
+            background: 'rgba(255, 204, 0, 0.2)',
+            padding: '2px 8px',
+            borderRadius: '4px'
+          }}>
+            {totalLoot}
+          </span>
+        </div>
       </div>
     </div>
   );

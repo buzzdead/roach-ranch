@@ -1,0 +1,3 @@
+[build]
+  case-sensitive = false
+  functions = "netlify/functions"

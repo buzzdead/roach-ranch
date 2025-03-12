@@ -1,26 +1,36 @@
-import db from './db';
-import { users } from '../db/schema';
-import { eq } from 'drizzle-orm';
-
-// Get all users
+// src/drizzleFunctions.js - frontend version
 export async function getAllUsers() {
-  return await db.select().from(users);
+  const response = await fetch('/.netlify/functions/getUsers');
+  if (!response.ok) throw new Error('Failed to fetch users');
+  return await response.json();
 }
 
-// Get user by ID
 export async function getUserById(id) {
-  return await db.select().from(users).where(eq(users.id, id));
+  const response = await fetch(`/.netlify/functions/getUserById?id=${id}`);
+  if (!response.ok) throw new Error('Failed to fetch user');
+  return await response.json();
 }
 
-// Create a new user
 export async function createUser(userData) {
-  return await db.insert(users).values(userData).returning();
+  const response = await fetch('/.netlify/functions/createUser', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
+  });
+  if (!response.ok) throw new Error('Failed to create user');
+  return await response.json();
 }
 
-// Update user score
 export async function updateUserScore(id, newScore) {
-  return await db.update(users)
-    .set({ score: newScore })
-    .where(eq(users.id, id))
-    .returning();
+  const response = await fetch(`/.netlify/functions/updateUserScore?id=${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ score: newScore }),
+  });
+  if (!response.ok) throw new Error('Failed to update user score');
+  return await response.json();
 }

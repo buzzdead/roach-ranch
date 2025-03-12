@@ -2,15 +2,16 @@
 export const createPlayerSlice = (set, get) => ({
   rigidBody: null,
   player: {
-    baseHealth: 100,
+    totalLoot: 0,
+    maxHealth: 100,
     resources: {
-      chitin: 12
+      chitin: 10
     },
     upgrades: {
       maxHealth: {
         level: 0,
         maxLevel: 3,
-        cost: { chitin: 8 },
+        cost: { chitin: 1 },
         increment: 25,  // +25 health per level
         available: true,
         displayName: "Max Health"
@@ -19,6 +20,9 @@ export const createPlayerSlice = (set, get) => ({
   },
   setRigidBody: (rigidBodyRef) => set(() => ({
     rigidBody: rigidBodyRef,
+  })),
+  takeDamage: (damage) => set(() => ({
+    
   })),
   updatePlayerResource: (resourceType, amount) => {
     if (get().player.resources[resourceType]) {
@@ -46,6 +50,7 @@ export const createPlayerSlice = (set, get) => ({
       set((state) => ({
         player: {
           ...state.player,
+          totalLoot: state.player.totalLoot + 1,
           resources: {
             ...state.player.resources,
             [type]: (state.player.resources[type] || 0) + 1

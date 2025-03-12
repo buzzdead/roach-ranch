@@ -4,10 +4,10 @@ const CollisionManager = {
   enemies: [],
   player: null,
 
-  registerPlayer(playerRef) {
+  registerPlayer(playerRef, takeDamage) {
     playerRef.current.traverse(child => {
       if (child.isMesh)
-        this.player = child
+        this.player = {mesh: child, onHit: takeDamage }
     })
   },
 
@@ -20,11 +20,11 @@ const CollisionManager = {
 
   // Add to your CollisionManager
   checkParticlePlayerCollision(particlePosition, particleRadius) {
-    if (!this.player) return { hit: false };
+    if (!this.player.mesh) return { hit: false };
 
     // Option 1: Use a cone shape as we discussed
     const playerPosition = new THREE.Vector3();
-    this.player.getWorldPosition(playerPosition);
+    this.player.mesh.getWorldPosition(playerPosition);
 
     // Define cone parameters (adjust these to fit your player)
     const conePosition = playerPosition.clone();
@@ -45,10 +45,11 @@ const CollisionManager = {
       const hitPoint = particlePosition.clone();
 
       // Trigger player hit event
-      if (this.player && this.player.onHit) {
+      if (this.player.mesh && this.player.onHit) {
         this.player.onHit({
           position: hitPoint,
-          particleDirection: new THREE.Vector3() // You'd calculate this from particle movement
+          particleDirection: new THREE.Vector3(), // You'd calculate this from particle movement
+          damage: 0.12,
         });
       }
 
@@ -81,14 +82,13 @@ const CollisionManager = {
   },
 
   // Main collision detection function
-  checkBulletCollisions(bulletPosition, bulletDirection, maxDistance) {
+  checkBulletCollisions(bulletPosition, bulletDirection, maxDistance, damage) {
     const bulletRay = this._createBulletRay(bulletPosition, bulletDirection);
 
     for (const enemy of this.enemies) {
       if (!enemy.mesh) continue;
 
       const meshes = this._findMeshesInGroup(enemy.mesh);
-
       for (const mesh of meshes) {
         if (!mesh.geometry) continue;
 
@@ -99,7 +99,8 @@ const CollisionManager = {
 
           enemy.onHit && enemy.onHit({
             position: hitPoint,
-            mesh: mesh
+            mesh: mesh,
+            damage: damage
           });
 
           return {
@@ -113,7 +114,7 @@ const CollisionManager = {
     return { hit: false };
   },
 
-  checkBulletPhysicalCollision(bulletPosition, bulletRadius, bulletDirection) {
+  checkBulletPhysicalCollision(bulletPosition, bulletRadius, bulletDirection, damage) {
     for (const enemy of this.enemies) {
       if (!enemy.mesh) continue;
 
@@ -138,7 +139,8 @@ const CollisionManager = {
           enemy.onHit && enemy.onHit({
             position: hitPoint,
             mesh: mesh,
-            bulletDirection: bulletDirection
+            bulletDirection: bulletDirection,
+            damage: damage
           });
 
           return {

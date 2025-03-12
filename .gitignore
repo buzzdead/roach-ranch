@@ -37,3 +37,5 @@ yarn-error.log*
 # Three.js specific
 *.gltf
 /public/assets/models
+# Local Netlify folder
+.netlify

@@ -78,19 +78,32 @@ export const createCraftingSlice = (set, get) => ({
         }
       }));
     } else if (selectedCategory === "player") {
+      // Get the upgrade details
+      const upgrade = state.player.upgrades[upgradeType];
+      const newLevel = upgrade.level + 1;
+      
+      // Calculate the new value based on the upgrade
+      let updatedPlayerProperties = {};
+      
+      if (upgradeType === "maxHealth") {
+          updatedPlayerProperties.maxHealth = state.player.maxHealth + upgrade.increment;
+      }
+      // Add other upgrade types with their effects here
+      
       set((state) => ({
-        player: {
-          ...state.player,
-          upgrades: {
-            ...state.player.upgrades,
-            [upgradeType]: {
-              ...state.player.upgrades[upgradeType],
-              level: state.player.upgrades[upgradeType].level + 1
-            }
+          player: {
+              ...state.player,
+              ...updatedPlayerProperties,
+              upgrades: {
+                  ...state.player.upgrades,
+                  [upgradeType]: {
+                      ...state.player.upgrades[upgradeType],
+                      level: newLevel
+                  }
+              }
           }
-        }
       }));
-    }
+  }
 
     // Deduct resources
     get().updatePlayerResource('chitin', -cost);

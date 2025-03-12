@@ -34,6 +34,7 @@ export const CraftingBench = () => {
 
     useFrameInterval((state, delta) => {
         const playerPos = camera.userData.characterPos;
+        if(!playerPos) return 
         if (playerPos.distanceTo(benchVector) <= pickupRadius && !toggleInquire)
             setToggleInquire(true)
         else if (toggleInquire && playerPos.distanceTo(benchVector) > pickupRadius) {

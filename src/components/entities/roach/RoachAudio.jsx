@@ -2,14 +2,18 @@
 import React, { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useSoundManager } from '../../../context/SoundContext';
+import { useGameEffectsStore } from '../../../store/gameEffectsStore';
+import { useShallow } from 'zustand/shallow';
 
-const RoachAudio = ({ position, isAnimatingRef, isAttacking }) => {
+const RoachAudio = ({ position, isAnimatingRef, isAttacking, deadRef }) => {
   const soundsRef = useRef({
     screech: null,
     attack: null,
   });
   const nextScreechRef = useRef(Math.random() * 10); // Random initial time
   const soundManager = useSoundManager();
+  const hasRolled = useRef(false)
+  const setTriggerKillSound = useGameEffectsStore(useShallow((state) => state.setTriggerKillSound))
 
   // Set up sounds
   useEffect(() => {
@@ -52,6 +56,10 @@ const RoachAudio = ({ position, isAnimatingRef, isAttacking }) => {
   // Handle periodic screeching
   useFrame((state, delta) => {
     // Update the timer
+    if(deadRef.current && !hasRolled.current) {
+      setTriggerKillSound()
+      hasRolled.current = true
+    }
     nextScreechRef.current -= delta;
 
     // If it's time to screech and we have a sound reference

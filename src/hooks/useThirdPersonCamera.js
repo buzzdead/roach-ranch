@@ -1,12 +1,16 @@
 // useThirdPersonCamera.js
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useInputManager } from './useInputManager';
+import { useGameEffectsStore } from '../store/gameEffectsStore';
+import { useShallow } from 'zustand/shallow';
 
 export const useThirdPersonCamera = (playerRef) => {
   const { camera } = useThree();
   const inputState = useInputManager();
+  const gameActive = useGameEffectsStore(useShallow((state) => state.gameActive))
+  const [loading, setLoading] = useState(true)
   
   const cameraOffset = useRef({
     distance: 3,
@@ -16,8 +20,8 @@ export const useThirdPersonCamera = (playerRef) => {
 
   // Initial camera setup
   useEffect(() => {
-    document.body.requestPointerLock();
-  }, []);
+    gameActive && document.body.requestPointerLock();
+  }, [gameActive]);
 
   // Update camera on each frame
   useFrame(() => {

@@ -1,9 +1,10 @@
-// RoachActions.jsx (corrected version)
+// RoachActions.jsx (refactored to work with RigidBody)
 import React, { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useRoachAnimations } from '../../../hooks/useRoachAnimations';
-
+import { useGameEffectsStore } from '../../../store/gameEffectsStore';
+import { useShallow } from 'zustand/shallow';
 
 const RoachActions = ({
   originalScene,
@@ -18,18 +19,21 @@ const RoachActions = ({
   rigidBodyRef
 }) => {
   const { actions, mixer } = useRoachAnimations(originalScene, animations, isAnimatingRef);
+  const waveLevel = useGameEffectsStore(useShallow((state) => state.waveLevel))
   const finished = useRef(false);
+  const initialize = useRef(0)
   const isRotatingRef = useRef(false);
   const isMovingRef = useRef(false);
   const targetRotationRef = useRef(0);
   const targetPositionRef = useRef(null);
   const scanTimerRef = useRef(0);
-  const scanIntervalRef = useRef(5); // Scan every 5 seconds
+  const scanIntervalRef = useRef(waveLevel > 5 ? 1.5 : waveLevel > 3 ? 2.5 : 5); // Scan every 5 seconds
   const moveSpeedRef = useRef(1.5); // Units per second
-  
+ 
   // Handle animation states
   useFrame(() => {
-    if (deadRef.current) return;
+    initialize.current++
+    if (deadRef.current || initialize.current < 250) return;
     
     // Handle Move animation during rotation or movement
     handleMoveAnimation();
@@ -40,10 +44,18 @@ const RoachActions = ({
 
   // Main update loop for roach behavior
   useFrame((state, delta) => {
-    if (deadRef.current) return;
+    if (deadRef.current || initialize.current < 250) return;
     
     updateAttackCooldown(delta);
     updateScanTimer(delta);
+    
+    // Sync position from rigidbody to our position array
+    if (rigidBodyRef.current) {
+      const translation = rigidBodyRef.current.translation();
+      position[0] = translation.x;
+      position[1] = translation.y;
+      position[2] = translation.z;
+    }
     
     const playerPosition = camera.userData.characterPos;
     if (!playerPosition) return;
@@ -74,7 +86,6 @@ const RoachActions = ({
       // Set attack cooldown
       attackCooldownRef.current = 3;
       
-      console.log("Roach preparing to attack - in range", distance, attackDistance);
     }
     // Handle rotation (either for attack or movement)
     else if (isRotatingRef.current) {
@@ -96,6 +107,7 @@ const RoachActions = ({
 
   // Handle death animation
   useFrame(() => {
+    if(initialize.current < 250) return
     handleDeathAnimation();
   });
   
@@ -155,7 +167,7 @@ const RoachActions = ({
     
     // Get current position and player position as vectors
     const currentPosition = new THREE.Vector3(position[0], position[1], position[2]);
-    const playerPos = new THREE.Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
+    const playerPos = new THREE.Vector3(playerPosition.x + Math.random() * 5, playerPosition.y, playerPosition.z - Math.random() * 5);
     
     // Calculate distance to player
     const distance = currentPosition.distanceTo(playerPos);
@@ -171,8 +183,7 @@ const RoachActions = ({
       isRotatingRef.current = true;
       isMovingRef.current = false;
       attackCooldownRef.current = 3;
-      
-      console.log("Roach preparing to attack from scan", distance, attackDistance);
+
       return;
     }
     
@@ -228,7 +239,6 @@ const RoachActions = ({
           actions.IdleMotion.play();
         }
         
-        console.log("Roach starting attack");
       }
       // Otherwise, start moving toward target
       else if (targetPositionRef.current) {
@@ -238,7 +248,7 @@ const RoachActions = ({
   };
   
   const moveTowardsTarget = (delta) => {
-    if (!targetPositionRef.current ) return;
+    if (!targetPositionRef.current || !rigidBodyRef.current) return;
     
     // Check if player is now in attack range (they might have moved closer)
     const playerPosition = camera.userData.characterPos;
@@ -259,7 +269,6 @@ const RoachActions = ({
         isRotatingRef.current = true;
         attackCooldownRef.current = 3;
         
-        console.log("Roach interrupting movement to attack", distance, attackDistance);
         return;
       }
     }
@@ -285,14 +294,17 @@ const RoachActions = ({
     
     // Normalize direction and apply speed
     direction.normalize();
-    direction.multiplyScalar(moveSpeedRef.current * delta);
     
-    // Update position
-    position[0] += direction.x;
-    position[2] += direction.z;
+    // Apply impulse to rigidBody in the movement direction
+
+    const impulseStrength = moveSpeedRef.current * (distanceToTarget > 20 ? (waveLevel > 5 ? 0.19 : 0.175) : (waveLevel > 5 ? 0.177 : 0.168)); // Might need adjustment
+    rigidBodyRef.current.applyImpulse(
+      { x: direction.x * impulseStrength, y: 0, z: direction.z * impulseStrength },
+      true
+    );
     
-    // Update originalScene position
-    originalScene.position.set(position[0], position[1], position[2]);
+    // The rigidbody will update the physics position, 
+    // and we'll read it back on the next frame
   };
   
   const handleDeathAnimation = () => {

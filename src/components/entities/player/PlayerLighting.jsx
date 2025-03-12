@@ -54,14 +54,6 @@ export const PlayerLighting = ({ camera }) => {
         shadow-mapSize-width={512}
         shadow-mapSize-height={512}
       />
-
-      <pointLight
-        position={[0, 3, 5]}
-        intensity={1.2}
-        distance={5}
-        decay={2}
-        color="#ff6a00"
-      />
     </group>
   );
 };

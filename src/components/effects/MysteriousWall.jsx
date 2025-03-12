@@ -37,7 +37,6 @@ const EnhancedMysteriousWall = ({
 
   useEffect(() => {
     if (!wallRef.current) {
-      console.log('Creating wall geometry and material...');
       const geometry = new THREE.CylinderGeometry(
         radius - 0.5,
         radius * 0.8,
@@ -104,7 +103,6 @@ const EnhancedMysteriousWall = ({
       const mesh = new THREE.Mesh(geometry, material);
       wallRef.current = mesh;
       materialRef.current = material;
-      console.log('Wall mesh created:', mesh);
     }
     wallRef.current.renderOrder = 5;
 
@@ -117,7 +115,7 @@ const EnhancedMysteriousWall = ({
   }, [radius, wallHeight]);
 
   useFrame((state, delta) => {
-    if (!rigidBody.current || !wallRef.current || !materialRef.current) return;
+    if (!rigidBody?.current || !wallRef.current || !materialRef.current) return;
 
     materialRef.current.uniforms.time.value += delta;
 
@@ -147,9 +145,6 @@ const EnhancedMysteriousWall = ({
         z: dirZ * force,
       });
 
-      if (distanceToCenter > radius - 1) {
-        console.log('Player hit boundary!');
-      }
     }
   });
 

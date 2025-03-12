@@ -3,10 +3,7 @@ import { nanoid } from 'nanoid';
 
 export const createRoachSlice = (set, get) => ({
   roaches: [
-    { id: nanoid(), position: [-2, 0.3, -14], health: 75, effects: { bleeds: [] } },
-    { id: nanoid(), position: [-1, 0.3, -14], health: 75, effects: { bleeds: [] } },
-    { id: nanoid(), position: [-5, 0.3, -14], health: 75, effects: { bleeds: [] } },
-    { id: nanoid(), position: [3, 0.3, -14], health: 75, effects: { bleeds: [] } },
+    //{ id: nanoid(), position: [-2, 0.3, -14], health: 75, effects: { bleeds: [] } },
   ],
 
   addBleed: (roachId, position, bulletDirection, damage = 25) => {

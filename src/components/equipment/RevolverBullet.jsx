@@ -1,106 +1,83 @@
-// RevolverBullet.jsx
+// RevolverBullet.jsx - Optimized version
 import React, { useRef, useEffect, useState } from 'react';
-import { useGLTF } from '@react-three/drei';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import CollisionManager from '../../utils/CollisionManager';
 import { modelCache } from '../../Preloader';
 
+// Create a pre-calculated rotation matrix and quaternion outside component
+const calculateBulletQuaternion = (direction) => {
+  const bulletDirection = direction.clone().normalize();
+  const upVector = new THREE.Vector3(0, 1, 0);
+  const matrix = new THREE.Matrix4();
+  
+  const right = new THREE.Vector3().crossVectors(bulletDirection, upVector).normalize();
+  const correctedUp = new THREE.Vector3().crossVectors(right, bulletDirection).normalize();
+  
+  matrix.makeBasis(right, correctedUp, bulletDirection.clone().negate());
+  const quaternion = new THREE.Quaternion().setFromRotationMatrix(matrix);
+  return quaternion;
+};
+
+// Create a shared geometry for all bullets
 const BULLET_CONFIG = {
   modelPath: '/bullet1.glb',
   scale: [0.1, 0.1, 0.1],
-  speed: 25,  // Units per second
-  maxDistance: 100,  // Maximum travel distance before removal
+  speed: 25,
+  maxDistance: 100,
 };
 
-const RevolverBullet = ({ position, direction, removeBullet }) => {
-  const { scene } = modelCache[BULLET_CONFIG.modelPath];
-  scene.traverse((child) => {
-    if (child.isMesh && child.material) {
-     
-    }
-  });
-  const bulletGroupRef = useRef();
-  const bulletModelRef = useRef();
-  const startPosition = useRef(new THREE.Vector3().copy(position));
-  const initialQuaternion = useRef(new THREE.Quaternion());
-  const [isActive, setIsActive] = useState(true);
+// Cache the bullet model once, not per bullet
+let cachedBulletModel = null;
 
-  useEffect(() => {
-    if(!isActive) {
-      removeBullet()
-    }
-  }, [])
+const RevolverBullet = ({ position, direction, removeBullet, bulletDamage }) => {
+  const bulletGroupRef = useRef();
+  const startPosition = useRef(new THREE.Vector3().copy(position));
+  const [isActive, setIsActive] = useState(true);
   
-  // Calculate rotation to face direction
-  const bulletDirection = direction.clone().normalize();
+  // Only clone the model once and reuse it
+  if (!cachedBulletModel) {
+    const { scene } = modelCache[BULLET_CONFIG.modelPath];
+    cachedBulletModel = scene.clone();
+  }
   
+  // Calculate rotation quaternion only once when bullet is created
+  const initialQuaternion = useRef(calculateBulletQuaternion(direction));
+  const bulletDirection = useRef(direction.clone().normalize());
+  
+  // Call removeBullet when bullet is no longer active
   useEffect(() => {
-    
-    // Calculate proper rotation quaternion from direction vector (only once at creation)
-    const upVector = new THREE.Vector3(0, 1, 0);
-    const matrix = new THREE.Matrix4();
-    
-    // Find perpendicular vector for the up direction
-    const right = new THREE.Vector3().crossVectors(bulletDirection, upVector).normalize();
-    // Recalculate up to ensure orthogonality
-    const correctedUp = new THREE.Vector3().crossVectors(right, bulletDirection).normalize();
-    
-    // Build rotation matrix from the three orthogonal vectors
-    matrix.makeBasis(right, correctedUp, bulletDirection.clone().negate());
-    initialQuaternion.current.setFromRotationMatrix(matrix);
-    
-    // Set the initial quaternion on the group
-    if (bulletGroupRef.current) {
-      bulletGroupRef.current.quaternion.copy(initialQuaternion.current);
+    if (!isActive) {
+      removeBullet();
     }
-    
-    const bulletModel = scene.clone();
-    bulletModelRef.current = bulletModel;
-    
-    return () => {
-      
-      if (bulletModelRef.current) {
-        bulletModelRef.current.traverse(child => {
-          if (child.isMesh) {
-            if (child.geometry) child.geometry.dispose();
-            if (child.material && child.material.dispose) child.material.dispose();
-          }
-        });
-      }
-    };
-  }, [position, scene, bulletDirection]);
+  }, [isActive, removeBullet]);
   
   useFrame((_, delta) => {
     if (!bulletGroupRef.current || !isActive) return;
     
     // Move bullet in direction
     const moveAmount = BULLET_CONFIG.speed * delta;
-
     const bulletPosition = bulletGroupRef.current.position.clone();
-    const bulletRadius = 0.03; // Adjust based on your bullet size
+    const bulletRadius = 0.03;
     
     const collisionResult = CollisionManager.checkBulletPhysicalCollision(
       bulletPosition,
       bulletRadius,
-      bulletDirection
+      bulletDirection.current,
+      bulletDamage
     );
     
-    // If hit something, deactivate bullet
     if (collisionResult.hit) {
       setIsActive(false);
       return;
     }
     
-    bulletGroupRef.current.position.add(bulletDirection.clone().multiplyScalar(moveAmount));
-    
-    // Ensure orientation stays fixed
-    bulletGroupRef.current.quaternion.copy(initialQuaternion.current);
+    bulletGroupRef.current.position.add(
+      bulletDirection.current.clone().multiplyScalar(moveAmount)
+    );
     
     // Check if bullet has traveled too far
-    const currentPos = bulletGroupRef.current.position;
-    const distance = startPosition.current.distanceTo(currentPos);
-    
+    const distance = startPosition.current.distanceTo(bulletGroupRef.current.position);
     if (distance > BULLET_CONFIG.maxDistance) {
       setIsActive(false);
     }
@@ -114,11 +91,10 @@ const RevolverBullet = ({ position, direction, removeBullet }) => {
       position={position}
       quaternion={initialQuaternion.current}
     >
-      {/* The actual bullet model */}
       <primitive 
-        object={scene.clone()} 
+        object={cachedBulletModel} 
         scale={BULLET_CONFIG.scale}
-        rotation={[0, 0.5, -0.7]} // Your working rotation values
+        rotation={[0, 0.5, -0.7]} 
       />
     </group>
   );

@@ -2,8 +2,9 @@
 import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useAttachToObject } from '../../hooks/useAttachToObject';
+import { ShaderMaterial } from 'three';
 import { usePlayerContext } from '../../context/PlayerContext';
-import { useThree } from '@react-three/fiber';
+import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import RevolverBullet from './RevolverBullet';
 import RevolverAudio from './RevolverAudio';
@@ -37,6 +38,12 @@ export const Revolver = ({ bone }) => {
   const [lastFireCount, setLastFireCount] = useState(0);
   const { camera } = useThree();
   const weapons = useGameEffectsStore(useShallow((state) => state.weapons))
+  const { damage, shootingSpeed } = useMemo(() => {
+    const damage = weapons.revolver.upgrades.damage
+    const shootingSpeed = weapons.revolver.upgrades.shootingSpeed
+    return { damage, shootingSpeed }
+  }, [ weapons ] )
+
   // For firing animation/effects
   const [muzzleFlash, setMuzzleFlash] = useState(false);
   const [isFiring, setIsFiring] = useState(false);
@@ -47,6 +54,17 @@ export const Revolver = ({ bone }) => {
   
   // Handle firing animation and bullet creation
   useEffect(() => {
+    const createBullet = (muzzlePos, direction) => {
+      const newBulletId = Date.now();
+      setBullets(prevBullets => [
+        ...prevBullets.slice(-5), // Only keep the 5 most recent bullets
+        {
+          id: newBulletId,
+          position: muzzlePos.clone(),
+          direction: direction.clone()
+        }
+      ]);
+    };
     if (animationState.firing && animationState.fireCount !== lastFireCount && !isFiring) {
       setLastFireCount(animationState.fireCount);
       setMuzzleFlash(true);
@@ -80,15 +98,8 @@ export const Revolver = ({ bone }) => {
         const firingDirection = new THREE.Vector3().subVectors(targetPoint, muzzleWorldPos).normalize();
         
         // Add new bullet with unique ID
-        const newBulletId = Date.now();
-        setBullets(prevBullets => [
-          ...prevBullets,
-          {
-            id: newBulletId,
-            position: muzzleWorldPos,
-            direction: firingDirection
-          }
-        ]);
+        createBullet(muzzleWorldPos, firingDirection)
+       
         
         // Trigger sound by setting isFiring to true
         setIsFiring(true);
@@ -96,7 +107,7 @@ export const Revolver = ({ bone }) => {
         // Reset firing state after a short delay
         setTimeout(() => {
           setIsFiring(false);
-        }, 750 * (1 - weapons.revolver.upgrades.shootingSpeed.level * weapons.revolver.upgrades.shootingSpeed.increment));
+        }, 750 * (1 - shootingSpeed.level * shootingSpeed.increment));
       }
       
       // Hide muzzle flash after a short delay
@@ -142,20 +153,41 @@ export const Revolver = ({ bone }) => {
           />
           
           {/* Muzzle flash */}
+         
           {muzzleFlash && (
-            <pointLight
-              position={MUZZLE_POSITION}
-              intensity={5}
-              distance={2}
-              color="#ffaa00"
-            />
-          )}
-          {muzzleFlash && (
-            <mesh position={MUZZLE_POSITION}>
-              <sphereGeometry args={[0.03, 16, 16]} />
-              <meshBasicMaterial color="#ffff00" />
-            </mesh>
-          )}
+  <>
+    <mesh position={[0, 0.75, -0.75]}>
+      <sphereGeometry args={[0.05, 16, 16]} />
+      <MuzzleFlash />
+    </mesh>
+    <mesh position={[0, 0.75, -0.5]} rotation={[0, 0, 0]}>
+      <planeGeometry args={[0.2, 0.2]} />
+      <meshBasicMaterial 
+        color="#ffaa00" 
+        transparent={true}
+        opacity={0.8}
+        blending={THREE.AdditiveBlending}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  </>
+)}
+{muzzleFlash && (
+  <>
+    {/* Existing muzzle flash code */}
+    
+    {/* Smoke puff */}
+    <mesh position={[0, 0.75, -0.55]} scale={[0.1, 0.1, 0.1]}>
+      <sphereGeometry args={[0.5, 8, 8]} />
+      <meshStandardMaterial 
+        color="#777777" 
+        transparent={true}
+        opacity={0.3}
+      />
+    </mesh>
+  </>
+)}
+
         </group>
       </group>
       
@@ -172,8 +204,56 @@ export const Revolver = ({ bone }) => {
           position={bullet.position}
           direction={bullet.direction}
           removeBullet={() => handleRemoveBullet(bullet.id)}
+          bulletDamage={25 + (damage.level * damage.increment)}
         />
       ))}
     </>
   );
+};
+
+const MuzzleFlash = () => {
+  const materialRef = useRef();
+  
+  const material = useMemo(() => {
+    return new ShaderMaterial({
+      uniforms: {
+        time: { value: 0 },
+        color: { value: new THREE.Color(1.0, 0.7, 0.3) }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float time;
+        uniform vec3 color;
+        varying vec2 vUv;
+        
+        void main() {
+          float dist = distance(vUv, vec2(0.5, 0.5));
+          float flicker = 0.95 + 0.05 * sin(time * 30.0);
+          float innerGlow = smoothstep(0.5, 0.0, dist) * flicker;
+          float outerGlow = smoothstep(1.0, 0.5, dist) * 0.5 * flicker;
+          float brightness = innerGlow + outerGlow;
+          vec3 finalColor = color * brightness;
+          float alpha = brightness * 1.5;
+          gl_FragColor = vec4(finalColor, alpha);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending
+    });
+  }, []);
+  
+  // Update time uniform
+  useFrame((state) => {
+    if (materialRef.current) {
+      materialRef.current.uniforms.time.value = state.clock.elapsedTime;
+    }
+  });
+  
+  return <shaderMaterial ref={materialRef} attach="material" args={[material]} />;
 };

@@ -43,6 +43,9 @@ export const SoundProvider = ({ children }) => {
           'UpgradeUnlock',
           'soundeffects/unlock-upgrade.mp3'
         ),
+        manager.preloadSound('Kill1', 'soundeffects/Rancher-Kill1.mp3'),
+        manager.preloadSound('Kill2', 'soundeffects/Rancher-Kill2.mp3'),
+        manager.preloadSound('Kill3', 'soundeffects/Rancher-Kill3.mp3'),
         // Preload other sounds as needed
       ]).then(() => {
         setSoundManager(manager);

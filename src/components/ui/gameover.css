@@ -1,0 +1,208 @@
+/* components/ui/gameover.css */
+.game-over-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .game-over-container {
+    background-color: #1a1a1a;
+    border: 3px solid #ff6b35;
+    border-radius: 8px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+  }
+  
+  .game-over-container h1 {
+    font-size: 2.5rem;
+    color: #ff6b35;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(255, 107, 53, 0.7);
+  }
+  
+  .score-info {
+    margin-bottom: 30px;
+    font-size: 1.2rem;
+  }
+  
+  .highlight {
+    color: #ff6b35;
+    font-weight: bold;
+    font-size: 1.3rem;
+  }
+  
+  .user-form {
+    margin-bottom: 30px;
+  }
+  
+  .register-form h3 {
+    margin-bottom: 15px;
+    color: #ccc;
+  }
+  
+  .name-input {
+    padding: 10px 15px;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background-color: #333;
+    color: white;
+    width: 100%;
+    margin-bottom: 15px;
+    font-size: 1rem;
+  }
+  
+  .name-input:focus {
+    outline: none;
+    border-color: #ff6b35;
+    box-shadow: 0 0 5px rgba(255, 107, 53, 0.5);
+  }
+  
+  .submit-button,
+  .play-again-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #ff6b35;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  
+  .submit-button:hover,
+  .play-again-button:hover {
+    background-color: #ff8b55;
+    transform: translateY(-2px);
+  }
+  
+  .submit-button:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .welcome-back {
+    margin-bottom: 20px;
+  }
+  
+  .welcome-back p {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+  }
+  
+  .message {
+    margin-top: 10px;
+    padding: 5px;
+    color: #ff6b35;
+    font-style: italic;
+  }
+  
+  .game-actions {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .play-again-button {
+    background-color: #2d7dd2;
+    font-size: 1.2rem;
+    padding: 12px 30px;
+  }
+  
+  .play-again-button:hover {
+    background-color: #3a8fe0;
+  }
+  .leaderboard {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .leaderboard h2 {
+    color: #ff6b35;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .leaderboard-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+  
+  .leaderboard-header {
+    display: grid;
+    grid-template-columns: 50px 1fr 80px;
+    gap: 10px;
+    padding: 8px 5px;
+    font-weight: bold;
+    border-bottom: 2px solid #666;
+    margin-bottom: 5px;
+    color: #ccc;
+  }
+  
+  .leaderboard-item {
+    display: grid;
+    grid-template-columns: 50px 1fr 80px;
+    gap: 10px;
+    padding: 8px 5px;
+    border-bottom: 1px solid #333;
+    transition: background-color 0.3s;
+  }
+  
+  .leaderboard-item:last-child {
+    border-bottom: none;
+  }
+  
+  .leaderboard-item:hover {
+    background-color: rgba(255, 107, 53, 0.1);
+  }
+  
+  .current-user {
+    background-color: rgba(255, 107, 53, 0.2);
+    font-weight: bold;
+  }
+  
+  .rank {
+    text-align: center;
+  }
+  
+  .score {
+    text-align: right;
+    color: #ff6b35;
+  }
+  
+  .back-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #666;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-right: 10px;
+  }
+  
+  .back-button:hover {
+    background-color: #888;
+    transform: translateY(-2px);
+  }
+  
+  .game-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+  }

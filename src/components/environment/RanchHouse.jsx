@@ -347,7 +347,7 @@ const RanchHouse = ({ position = [0, 0, 0], dilapidated = true }) => {
             <CuboidCollider args={[0.25, 5, 5]} position={[10, 5, 5]} />
 
             {/* Floor */}
-            <CuboidCollider args={[10, 0.25, 5]} position={[0, 0, 5]} />
+            <CuboidCollider args={[10, 0, 5]} position={[0, 0, 5]} />
           </RigidBody>
           {/* Back wall with windows */}
           <mesh position={[0, 5, 10]} castShadow receiveShadow>

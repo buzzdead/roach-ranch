@@ -88,9 +88,9 @@ const PlayerPhysics = ({ playerRef }) => {
       moveVec.normalize().multiplyScalar(moveSpeed * 50); // Scale up for physics impulse
 
       playerRef.current.applyImpulse({
-        x: moveVec.x,
+        x: moveVec.x * (inputState.current.actions.aim ? 0.65 : 1),
         y: 0,
-        z: moveVec.z,
+        z: moveVec.z * (inputState.current.actions.aim ? 0.65 : 1),
       });
 
       // Update character rotation to match movement direction (if moving)

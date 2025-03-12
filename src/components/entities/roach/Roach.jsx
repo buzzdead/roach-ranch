@@ -1,7 +1,6 @@
 // Roach.jsx (modified)
 import React, { Suspense, useMemo, useRef, useEffect, useState } from 'react';
 import { useThree } from '@react-three/fiber';
-import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import RoachModel from './RoachModel';
 import RoachAction from './RoachActions';
 import RoachAudio from './RoachAudio';
@@ -10,10 +9,26 @@ import CollisionManager from '../../../utils/CollisionManager';
 import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/react/shallow';
 import { modelCache } from '../../../Preloader';
+import { getOrCreateClone } from '../../../utils/CloneUtil';
+import { SkeletonUtils } from 'three/examples/jsm/Addons.js';
 
 const Roach = ({ id, position }) => {
   const { scene, animations } = modelCache['/mutant.glb'];
-  const originalScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
+  const [loading, setLoading] = useState(true)
+  
+  // Clone the scene
+  const originalScene = useMemo(() => {
+    const cloned = SkeletonUtils.clone(scene);
+    
+    // Pre-compute bounding spheres for all geometries in the model
+    cloned.traverse((object) => {
+      if (object.geometry && !object.geometry.boundingSphere) {
+        object.geometry.computeBoundingSphere();
+      }
+    });
+    setTimeout(() => setLoading(false), 1000)
+    return cloned;
+  }, [scene]);
 
   const { camera } = useThree();
   const modelRef = useRef();
@@ -31,7 +46,7 @@ const Roach = ({ id, position }) => {
   const isAttackingRef = useRef(false);
 
   // Constants
-  const attackDistance = 10;
+  const attackDistance = 5;
 
   const handleAttackComplete = () => {
     isAttackingRef.current = false;
@@ -58,7 +73,7 @@ const Roach = ({ id, position }) => {
 
   const setHealth = (p, m) => {
     impactEvent.trigger(p.bulletDirection);
-    const newHealth = addBleed(id, p.position, p.bulletDirection);
+    const newHealth = addBleed(id, p.position, p.bulletDirection, p.damage);
     if (newHealth <= 0) deadRef.current = true;
     if (newHealth < 0) setIsDead(true);
   };
@@ -77,16 +92,16 @@ const Roach = ({ id, position }) => {
 
     // Unregister when unmounted
     return unregister;
-  }, [position]);
+  }, [position, loading]);
   const handleDeath = () => {
     if (Math.random() > 0) {
       // Add chitin at the roach's position
-      position[1] += 0.25;
+      const pos = modelRef.current.position.clone()
       addLoot('chitin', position);
     }
     removeRoach(id);
   };
-  return (
+  return loading ? null : (
     <>
       <RoachModel
         ref={modelRef}
@@ -115,6 +130,7 @@ const Roach = ({ id, position }) => {
         position={position}
         isAnimatingRef={isAnimatingRef}
         isAttackingRef={isAttackingRef}
+        deadRef={deadRef}
       />
 
       <Suspense fallback={null}>
@@ -125,6 +141,7 @@ const Roach = ({ id, position }) => {
           onAttackComplete={handleAttackComplete}
           roachId={id}
           handleJump={jumpEvent}
+          modelRef={modelRef}
         />
       </Suspense>
     </>

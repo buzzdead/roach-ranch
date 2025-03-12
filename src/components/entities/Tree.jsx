@@ -2,6 +2,7 @@
 import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import useFrameInterval from '../../utils/useFrameInterval';
 
 const Tree = ({
   position,
@@ -101,7 +102,7 @@ const Tree = ({
   }, [height, foliageSize, type]);
 
   // Animate the foliage
-  useFrame(({ clock }) => {
+  useFrameInterval(({ clock }) => {
     const time = clock.getElapsedTime();
 
     // Subtle whole tree sway
@@ -128,7 +129,7 @@ const Tree = ({
         cluster.scale.z = cluster.userData.originalScale[2] * scalePulse;
       });
     }
-  });
+  }, 30);
 
   return (
     <group position={position} scale={scale}>

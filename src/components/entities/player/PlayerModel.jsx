@@ -9,10 +9,12 @@ import * as THREE from 'three';
 import CollisionManager from '../../../utils/CollisionManager';
 import { useThirdPersonCamera } from '../../../hooks/useThirdPersonCamera';
 import PlayerPhysics from './PlayerPhysics';
+import PlayerHealth from './PlayerHealth';
 
 export const PlayerModel = forwardRef(
   ({ scene, camera, showHitbox = false }, ref) => {
     const localRef = useRef();
+    const damageRef = useRef(0)
     const playerRef = useRef()
     const coneHelperRef = useRef();
     useThirdPersonCamera(playerRef);
@@ -82,9 +84,12 @@ export const PlayerModel = forwardRef(
         coneHelperRef.current.rotation.y = localRef.current.rotation.y;
       }
     });
-
+    
+    const playerTakeDamage = (d) => {
+      damageRef.current += d.damage
+    }
     useEffect(() => {
-      if (localRef.current) CollisionManager.registerPlayer(localRef);
+      if (localRef.current) CollisionManager.registerPlayer(localRef, playerTakeDamage);
 
       return () => {
         // Cleanup when component unmounts
@@ -102,6 +107,7 @@ export const PlayerModel = forwardRef(
         scale={[1, 1, 1]}
         castShadow
       />
+      <PlayerHealth damageRef={damageRef} modelRef={localRef} />
       </>
     );
   }

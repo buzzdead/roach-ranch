@@ -9,6 +9,7 @@ import { PlayerAnimation } from './PlayerAnimation';
 import { PlayerAudio } from './PlayerAudio';
 import PlayerCursor from './PlayerCursor';
 import { modelCache } from '../../../Preloader';
+import PlayerHealth from './PlayerHealth';
 
 const Player = () => {
   const { scene, animations } = modelCache['/rancher.glb'];
@@ -99,6 +100,7 @@ const Player = () => {
         </>
       )}
       <PlayerCursor />
+      
     </>
   );
 };

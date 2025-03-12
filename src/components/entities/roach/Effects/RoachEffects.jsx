@@ -10,6 +10,7 @@ const RoachEffects = ({
   onAttackComplete,
   roachId,
   handleJump,
+  modelRef,
 }) => {
   return (
     <>

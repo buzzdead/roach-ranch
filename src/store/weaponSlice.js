@@ -18,8 +18,8 @@ export const createWeaponsSlice = (set, get) => ({
         shootingSpeed: {
           level: 0,
           maxLevel: 3,
-          cost: { chitin: 5 },
-          increment: 0.2,  // 20% increase per level
+          cost: { chitin: 6 },
+          increment: 0.13,  // 20% increase per level
           available: true,
           displayName: "Firing Rate"
         }

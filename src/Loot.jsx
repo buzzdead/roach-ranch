@@ -147,7 +147,7 @@ const LootItem = memo(({ id, position, type, autoCollect = false }) => {
     
     // Easing function for smoother motion
     const easeOutQuad = (t) => t * (2 - t);
-  
+    position[1] = 0.5
     return (
       <group position={position}>
         <group ref={itemRef} scale={0.8}>
