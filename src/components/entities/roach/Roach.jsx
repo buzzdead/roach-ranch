@@ -9,7 +9,6 @@ import CollisionManager from '../../../utils/CollisionManager';
 import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/react/shallow';
 import { modelCache } from '../../../Preloader';
-import { getOrCreateClone } from '../../../utils/CloneUtil';
 import { SkeletonUtils } from 'three/examples/jsm/Addons.js';
 
 const Roach = ({ id, position }) => {
@@ -17,7 +16,18 @@ const Roach = ({ id, position }) => {
   const [loading, setLoading] = useState(true)
   
   // Clone the scene
-  const originalScene = getOrCreateClone(scene)
+  const originalScene = useMemo(() => {
+    const cloned = SkeletonUtils.clone(scene);
+    
+    // Pre-compute bounding spheres for all geometries in the model
+    cloned.traverse((object) => {
+      if (object.geometry && !object.geometry.boundingSphere) {
+        object.geometry.computeBoundingSphere();
+      }
+    });
+    setTimeout(() => setLoading(false), 1000)
+    return cloned;
+  }, [scene]);
 
   const { camera } = useThree();
   const modelRef = useRef();
