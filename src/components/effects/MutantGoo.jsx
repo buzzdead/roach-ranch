@@ -504,7 +504,7 @@ const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {
   return (
     <>
       {/* Flying goo particles */}
-      <points ref={particlesRef}>
+      <points renderOrder={9} ref={particlesRef}>
         <primitive object={particles} attach="geometry" />
         <pointsMaterial
           attach="material"

@@ -1,15 +1,27 @@
-// useRoachDeathEffect.js
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
-const emberGeometry = new THREE.SphereGeometry(0.075, 4, 4);
+// Particle constants for easy tweaking
+const EMBER_BASE_SIZE = 0.075; // Base size of ember particles
+const EMBER_LARGE_SIZE = 0.1;  // Size of larger embers
+const EMBER_MAX_COUNT = 15;    // Max number of ember particles
+const EMBER_VELOCITY_RANGE = 0.1; // Max velocity spread for embers
+const EMBER_UPWARD_VELOCITY = 0.08; // Base upward velocity for embers
+
+const SPARKLE_SIZE = 0.03;     // Smaller size for sparkles (was 0.05)
+const SPARKLE_COUNT = 10;      // Number of sparkles in burst
+const SPARKLE_VELOCITY_RANGE = 0.1; // Reduced travel distance (was 0.2)
+const SPARKLE_LIFE = 0.05;     // Duration of sparkle life (slightly reduced from 0.061)
+
+// Geometries and materials
+const emberGeometry = new THREE.SphereGeometry(EMBER_BASE_SIZE, 4, 4);
 const emberMaterialPool = Array(3).fill().map(() => new THREE.MeshStandardMaterial({
   emissive: new THREE.Color(1, 0.5, 0),
   emissiveIntensity: 3,
   transparent: true,
   opacity: 0.8,
 }));
-const sparkleGeometry = new THREE.SphereGeometry(0.05, 4, 4); // Smaller for sparkle
+const sparkleGeometry = new THREE.SphereGeometry(SPARKLE_SIZE, 4, 4);
 const sparkleMaterial = new THREE.MeshStandardMaterial({
   emissive: new THREE.Color(1, 0.2, 0), // Bright red-orange
   emissiveIntensity: 5,
@@ -31,35 +43,40 @@ const useRoachDeathEffect = ({
   const emitterCreated = useRef(false);
   const emitterCreatedCount = useRef(0);
   const sparkleTriggered = useRef(false);
-  const deathCompleted = useRef(false); // New flag to prevent multiple onDeathComplete calls
+  const deathCompleted = useRef(false);
+  const fragmentsCreatedCount = useRef(0);
 
   const createEmberParticles = (progress) => {
     const emberGroup = new THREE.Group();
     emberGroup.position.set(0, 0, 0);
 
-    const baseCount = 5;
-    const particleCount = Math.min(baseCount + Math.floor(progress * 10), 15);
+    const baseCount = 8;
+    const particleCount = Math.min(baseCount + Math.floor(progress * 15), EMBER_MAX_COUNT);
 
     for (let i = 0; i < particleCount; i++) {
+      const isLarge = Math.random() > 0.7;
+      const size = isLarge ? EMBER_LARGE_SIZE : EMBER_BASE_SIZE;
+      const geometry = new THREE.SphereGeometry(size, 4, 4);
       const emberMaterial = emberMaterialPool[i % emberMaterialPool.length].clone();
-      emberMaterial.emissive.setRGB(0.8 + Math.random() * 0.2, 0.3 + Math.random() * 0.3, 0);
+      emberMaterial.emissive.setRGB(1, 0.4 + Math.random() * 0.3, 0);
+      emberMaterial.emissiveIntensity = 5;
 
-      const ember = new THREE.Mesh(emberGeometry, emberMaterial);
+      const ember = new THREE.Mesh(geometry, emberMaterial);
       ember.position.set(
-        (Math.random() - 0.5) * 1.0,
-        (Math.random() - 0.3) * 0.7,
-        (Math.random() - 0.5) * 1.0
+        (Math.random() - 0.5) * 1.2,
+        (Math.random() - 0.3) * 1.0,
+        (Math.random() - 0.5) * 1.2
       );
       emberGroup.add(ember);
 
       ember.userData = {
         velocity: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.06,
-          0.05 + Math.random() * 0.08,
-          (Math.random() - 0.5) * 0.06
+          (Math.random() - 0.5) * EMBER_VELOCITY_RANGE,
+          EMBER_UPWARD_VELOCITY + Math.random() * 0.12,
+          (Math.random() - 0.5) * EMBER_VELOCITY_RANGE
         ),
-        life: 1,
-        decay: 0.005 + Math.random() * 0.015,
+        life: isLarge ? 1.5 : 1,
+        decay: 0.008 + Math.random() * 0.02,
       };
     }
 
@@ -79,10 +96,10 @@ const useRoachDeathEffect = ({
         }
         allDead = false;
         ember.position.add(ember.userData.velocity);
-        ember.userData.velocity.y -= 0.0005;
+        ember.userData.velocity.y -= 0.001;
         ember.userData.life -= ember.userData.decay;
-        ember.material.opacity = ember.userData.life * 0.8;
-        const scale = ember.userData.life * 0.1 + 0.1;
+        ember.material.opacity = ember.userData.life * 0.9;
+        const scale = ember.userData.life * (ember.userData.life > 0.5 ? 0.15 : 0.1) + 0.05;
         ember.scale.set(scale, scale, scale);
       });
 
@@ -99,9 +116,9 @@ const useRoachDeathEffect = ({
     const sparkleGroup = new THREE.Group();
     sparkleGroup.position.set(0, 0, 0);
 
-    const sparkleCount = 10;
-    for (let i = 0; i < sparkleCount; i++) {
+    for (let i = 0; i < SPARKLE_COUNT; i++) {
       const sparkle = new THREE.Mesh(sparkleGeometry, sparkleMaterial.clone());
+      sparkle.material.emissiveIntensity = 8;
       sparkle.position.set(
         (Math.random() - 0.5) * 0.5,
         (Math.random() - 0.5) * 0.5,
@@ -111,11 +128,11 @@ const useRoachDeathEffect = ({
 
       sparkle.userData = {
         velocity: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.2,
-          (Math.random() - 0.5) * 0.2,
-          (Math.random() - 0.5) * 0.2
+          (Math.random() - 0.5) * SPARKLE_VELOCITY_RANGE,
+          (Math.random() - 0.5) * SPARKLE_VELOCITY_RANGE,
+          (Math.random() - 0.5) * SPARKLE_VELOCITY_RANGE
         ),
-        life: 0.061,
+        life: SPARKLE_LIFE,
         decay: 0.0015,
       };
     }
@@ -138,7 +155,7 @@ const useRoachDeathEffect = ({
         sparkle.position.add(sparkle.userData.velocity);
         sparkle.userData.life -= sparkle.userData.decay;
         sparkle.material.opacity = sparkle.userData.life * 3;
-        const scale = sparkle.userData.life * 8 + 0.4;
+        const scale = sparkle.userData.life * 8 + 0.2; // Reduced base scale from 0.4
         sparkle.scale.set(scale, scale, scale);
       });
 
@@ -151,6 +168,78 @@ const useRoachDeathEffect = ({
     animateSparkles();
   };
 
+  const createFragments = (progress) => {
+    const fragmentCount = 15;
+    const fragmentGroup = new THREE.Group();
+
+    for (let i = 0; i < fragmentCount; i++) {
+      const size = 0.05 + Math.random() * 0.1;
+      const fragmentGeometry = new THREE.BoxGeometry(size, size, size);
+      const fragmentMaterial = materialsRef.current[0].clone();
+      fragmentMaterial.emissive = new THREE.Color(1, 0.3 + Math.random() * 0.2, 0.5);
+      fragmentMaterial.transparent = true;
+
+      const fragment = new THREE.Mesh(fragmentGeometry, fragmentMaterial);
+      fragment.position.set(
+        (Math.random() - 0.5) * 0.8,
+        (Math.random() - 0.5) * 0.8,
+        (Math.random() - 0.5) * 0.8
+      );
+
+      fragment.userData = {
+        velocity: new THREE.Vector3(
+          (Math.random() - 0.5) * 0.3,
+          Math.random() * 0.4,
+          (Math.random() - 0.5) * 0.3
+        ),
+        rotationSpeed: new THREE.Vector3(
+          Math.random() * 0.3,
+          Math.random() * 0.3,
+          Math.random() * 0.3
+        ),
+        life: 1.5,
+        decay: 0.015 + Math.random() * 0.015,
+      };
+
+      fragmentGroup.add(fragment);
+    }
+
+    if (modelRef.current && modelRef.current.parent) {
+      modelRef.current.parent.add(fragmentGroup);
+      fragmentGroup.position.copy(modelRef.current.position);
+    } else {
+      originalScene.add(fragmentGroup);
+    }
+
+    const animateFragments = () => {
+      let allDead = true;
+      fragmentGroup.children.forEach(fragment => {
+        if (fragment.userData.life <= 0) {
+          fragmentGroup.remove(fragment);
+          return;
+        }
+        allDead = false;
+        fragment.position.add(fragment.userData.velocity);
+        fragment.userData.velocity.y -= 0.0015;
+        fragment.rotation.x += fragment.userData.rotationSpeed.x;
+        fragment.rotation.y += fragment.userData.rotationSpeed.y;
+        fragment.rotation.z += fragment.userData.rotationSpeed.z;
+        fragment.userData.life -= fragment.userData.decay;
+        fragment.material.opacity = fragment.userData.life;
+        const scale = fragment.userData.life * 0.15 + 0.1;
+        fragment.scale.set(scale, scale, scale);
+      });
+
+      if (allDead) {
+        if (fragmentGroup.parent) fragmentGroup.parent.remove(fragmentGroup);
+        return;
+      }
+      requestAnimationFrame(animateFragments);
+    };
+
+    animateFragments();
+  };
+
   useEffect(() => {
     if (isDead && deathProgress.current < 1) {
       const animateDeath = () => {
@@ -161,7 +250,7 @@ const useRoachDeathEffect = ({
         deathProgress.current = newProgress;
 
         const pulseIntensity = newProgress < 0.5 ?
-          Math.sin(newProgress * 20) * 1.3 + 1 :
+          Math.sin(newProgress * 20) * 2 + 1 :
           Math.sin(newProgress * 20) * 1.2 * (1 - newProgress) + 1;
 
         materialsRef.current.forEach((material, index) => {
@@ -169,45 +258,50 @@ const useRoachDeathEffect = ({
           if (individualProgress > 0.2) {
             material.opacity = 1 - ((individualProgress - 0.2) / 0.8);
           }
-          material.emissiveIntensity = 0.2 + (newProgress * 3 * pulseIntensity);
-          if (newProgress < 0.3) {
-            material.emissive.setRGB(0.8, 0.1, 0);
-          } else if (newProgress < 0.6) {
-            material.emissive.setRGB(
-              0.8 + (newProgress - 0.3) * 0.6,
-              0.1 + (newProgress - 0.3) * 1.5,
-              0
-            );
-          } else {
+          material.emissiveIntensity = 1 + (newProgress * 8 * pulseIntensity);
+          if (newProgress < 0.4) {
+            material.emissive.setRGB(1, 0.3, 0);
+          } else if (newProgress < 0.7) {
             material.emissive.setRGB(
               1,
-              0.55 - (newProgress - 0.6) * 1.375,
-              0
+              0.3 + (newProgress - 0.4) * 2,
+              (newProgress - 0.4) * 1.5
             );
+          } else {
+            material.emissive.setRGB(1, 1, 0.8);
           }
         });
 
         if (modelRef.current) {
-          let scale = newProgress < 0.3 ?
-            1.15 * (1 + newProgress * 0.07) :
-            1.15 * (1.07 - ((newProgress - 0.3) / 0.7) * 1.01);
-          modelRef.current.scale.set(scale, scale, scale);
+          if (newProgress < 0.2) {
+            modelRef.current.scale.multiplyScalar(1.0008);
+          } else if (newProgress > 0.7) {
+            modelRef.current.scale.multiplyScalar(0.95);
+          } else if (newProgress > 0.45) {
+            modelRef.current.scale.multiplyScalar(0.998);
+          }
 
           if (newProgress > 0.5 && rbRef.current) {
             rbRef.current.applyImpulse({
-              x: (Math.random() - 0.5) * 0.1,
-              y: Math.sin(newProgress * 10) * 0.05 + 0.05,
-              z: (Math.random() - 0.5) * 0.1
+              x: (Math.random() - 0.5) * 0.051,
+              y: Math.sin(newProgress * 10) * 0.05 + 0.09,
+              z: (Math.random() - 0.5) * 0.051
             }, true);
           }
         }
 
         if ((newProgress > 0.4 && !emitterCreated.current) ||
-          (newProgress > 0.6 && emitterCreatedCount.current < 2) ||
-          (newProgress > 0.8 && emitterCreatedCount.current < 3)) {
+            (newProgress > 0.6 && emitterCreatedCount.current < 2) ||
+            (newProgress > 0.8 && emitterCreatedCount.current < 3)) {
           emitterCreated.current = true;
           emitterCreatedCount.current++;
           createEmberParticles(newProgress);
+        }
+
+        if ((newProgress > 0.3 && newProgress < 0.33 && fragmentsCreatedCount.current === 0) ||
+            (newProgress > 0.6 && newProgress < 0.63 && fragmentsCreatedCount.current === 1)) {
+          fragmentsCreatedCount.current++;
+          createFragments(newProgress);
         }
 
         if (newProgress > 0.8 && rbRef.current) {
@@ -218,27 +312,27 @@ const useRoachDeathEffect = ({
           }, true);
         }
 
-        if (newProgress >= 0.99 && !deathCompleted.current) {
+        if (newProgress >= 0.95 && !deathCompleted.current) {
           if (!sparkleTriggered.current) {
             sparkleTriggered.current = true;
             createSparkleBurst();
           }
+
           if (onDeathComplete && !deathCompleted.current) {
             if (rbRef.current) {
-              rbRef.current.setEnabled(false); // Disable physics interactions
-              rbRef.current.resetForces(true); // Clear forces
-              rbRef.current.resetTorques(true); // Clear torques
-              deathCompleted.current = true
+              rbRef.current.setEnabled(false);
+              rbRef.current.resetForces(true);
+              rbRef.current.resetTorques(true);
+              deathCompleted.current = true;
             }
             setTimeout(() => {
               meshesRef.current.forEach(mesh => { mesh.visible = false; });
-
               onDeathComplete();
-            }, 1000)
+            }, 1000);
           }
         }
 
-        if (newProgress < 1) { // Only continue if not fully complete
+        if (newProgress < 1) {
           requestAnimationFrame(animateDeath);
         }
       };

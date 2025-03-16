@@ -17,7 +17,7 @@ const LANTERN_CONFIG = {
 
 const LIGHT_CONFIG = {
   position: [-0.75, -0.5, 0.5],
-  intensity: 3.5,
+  intensity: 0.5,
   distance: 40,
   decay: 1.8,
   color: "#ff9c50",

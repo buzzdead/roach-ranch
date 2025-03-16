@@ -4,7 +4,8 @@ import {
   EffectComposer,
   Bloom,
   Vignette,
-  ToneMapping,
+  SSAO,
+  ColorAverage
 } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
@@ -12,14 +13,29 @@ const SceneEffects = () => {
   return (
     <EffectComposer>
       {/* Enhanced bloom settings */}
-      <Bloom
-        luminanceThreshold={0.2}
-        luminanceSmoothing={0.9}
-        intensity={0.6}
+       <Bloom
+        luminanceThreshold={0.24} // Lowered to catch more emissive light
+        luminanceSmoothing={0.65} // Slightly sharper transition
+        intensity={0.6} // Slightly stronger bloom
       />
-      <ToneMapping opacity={.5} blendFunction={THREE.AdditiveBlending} />
-      {/* Slightly reduced vignette darkness */}
-      <Vignette offset={0.5} darkness={0.65} eskil={false} />
+     
+     <Vignette
+    eskil={false}
+    offset={0.1}
+    darkness={0.75}
+    blendFunction={THREE.NormalBlending}
+  />
+  
+  {/* Add ambient occlusion for more depth */}
+  <SSAO
+  
+    samples={21}
+    radius={7}
+    intensity={1}
+  />
+  
+  {/* Add subtle color correction */}
+ 
     </EffectComposer>
   );
 };

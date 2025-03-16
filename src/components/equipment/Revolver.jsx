@@ -201,6 +201,7 @@ export const Revolver = ({ bone }) => {
       {bullets.map(bullet => (
         <RevolverBullet 
           key={bullet.id}
+          bulletId={bullet.id}
           position={bullet.position}
           direction={bullet.direction}
           removeBullet={() => handleRemoveBullet(bullet.id)}
@@ -214,8 +215,9 @@ export const Revolver = ({ bone }) => {
 const MuzzleFlash = () => {
   const materialRef = useRef();
   
-  const material = useMemo(() => {
-    return new ShaderMaterial({
+  // Define shader parameters without instantiating the material
+  const shaderData = useMemo(() => {
+    return {
       uniforms: {
         time: { value: 0 },
         color: { value: new THREE.Color(1.0, 0.7, 0.3) }
@@ -245,7 +247,7 @@ const MuzzleFlash = () => {
       `,
       transparent: true,
       blending: THREE.AdditiveBlending
-    });
+    };
   }, []);
   
   // Update time uniform
@@ -255,5 +257,10 @@ const MuzzleFlash = () => {
     }
   });
   
-  return <shaderMaterial ref={materialRef} attach="material" args={[material]} />;
+  // Pass the shader parameters directly to the shaderMaterial component
+  return <shaderMaterial 
+    ref={materialRef} 
+    attach="material" 
+    {...shaderData}
+  />;
 };

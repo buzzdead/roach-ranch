@@ -107,7 +107,7 @@ export const PlayerModel = forwardRef(
         scale={[1, 1, 1]}
         castShadow
       />
-      <PlayerHealth damageRef={damageRef} modelRef={localRef} />
+      
       </>
     );
   }

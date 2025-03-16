@@ -1,24 +1,37 @@
-
 import { nanoid } from 'nanoid';
-
-export const createRoachSlice = (set, get) => ({
-  roaches: [
-    //{ id: nanoid(), position: [-2, 0.3, -14], health: 75, effects: { bleeds: [] } },
+const enemyConfigs = {
+  roach: { health: 75 },
+  chicken: { health: 100 },
+};
+const createEnemy = (type, position) => {
+  const config = enemyConfigs[type]
+  return {
+    id: nanoid(),
+    type,
+    position,
+    ...config,
+    effects: { bleeds: [] },
+  };
+};
+export const createEnemySlice = (set, get) => ({
+  // Store all enemies in a single array with a type property
+  enemies: [
+    // Example: { id: nanoid(), type: 'roach', position: [-2, 0.3, -14], health: 75, effects: { bleeds: [] } },
   ],
 
-  addBleed: (roachId, position, bulletDirection, damage = 25) => {
+  addBleed: (enemyId, position, bulletDirection, damage = 25) => {
     let newHealth;
     set((state) => ({
-      roaches: state.roaches.map((roach) => {
-        if (roach.id === roachId) {
-          newHealth = Math.max(roach.health - damage, -25);
+      enemies: state.enemies.map((enemy) => {
+        if (enemy.id === enemyId) {
+          newHealth = Math.max(enemy.health - damage, -25);
           return {
-            ...roach,
+            ...enemy,
             health: newHealth,
             effects: {
-              ...roach.effects,
+              ...enemy.effects,
               bleeds: [
-                ...roach.effects.bleeds,
+                ...enemy.effects.bleeds,
                 {
                   id: nanoid(),
                   pos: position.clone(),
@@ -29,34 +42,37 @@ export const createRoachSlice = (set, get) => ({
             },
           };
         }
-        return roach;
+        return enemy;
       }),
     }));
     return newHealth;
   },
 
   removeBleed: (bleedId) => set((state) => ({
-    roaches: state.roaches.map((roach) => ({
-      ...roach,
+    enemies: state.enemies.map((enemy) => ({
+      ...enemy,
       effects: {
-        ...roach.effects,
-        bleeds: roach.effects.bleeds.filter((bleed) => bleed.id !== bleedId),
+        ...enemy.effects,
+        bleeds: enemy.effects.bleeds.filter((bleed) => bleed.id !== bleedId),
       },
     })),
   })),
 
   clearBleeds: () => set((state) => ({
-    roaches: state.roaches.map((roach) => ({
-      ...roach,
-      effects: { ...roach.effects, bleeds: [] },
+    enemies: state.enemies.map((enemy) => ({
+      ...enemy,
+      effects: { ...enemy.effects, bleeds: [] },
     })),
   })),
 
-  addRoach: (position) => set((state) => ({
-    roaches: [...state.roaches, { id: nanoid(), position, health: 75, effects: { bleeds: [] } }],
-  })),
+addEnemy: (type, position) => set((state) => ({
+  enemies: [...state.enemies, createEnemy(type, position)],
+})),
 
-  removeRoach: (roachId) => set((state) => ({
-    roaches: state.roaches.filter(r => r.id !== roachId)
+  removeEnemy: (enemyId) => set((state) => ({
+    enemies: state.enemies.filter(enemy => enemy.id !== enemyId)
   })),
+  
+  // Helper method to get enemies of a specific type
+  getEnemiesByType: (type) => get().enemies.filter(enemy => enemy.type === type),
 });

@@ -30,7 +30,7 @@ const BULLET_CONFIG = {
 // Cache the bullet model once, not per bullet
 let cachedBulletModel = null;
 
-const RevolverBullet = ({ position, direction, removeBullet, bulletDamage }) => {
+const RevolverBullet = ({ position, direction, removeBullet, bulletDamage, bulletId }) => {
   const bulletGroupRef = useRef();
   const startPosition = useRef(new THREE.Vector3().copy(position));
   const [isActive, setIsActive] = useState(true);
@@ -64,7 +64,8 @@ const RevolverBullet = ({ position, direction, removeBullet, bulletDamage }) => 
       bulletPosition,
       bulletRadius,
       bulletDirection.current,
-      bulletDamage
+      bulletDamage,
+      bulletId
     );
     
     if (collisionResult.hit) {

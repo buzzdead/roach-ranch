@@ -16,10 +16,10 @@ const RoachSpawn = ({
   maxRoaches = 20,     // Maximum number of roaches allowed at once
   initialDelay = 0, // Delay before first spawn
 }) => {
-  const { addRoach, roaches, waveActive, waveLevel } = useGameEffectsStore(
+  const { addEnemy, enemies, waveActive, waveLevel } = useGameEffectsStore(
     useShallow(state => ({
-      addRoach: state.addRoach,
-      roaches: state.roaches,
+      addEnemy: state.addEnemy,
+      enemies: state.enemies,
       waveActive: state.waveActive,
       waveLevel: state.waveLevel
     }))
@@ -36,9 +36,9 @@ const RoachSpawn = ({
   // Spawn a batch of roaches along the northern edge
   const spawnRoachBatch = () => {
     // Don't spawn if we've reached the limit or if wave is not active
-    if (roaches.length >= maxRoaches || !waveActive) return;
+    if (enemies.length >= maxRoaches || !waveActive) return;
     
-    const actualBatchSize = Math.min(batchSize, maxRoaches - roaches.length);
+    const actualBatchSize = Math.min(batchSize, maxRoaches - enemies.length);
     
     // Calculate a central spawn point
     const centerX = minX + Math.random() * (maxX - minX);
@@ -52,7 +52,7 @@ const RoachSpawn = ({
       // Ensure we stay within boundaries
       const clampedX = Math.max(minX, Math.min(maxX, spawnX));
       
-      addRoach([clampedX, yPosition, zPosition]);
+      addEnemy("roach", [clampedX, yPosition, zPosition]);
     }
   };
   

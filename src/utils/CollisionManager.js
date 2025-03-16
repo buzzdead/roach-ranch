@@ -7,12 +7,19 @@ const CollisionManager = {
   registerPlayer(playerRef, takeDamage) {
     playerRef.current.traverse(child => {
       if (child.isMesh)
-        this.player = {mesh: child, onHit: takeDamage }
+        this.player = { mesh: child, onHit: takeDamage }
     })
   },
 
   registerEnemy(enemy) {
+    enemy.collisionPoints = [
+      { offset: new THREE.Vector3(0, 0.5, 0), radius: .5 }, // torso
+      { offset: new THREE.Vector3(0, 1.5, 0), radius: 1.33 }, // head
+      { offset: new THREE.Vector3(0, 0, -0.8), radius: .5 }  // tail
+    ];
     this.enemies.push(enemy);
+    
+
     return () => {
       this.enemies = this.enemies.filter(e => e !== enemy);
     };
@@ -114,43 +121,96 @@ const CollisionManager = {
     return { hit: false };
   },
 
-  checkBulletPhysicalCollision(bulletPosition, bulletRadius, bulletDirection, damage) {
+  checkBulletPhysicalCollision(bulletPosition, bulletRadius, bulletDirection, damage, bulletId) {
+    const MAX_COLLISION_DISTANCE = 10; // Maximum distance to even consider collision
+    const SKIP_FRAMES = 5; // Number of frames to skip checking distant enemies
+    
     for (const enemy of this.enemies) {
       if (!enemy.mesh) continue;
-
-      const meshes = this._findMeshesInGroup(enemy.mesh);
-
-      for (const mesh of meshes) {
-        if (!mesh.geometry) continue;
-
-        const { worldPosition, radius } = this._getMeshBoundingData(mesh);
-
-        // Check if bullet physically intersects with the mesh's bounding sphere
-        const distance = bulletPosition.distanceTo(worldPosition);
-        const intersectionThreshold = radius + bulletRadius;
-
-        if (distance <= intersectionThreshold) {
-          // Calculate hit point based on bullet position and direction to mesh center
-          const direction = new THREE.Vector3().subVectors(worldPosition, bulletPosition).normalize();
-          const hitPoint = new THREE.Vector3().copy(bulletPosition).add(
-            direction.multiplyScalar(bulletRadius)
-          );
-
-          enemy.onHit && enemy.onHit({
-            position: hitPoint,
-            mesh: mesh,
-            bulletDirection: bulletDirection,
-            damage: damage
-          });
-
-          return {
-            hit: true,
-            position: hitPoint,
-          };
+      
+      // Initialize skip counters map if it doesn't exist
+      if (!enemy.bulletSkipCounters) {
+        enemy.bulletSkipCounters = new Map();
+      }
+      
+      // Get or initialize skip counter for this specific bullet
+      let skipCounter = enemy.bulletSkipCounters.get(bulletId) || 0;
+      
+      // If we're supposed to skip this enemy for this bullet, decrement counter and continue
+      if (skipCounter > 0) {
+        enemy.bulletSkipCounters.set(bulletId, skipCounter - 1);
+        continue;
+      }
+      
+      // Quick distance check to the enemy's center
+      const enemyPosition = new THREE.Vector3();
+      enemy.mesh.getWorldPosition(enemyPosition);
+      const roughDistance = bulletPosition.distanceTo(enemyPosition);
+      
+      // If enemy is too far from this bullet, set skip counter and continue
+      if (roughDistance > MAX_COLLISION_DISTANCE) {
+        enemy.bulletSkipCounters.set(bulletId, SKIP_FRAMES);
+        continue;
+      }
+      
+      // Actual collision detection - only runs for nearby enemies
+      let hit = false;
+      let hitPoint = null;
+      
+      if (enemy.type === 'chicken' && enemy.collisionPoints) {
+        // Chicken collision points check
+        for (const point of enemy.collisionPoints) {
+          const pointWorldPos = new THREE.Vector3().copy(point.offset)
+            .applyMatrix4(enemy.mesh.matrixWorld);
+          
+          const distance = bulletPosition.distanceTo(pointWorldPos);
+          if (distance <= (point.radius + bulletRadius)) {
+            const direction = new THREE.Vector3().subVectors(pointWorldPos, bulletPosition).normalize();
+            hitPoint = new THREE.Vector3().copy(bulletPosition).add(
+              direction.multiplyScalar(bulletRadius)
+            );
+            
+            hit = true;
+            break;
+          }
+        }
+      } else {
+        // Standard collision for other enemy types
+        const meshes = this._findMeshesInGroup(enemy.mesh);
+        for (const mesh of meshes) {
+          if (!mesh.geometry) continue;
+          
+          const { worldPosition, radius } = this._getMeshBoundingData(mesh);
+          const distance = bulletPosition.distanceTo(worldPosition);
+          
+          if (distance <= (radius + bulletRadius)) {
+            const direction = new THREE.Vector3().subVectors(worldPosition, bulletPosition).normalize();
+            hitPoint = new THREE.Vector3().copy(bulletPosition).add(
+              direction.multiplyScalar(bulletRadius)
+            );
+            
+            hit = true;
+            break;
+          }
         }
       }
+      
+      // Handle hit response
+      if (hit) {
+        // Clean up the skip counter for this bullet since it hit
+        enemy.bulletSkipCounters.delete(bulletId);
+        
+        enemy.onHit && enemy.onHit({
+          position: hitPoint,
+          mesh: enemy.mesh,
+          bulletDirection: bulletDirection,
+          damage: damage
+        });
+        
+        return { hit: true, position: hitPoint };
+      }
     }
-
+    
     return { hit: false };
   },
 
@@ -186,8 +246,8 @@ const CollisionManager = {
     const scale = new THREE.Vector3();
     mesh.getWorldScale(scale);
     const maxScale = Math.max(scale.x * .5, scale.y * .5, scale.z * .5);
-    const radius = mesh.geometry.boundingSphere.radius * maxScale;
-
+    const radius = mesh.geometry.boundingSphere.radius * maxScale * 1;
+   
     return { worldPosition, radius };
   },
 

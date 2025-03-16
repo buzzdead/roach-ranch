@@ -29,8 +29,8 @@ const Roach = ({ id, position }) => {
   const [isDead, setIsDead] = useState(false);
   const attackCooldownRef = useRef(0);
   const addBleed = useGameEffectsStore(useShallow((state) => state.addBleed));
-  const removeRoach = useGameEffectsStore(
-    useShallow((state) => state.removeRoach)
+  const removeEnemy = useGameEffectsStore(
+    useShallow((state) => state.removeEnemy)
   );
   const addLoot = useGameEffectsStore(useShallow((state) => state.addLoot));
   // References instead of state to prevent rerenders
@@ -90,7 +90,7 @@ const Roach = ({ id, position }) => {
       const pos = modelRef.current.position.clone()
       addLoot('chitin', position);
     }
-    removeRoach(id);
+    removeEnemy(id);
   };
   return (
     <>

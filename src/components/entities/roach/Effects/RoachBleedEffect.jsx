@@ -8,7 +8,7 @@ const RoachBleedEffect = ({ roachId }) => {
   const bleeds = useGameEffectsStore(
     useShallow(
       (state) =>
-        state.roaches.find((r) => r.id === roachId)?.effects.bleeds || []
+        state.enemies.find((r) => r.id === roachId)?.effects.bleeds || []
     )
   );
   const removeBleed = useGameEffectsStore(useShallow((state) => state.removeBleed));
