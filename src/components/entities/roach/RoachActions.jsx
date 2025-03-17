@@ -1,10 +1,14 @@
-// RoachActions.jsx (refactored to work with RigidBody)
-import React, { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useRoachAnimations } from '../../../hooks/useRoachAnimations';
 import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
+import { resetAnimation, updateAttackCooldown, getActionRefs } from '../../../utils/animationUtil';
+import { useScanForPlayer } from '../../../hooks/useScanForPlaer';
+
+const MOVE_SPEED = 1.5;
+const ROTATION_SPEED = 3;
+const ATTACK_DISTANCE = 5;
 
 const RoachActions = ({
   originalScene,
@@ -12,302 +16,70 @@ const RoachActions = ({
   isAnimatingRef,
   position,
   camera,
-  attackDistance,
   attackCooldownRef,
   isAttackingRef,
   deadRef,
   rigidBodyRef
 }) => {
+  // Animation setup
   const { actions, mixer } = useRoachAnimations(originalScene, animations, isAnimatingRef);
-  const waveLevel = useGameEffectsStore(useShallow((state) => state.waveLevel))
-  const finished = useRef(false);
-  const initialize = useRef(0)
-  const isRotatingRef = useRef(false);
-  const isMovingRef = useRef(false);
-  const targetRotationRef = useRef(0);
-  const targetPositionRef = useRef(null);
-  const scanTimerRef = useRef(0);
-  const scanIntervalRef = useRef(waveLevel > 5 ? 1.5 : waveLevel > 3 ? 2.5 : 5); // Scan every 5 seconds
-  const moveSpeedRef = useRef(1.5); // Units per second
- 
-  // Handle animation states
-  useFrame(() => {
-    initialize.current++
-    if (deadRef.current || initialize.current < 250) return;
-    
-    // Handle Move animation during rotation or movement
-    handleMoveAnimation();
-    
-    // Handle WingsFlap animation during attack
-    handleWingsFlapAnimation();
+  const waveLevel = useGameEffectsStore(useShallow((state) => state.waveLevel));
+
+  // State refs
+  const { finished, initialize, isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef } = getActionRefs();
+  const actionRefs = { isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef };
+  const enemyRefs = { deadRef, rigidBodyRef, isAttackingRef, attackCooldownRef };
+
+  // Player detection
+  const { scanForPlayer, updateScanTimer } = useScanForPlayer({
+    camera,
+    position,
+    attackDistance: ATTACK_DISTANCE,
+    ...enemyRefs,
+    ...actionRefs,
+    waveLevel
   });
 
-  // Main update loop for roach behavior
-  useFrame((state, delta) => {
-    if (deadRef.current || initialize.current < 250) return;
-    
-    updateAttackCooldown(delta);
-    updateScanTimer(delta);
-    
-    // Sync position from rigidbody to our position array
+  // Helper functions
+  const syncPositionWithRigidBody = () => {
     if (rigidBodyRef.current) {
       const translation = rigidBodyRef.current.translation();
       position[0] = translation.x;
       position[1] = translation.y;
       position[2] = translation.z;
     }
-    
-    const playerPosition = camera.userData.characterPos;
-    if (!playerPosition) return;
+  };
 
+  const canProcessFrame = () => {
+    if (deadRef.current || initialize.current < 250) return false;
+    return !!camera.userData.characterPos;
+  };
+
+  const getPlayerInfo = () => {
+    const playerPosition = camera.userData.characterPos;
     const currentPosition = new THREE.Vector3(position[0], position[1], position[2]);
     const playerPos = new THREE.Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
     const distance = currentPosition.distanceTo(playerPos);
-    
-    // Calculate angle to player
     const dx = playerPosition.x - position[0];
     const dz = playerPosition.z - position[2];
     const angleToPlayer = Math.atan2(dx, dz);
-    
-    // Check if we should start attacking
-    if (
-      distance < attackDistance &&
-      attackCooldownRef.current <= 0 &&
-      !isAttackingRef.current &&
-      !isAnimatingRef.current
-    ) {
-      // Stop all movement
-      isMovingRef.current = false;
-      
-      // Face the player before attacking
-      targetRotationRef.current = angleToPlayer;
-      isRotatingRef.current = true;
-      
-      // Set attack cooldown
-      attackCooldownRef.current = 3;
-      
-    }
-    // Handle rotation (either for attack or movement)
-    else if (isRotatingRef.current) {
-      handleRotation(delta, distance < attackDistance);
-    }
-    // Move towards target if not attacking or rotating
-    else if (isMovingRef.current && targetPositionRef.current && 
-             !isAttackingRef.current && !isAnimatingRef.current) {
-      moveTowardsTarget(delta);
-    }
-    // If we're not doing anything, scan for player
-    else if (!isAttackingRef.current && !isAnimatingRef.current && !isRotatingRef.current && !isMovingRef.current) {
-      scanForPlayer(true); // Force a scan
+
+    return { distance, angleToPlayer, playerPos };
+  };
+
+  const handleAnimations = () => {
+    // Move animation
+    if (actions.Move) {
+      const shouldPlayMove = isRotatingRef.current || isMovingRef.current;
+      resetAnimation(actions.Move, shouldPlayMove);
     }
 
-    // Update the animation mixer
-    if (mixer) mixer.update(delta);
-  });
+    // Wings flap animation
+    if (actions.WingsFlap) {
+      resetAnimation(actions.WingsFlap, isAttackingRef.current);
+    }
 
-  // Handle death animation
-  useFrame(() => {
-    if(initialize.current < 250) return
-    handleDeathAnimation();
-  });
-  
-  // Helper functions
-  const handleMoveAnimation = () => {
-    if (!actions.Move) return;
-    
-    if (isRotatingRef.current || isMovingRef.current) {
-      if (!actions.Move.isRunning()) {
-        actions.Move.reset();
-        actions.Move.play();
-      }
-    } else if (actions.Move.isRunning()) {
-      actions.Move.reset();
-      actions.Move.stop();
-    }
-  };
-  
-  const handleWingsFlapAnimation = () => {
-    if (!actions.WingsFlap) return;
-    
-    if (isAttackingRef.current) {
-      if (!actions.WingsFlap.isRunning()) {
-        actions.WingsFlap.reset();
-        actions.WingsFlap.play();
-      }
-    } else if (actions.WingsFlap.isRunning()) {
-      actions.WingsFlap.reset();
-      actions.WingsFlap.stop();
-    }
-  };
-  
-  const updateAttackCooldown = (delta) => {
-    if (attackCooldownRef.current > 0) {
-      attackCooldownRef.current -= delta;
-    }
-  };
-  
-  const updateScanTimer = (delta) => {
-    scanTimerRef.current += delta;
-    
-    // Time to scan for player position
-    if (scanTimerRef.current >= scanIntervalRef.current) {
-      scanForPlayer(false);
-      scanTimerRef.current = 0;
-    }
-  };
-  
-  const scanForPlayer = (force = false) => {
-    // Skip if we're busy attacking or dead
-    if ((isAttackingRef.current || isAnimatingRef.current) && !force) {
-      return;
-    }
-    
-    const playerPosition = camera.userData.characterPos;
-    if (!playerPosition) return;
-    
-    // Get current position and player position as vectors
-    const currentPosition = new THREE.Vector3(position[0], position[1], position[2]);
-    const playerPos = new THREE.Vector3(playerPosition.x + Math.random() * 5, playerPosition.y, playerPosition.z - Math.random() * 5);
-    
-    // Calculate distance to player
-    const distance = currentPosition.distanceTo(playerPos);
-    
-    // If player is within attack range and cooldown is ready, prepare to attack
-    if (distance < attackDistance && attackCooldownRef.current <= 0) {
-      // Calculate angle to player
-      const dx = playerPosition.x - position[0];
-      const dz = playerPosition.z - position[2];
-      targetRotationRef.current = Math.atan2(dx, dz);
-      
-      // Start rotating for attack
-      isRotatingRef.current = true;
-      isMovingRef.current = false;
-      attackCooldownRef.current = 3;
-
-      return;
-    }
-    
-    // Otherwise, set target position to player's current position
-    targetPositionRef.current = new THREE.Vector3(
-      playerPosition.x,
-      position[1], // Keep same y level
-      playerPosition.z
-    );
-    
-    // Calculate angle to face target
-    const dx = targetPositionRef.current.x - position[0];
-    const dz = targetPositionRef.current.z - position[2];
-    targetRotationRef.current = Math.atan2(dx, dz);
-    
-    // Start rotation towards target
-    isRotatingRef.current = true;
-    isMovingRef.current = false;
-  };
-  
-  const handleRotation = (delta, isForAttack) => {
-    // Get current rotation
-    const currentRotation = originalScene.rotation.y;
-    
-    // Calculate the shortest path to the target rotation
-    let rotationDiff = targetRotationRef.current - currentRotation;
-    
-    // Normalize angle difference to [-PI, PI]
-    while (rotationDiff > Math.PI) rotationDiff -= 2 * Math.PI;
-    while (rotationDiff < -Math.PI) rotationDiff += 2 * Math.PI;
-    
-    // Rotate with smooth interpolation
-    const rotationSpeed = 3.0;
-    if (Math.abs(rotationDiff) > 0.05) {
-      originalScene.rotation.y += rotationDiff * Math.min(rotationSpeed * delta, 1);
-    } else {
-      // We've reached the target rotation
-      isRotatingRef.current = false;
-      
-      // If this rotation was for attack, start attacking
-      if (isForAttack) {
-        // Stop the Move animation
-        if (actions.Move && actions.Move.isRunning()) {
-          actions.Move.stop();
-        }
-        
-        isAttackingRef.current = true;
-        
-        // Trigger attack animation
-        if (actions.IdleMotion) {
-          isAnimatingRef.current = true;
-          actions.IdleMotion.reset();
-          actions.IdleMotion.play();
-        }
-        
-      }
-      // Otherwise, start moving toward target
-      else if (targetPositionRef.current) {
-        isMovingRef.current = true;
-      }
-    }
-  };
-  
-  const moveTowardsTarget = (delta) => {
-    if (!targetPositionRef.current || !rigidBodyRef.current) return;
-    
-    // Check if player is now in attack range (they might have moved closer)
-    const playerPosition = camera.userData.characterPos;
-    if (playerPosition) {
-      const currentPosition = new THREE.Vector3(position[0], position[1], position[2]);
-      const playerPos = new THREE.Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
-      const distance = currentPosition.distanceTo(playerPos);
-      
-      if (distance < attackDistance && attackCooldownRef.current <= 0) {
-        isMovingRef.current = false;
-        
-        // Calculate angle to player for attack
-        const dx = playerPosition.x - position[0];
-        const dz = playerPosition.z - position[2];
-        targetRotationRef.current = Math.atan2(dx, dz);
-        
-        // Start rotating to face player before attacking
-        isRotatingRef.current = true;
-        attackCooldownRef.current = 3;
-        
-        return;
-      }
-    }
-    
-    // Calculate direction vector
-    const direction = new THREE.Vector3(
-      targetPositionRef.current.x - position[0],
-      0,
-      targetPositionRef.current.z - position[2]
-    );
-    
-    // Calculate distance to target
-    const distanceToTarget = direction.length();
-    
-    // If we're close enough to the target, stop moving
-    if (distanceToTarget < 0.5) {
-      isMovingRef.current = false;
-      if (actions.Move && actions.Move.isRunning()) {
-        actions.Move.stop();
-      }
-      return;
-    }
-    
-    // Normalize direction and apply speed
-    direction.normalize();
-    
-    // Apply impulse to rigidBody in the movement direction
-
-    const impulseStrength = moveSpeedRef.current * (distanceToTarget > 20 ? (waveLevel > 5 ? 0.19 : 0.175) : (waveLevel > 5 ? 0.177 : 0.168)); // Might need adjustment
-    rigidBodyRef.current.applyImpulse(
-      { x: direction.x * impulseStrength, y: 0, z: direction.z * impulseStrength },
-      true
-    );
-    
-    // The rigidbody will update the physics position, 
-    // and we'll read it back on the next frame
-  };
-  
-  const handleDeathAnimation = () => {
+    // Death animation
     if (deadRef.current && actions.Fold && !finished.current) {
       // Stop all other animations
       Object.values(actions).forEach((action) => {
@@ -316,7 +88,7 @@ const RoachActions = ({
         }
       });
 
-      // Play Fold animation if not already running
+      // Play Fold animation
       if (!actions.Fold.isRunning()) {
         actions.Fold.reset();
         actions.Fold.play();
@@ -324,6 +96,154 @@ const RoachActions = ({
       finished.current = true;
     }
   };
+
+  const handleRotation = (delta, isForAttack) => {
+    // Get current rotation
+    const currentRotation = originalScene.rotation.y;
+
+    // Calculate the shortest path to the target rotation
+    let rotationDiff = targetRotationRef.current - currentRotation;
+
+    // Normalize angle difference to [-PI, PI]
+    while (rotationDiff > Math.PI) rotationDiff -= 2 * Math.PI;
+    while (rotationDiff < -Math.PI) rotationDiff += 2 * Math.PI;
+
+    if (Math.abs(rotationDiff) > 0.05) {
+      originalScene.rotation.y += rotationDiff * Math.min(ROTATION_SPEED * delta, 1);
+    } else {
+      // We've reached the target rotation
+      isRotatingRef.current = false;
+
+      // If this rotation was for attack, start attacking
+      if (isForAttack) {
+        // Stop the Move animation
+        if (actions.Move && actions.Move.isRunning()) {
+          actions.Move.stop();
+        }
+
+        isAttackingRef.current = true;
+
+        // Trigger attack animation
+        if (actions.IdleMotion) {
+          isAnimatingRef.current = true;
+          actions.IdleMotion.reset();
+          actions.IdleMotion.play();
+        }
+      }
+      // Otherwise, start moving toward target
+      else if (targetPositionRef.current) {
+        isMovingRef.current = true;
+      }
+    }
+  };
+
+  const moveTowardsTarget = (delta) => {
+    if (!targetPositionRef.current || !rigidBodyRef.current) return;
+
+    // Check if player is now in attack range (they might have moved closer)
+    const playerPosition = camera.userData.characterPos;
+    if (playerPosition) {
+      const { distance, angleToPlayer } = getPlayerInfo();
+
+      if (distance < ATTACK_DISTANCE && attackCooldownRef.current <= 0) {
+        isMovingRef.current = false;
+        targetRotationRef.current = angleToPlayer;
+        isRotatingRef.current = true;
+        attackCooldownRef.current = 3;
+        return;
+      }
+    }
+
+    // Calculate direction vector
+    const direction = new THREE.Vector3(
+      targetPositionRef.current.x - position[0],
+      0,
+      targetPositionRef.current.z - position[2]
+    );
+
+    // Calculate distance to target
+    const distanceToTarget = direction.length();
+
+    // If we're close enough to the target, stop moving
+    if (distanceToTarget < 0.5) {
+      isMovingRef.current = false;
+      if (actions.Move && actions.Move.isRunning()) {
+        actions.Move.stop();
+      }
+      return;
+    }
+
+    // Normalize direction and apply speed
+    direction.normalize();
+
+    // Apply impulse to rigidBody in the movement direction
+    const baseImpulse = waveLevel > 5 ? 0.177 : 0.168;
+    const boostMultiplier = distanceToTarget > 20 ? 1.07 : 1;
+    const impulseStrength = MOVE_SPEED * baseImpulse * boostMultiplier;
+
+    rigidBodyRef.current.applyImpulse(
+      { x: direction.x * impulseStrength, y: 0, z: direction.z * impulseStrength },
+      true
+    );
+  };
+
+  const handleBehavior = (delta) => {
+    const { distance, angleToPlayer } = getPlayerInfo();
+
+    // Check if we should start attacking
+    if (
+      distance < ATTACK_DISTANCE &&
+      attackCooldownRef.current <= 0 &&
+      !isAttackingRef.current &&
+      !isAnimatingRef.current
+    ) {
+      // Stop all movement
+      isMovingRef.current = false;
+
+      // Face the player before attacking
+      targetRotationRef.current = angleToPlayer;
+      isRotatingRef.current = true;
+
+      // Set attack cooldown
+      attackCooldownRef.current = 3;
+    }
+    // Handle rotation (either for attack or movement)
+    else if (isRotatingRef.current) {
+      handleRotation(delta, distance < ATTACK_DISTANCE);
+    }
+    // Move towards target if not attacking or rotating
+    else if (isMovingRef.current && targetPositionRef.current &&
+      !isAttackingRef.current && !isAnimatingRef.current) {
+      moveTowardsTarget(delta);
+    }
+    // If we're not doing anything, scan for player
+    else if (!isAttackingRef.current && !isAnimatingRef.current &&
+      !isRotatingRef.current && !isMovingRef.current) {
+      scanForPlayer(true); // Force a scan
+    }
+  };
+
+  // Main update loop for roach behavior
+  useFrame((state, delta) => {
+    initialize.current++;
+    if (!canProcessFrame()) return;
+
+    // Update animations
+    handleAnimations();
+
+    // Update timers
+    updateAttackCooldown(attackCooldownRef, delta);
+    updateScanTimer(delta);
+
+    // Sync position with physics
+    syncPositionWithRigidBody();
+
+    // Handle AI behavior
+    handleBehavior(delta);
+
+    // Update the animation mixer
+    if (mixer) mixer.update(delta);
+  });
 
   return null;
 };

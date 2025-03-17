@@ -10,12 +10,11 @@ const MemoizedChicken = memo(Chicken)
 
 const Enemies = () => {
   const enemies = useGameEffectsStore(useShallow((state) => state.enemies));
- console.log(enemies)
 
   return (
     <>
       {enemies.map((enemy) => (
-        enemy.type === "roach" ?  <MemoizedRoach key={enemy.id} id={enemy.id} position={enemy.position} /> : <MemoizedChicken id={enemy.id} pos={enemy.position} />
+        enemy.type === "roach" ?  <MemoizedRoach key={enemy.id} id={enemy.id} position={enemy.position} /> : <MemoizedChicken key={enemy.id} id={enemy.id} pos={enemy.position} />
       ))}
     </>
   );

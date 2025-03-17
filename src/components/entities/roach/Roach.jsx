@@ -36,9 +36,6 @@ const Roach = ({ id, position }) => {
   // References instead of state to prevent rerenders
   const isAttackingRef = useRef(false);
 
-  // Constants
-  const attackDistance = 5;
-
   const handleAttackComplete = () => {
     isAttackingRef.current = false;
     // Schedule the next attack
@@ -110,7 +107,6 @@ const Roach = ({ id, position }) => {
         isAnimatingRef={isAnimatingRef}
         position={position}
         camera={camera}
-        attackDistance={attackDistance}
         attackCooldownRef={attackCooldownRef}
         isAttackingRef={isAttackingRef}
         deadRef={deadRef}

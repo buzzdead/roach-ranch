@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
+import { CapsuleCollider, RigidBody } from '@react-three/rapier';
 
 const Tree2 = ({
   position,
@@ -142,6 +143,16 @@ const Tree2 = ({
 
   return (
     <group position={position} scale={scale}>
+      <RigidBody
+           position={[0,0,0]}
+           enabledRotations={[false, false, false]}
+           type="dynamic"
+           mass={1}
+           colliders={false}
+           friction={0.7}
+         >
+           <CapsuleCollider args={[1, 1]} position={[0, 0, 0]} />
+         </RigidBody>
       <group ref={treeRef}>
         {/* Trunk */}
         <mesh position={[0, height / 2, 0]} castShadow receiveShadow>

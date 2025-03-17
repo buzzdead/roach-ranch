@@ -11,7 +11,7 @@ import * as THREE from 'three';
 
 const SceneEffects = () => {
   return (
-    <EffectComposer>
+    <EffectComposer enableNormalPass>
       {/* Enhanced bloom settings */}
        <Bloom
         luminanceThreshold={0.24} // Lowered to catch more emissive light

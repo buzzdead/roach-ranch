@@ -53,7 +53,27 @@ const RanchScene = () => {
             <Player />
             <RanchHouse position={[0, 0, 0]} dilapidated={true} />
             <Enemies />
-
+            <Tree2
+            position={[-2, 0, -16]}
+            height={7}
+            foliageSize={3.75}
+            type="dense"
+            scale={1.3}
+          />
+          <Tree2
+            position={[8, 0, -16]}
+            height={7}
+            foliageSize={3.75}
+            type="dense"
+            scale={1.3}
+          />
+          <Tree2
+            position={[20, 0, -16]}
+            height={8}
+            foliageSize={3.75}
+            type="dense"
+            scale={1.3}
+          />
             <Ground />
           </Physics>
           <MysteriousWall />
@@ -75,27 +95,7 @@ const RanchScene = () => {
           </group>
           <Game />
           <AnimatedGrassBillboards count={35000} />
-          <Tree2
-            position={[-2, 0, -16]}
-            height={7}
-            foliageSize={3.75}
-            type="dense"
-            scale={1.3}
-          />
-          <Tree2
-            position={[8, 0, -16]}
-            height={7}
-            foliageSize={3.75}
-            type="dense"
-            scale={1.3}
-          />
-          <Tree2
-            position={[20, 0, -16]}
-            height={8}
-            foliageSize={3.75}
-            type="dense"
-            scale={1.3}
-          />
+       
           <MysteriousBoundary intensity={1.5} />
           <ambientLight intensity={0.25125} />
 
