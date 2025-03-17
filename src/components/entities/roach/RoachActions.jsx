@@ -28,7 +28,7 @@ const RoachActions = ({
   // State refs
   const { finished, initialize, isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef } = getActionRefs();
   const actionRefs = { isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef };
-  const enemyRefs = { deadRef, rigidBodyRef, isAttackingRef, attackCooldownRef };
+  const enemyRefs = { deadRef, rigidBodyRef, isAttackingRef, attackCooldownRef, isAnimatingRef };
 
   // Player detection
   const { scanForPlayer, updateScanTimer } = useScanForPlayer({
@@ -51,7 +51,7 @@ const RoachActions = ({
   };
 
   const canProcessFrame = () => {
-    if (deadRef.current || initialize.current < 250) return false;
+    if (finished.current || initialize.current < 50) return false;
     return !!camera.userData.characterPos;
   };
 
@@ -80,7 +80,9 @@ const RoachActions = ({
     }
 
     // Death animation
+   
     if (deadRef.current && actions.Fold && !finished.current) {
+      console.log("dying")
       // Stop all other animations
       Object.values(actions).forEach((action) => {
         if (action && action.isRunning() && action !== actions.Fold) {

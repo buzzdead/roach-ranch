@@ -3,17 +3,23 @@ import { modelCache } from '../../../Preloader';
 import { useEffect, useRef, useMemo, useState } from 'react';
 import { useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import CollisionManager from '../../../utils/CollisionManager';
 import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
 import RoachBleedEffect from '../roach/Effects/RoachBleedEffect';
 import ChickenModel from './ChickenModel';
+import RoachActions from '../roach/RoachActions';
 
 const Chicken = ({ id, pos }) => {
   const position = new Vector3([pos[0], pos[1], pos[2]]);
   const modelRef = useRef();
   const rigidBodyRef = useRef()
+  const isAnimatingRef = useRef()
+   const attackCooldownRef = useRef(0);
+  const isAttackingRef = useRef(false);
+  const deadRef = useRef()
+  const { camera } = useThree()
   const { scene, animations } = modelCache['/chicken2.glb'];
   const [isDead, setIsDead] = useState(false);
   const addBleed = useGameEffectsStore(useShallow((state) => state.addBleed));
@@ -109,6 +115,17 @@ const Chicken = ({ id, pos }) => {
         triggerJump={jumpEvent}
         isDead={isDead}
         onDeathComplete={handleDeath}
+        rigidBodyRef={rigidBodyRef}
+      />
+      <RoachActions
+        originalScene={scene}
+        animations={animations}
+        isAnimatingRef={isAnimatingRef}
+        position={pos}
+        camera={camera}
+        attackCooldownRef={attackCooldownRef}
+        isAttackingRef={isAttackingRef}
+        deadRef={deadRef}
         rigidBodyRef={rigidBodyRef}
       />
     </>
