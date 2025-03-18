@@ -57,7 +57,7 @@ const RoachAudio = ({ position, isAnimatingRef, isAttacking, deadRef }) => {
   useFrame((state, delta) => {
     // Update the timer
     if(deadRef.current && !hasRolled.current) {
-      setTriggerKillSound()
+      setTriggerKillSound("roach")
       hasRolled.current = true
     }
     nextScreechRef.current -= delta;

@@ -5,6 +5,7 @@ import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
 import { resetAnimation, updateAttackCooldown, getActionRefs } from '../../../utils/animationUtil';
 import { useScanForPlayer } from '../../../hooks/useScanForPlaer';
+import ChickenAttack from '../chicken/ChickenAttack';
 
 const MOVE_SPEED = 1.5;
 const ROTATION_SPEED = 3;
@@ -24,6 +25,7 @@ const RoachActions = ({
   // Animation setup
   const { actions, mixer } = useEnemyAnimations(originalScene, animations, isAnimatingRef, isAttackingRef, entityType);
   const waveLevel = useGameEffectsStore(useShallow((state) => state.waveLevel));
+  const setTriggerKillSound = useGameEffectsStore(useShallow((state) => state.setTriggerKillSound));
   const ATTACK_DISTANCE = entityType === "chicken" ? 2.5 : 5;
   // State refs
   const { finished, initialize, isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef } = getActionRefs();
@@ -119,6 +121,7 @@ const RoachActions = ({
 
       if (!actions.Dying.isRunning()) {
         console.log("Playing dying")
+        setTriggerKillSound("chicken")
         actions.Dying.reset();
         actions.Dying.play();
       }
@@ -276,7 +279,12 @@ const RoachActions = ({
     if (mixer) mixer.update(delta);
   });
 
-  return null;
+  return entityType === "chicken" ?  <ChickenAttack 
+  originalScene={originalScene}
+  isAttackingRef={isAttackingRef}
+  position={position}
+  actions={actions}
+ /> : null;
 };
 
 export default RoachActions;

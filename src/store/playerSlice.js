@@ -7,6 +7,9 @@ export const createPlayerSlice = (set, get) => ({
     resources: {
       chitin: 10
     },
+    effects: {
+      bleeds: [] // Add this to track player bleeds
+    },
     upgrades: {
       maxHealth: {
         level: 0,
@@ -42,6 +45,50 @@ export const createPlayerSlice = (set, get) => ({
     }
     return false
   },
+
+  addPlayerBleed: (position, direction, damage = 10) => {
+    const { nanoid } = require('nanoid');
+    set((state) => ({
+      player: {
+        ...state.player,
+        effects: {
+          ...state.player.effects,
+          bleeds: [
+            ...state.player.effects.bleeds,
+            {
+              id: nanoid(),
+              pos: position.clone(),
+              dir: direction.clone(),
+              expiresAt: Date.now() + 3500,
+            },
+          ],
+        }
+      }
+    }));
+    
+    // Return current health after damage for UI updates
+    return get().player.maxHealth - damage;
+  },
+
+  removePlayerBleed: (bleedId) => set((state) => ({
+    player: {
+      ...state.player,
+      effects: {
+        ...state.player.effects,
+        bleeds: state.player.effects.bleeds.filter((bleed) => bleed.id !== bleedId),
+      },
+    }
+  })),
+
+  clearPlayerBleeds: () => set((state) => ({
+    player: {
+      ...state.player,
+      effects: { 
+        ...state.player.effects, 
+        bleeds: [] 
+      },
+    }
+  })),
 
   pickupLoot: (lootId, type) => {
     const lootItem = get().loot[type]?.find(item => item.id === lootId);

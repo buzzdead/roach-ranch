@@ -10,6 +10,7 @@ import { PlayerAudio } from './PlayerAudio';
 import PlayerCursor from './PlayerCursor';
 import { modelCache } from '../../../Preloader';
 import PlayerHealth from './PlayerHealth';
+import PlayerBleed from './PlayerBleed';
 
 const Player = () => {
   const { scene, animations } = modelCache['/rancher.glb'];
@@ -95,7 +96,7 @@ const Player = () => {
             leftHandBone={leftHandBone}
             rightHandBone={rightHandBone}
           />
-
+          <PlayerBleed />
           <PlayerLighting camera={camera} />
         </>
       )}

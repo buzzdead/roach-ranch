@@ -8,6 +8,8 @@ import { useShallow } from 'zustand/shallow';
 import RoachBleedEffect from '../roach/Effects/RoachBleedEffect';
 import ChickenModel from './ChickenModel';
 import RoachActions from '../roach/RoachActions';
+import ChickenAttack from './ChickenAttack';
+import { SkeletonUtils } from 'three/examples/jsm/Addons.js';
 
 const Chicken = ({ id, pos }) => {
   const position = new Vector3([pos[0], pos[1], pos[2]]);
@@ -19,8 +21,15 @@ const Chicken = ({ id, pos }) => {
   const deadRef = useRef()
   const { camera } = useThree()
   const { scene, animations } = modelCache['/chicken.glb'];
+   const originalScene = useMemo(() => {
+      const cloned = SkeletonUtils.clone(scene);
+  
+      return cloned;
+    }, [scene]);
   const [isDead, setIsDead] = useState(false);
   const addBleed = useGameEffectsStore(useShallow((state) => state.addBleed));
+  const removeEnemy = useGameEffectsStore(
+    useShallow((state) => state.removeEnemy))
 
   const setHealth = (p, m) => {
     
@@ -85,15 +94,20 @@ const Chicken = ({ id, pos }) => {
         } */
   });
   const handleDeath = () => {
-    console.log("dying")
-  }
+    if (Math.random() > 0.3) {
+      // Add chitin at the roach's position
+      const pos = modelRef.current.position.clone()
+      //addLoot('chitin', position);
+    }
+    removeEnemy(id);
+  };
   return (
     <>
      
       <RoachBleedEffect roachId={id} />{' '}
       <ChickenModel
         ref={modelRef}
-        originalScene={scene}
+        originalScene={originalScene}
         position={pos}
         triggerImpact={impactEvent}
         triggerJump={jumpEvent}
@@ -101,8 +115,9 @@ const Chicken = ({ id, pos }) => {
         onDeathComplete={handleDeath}
         rigidBodyRef={rigidBodyRef}
       />
+    
       <RoachActions
-        originalScene={scene}
+        originalScene={originalScene}
         animations={animations}
         isAnimatingRef={isAnimatingRef}
         position={pos}

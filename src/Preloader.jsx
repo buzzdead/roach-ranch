@@ -13,7 +13,8 @@ const MODELS = [
   '/Roach-Chitin.glb',
   '/crafting-bench.glb',
   '/well.glb',
-  '/chicken.glb'
+  '/chicken.glb',
+  '/chicken-talon'
 ];
 
 // List of all textures to preload

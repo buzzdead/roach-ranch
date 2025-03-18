@@ -24,7 +24,52 @@ const CollisionManager = {
       this.enemies = this.enemies.filter(e => e !== enemy);
     };
   },
-
+  checkClawPlayerCollision(clawPosition, clawRadius) {
+    if (!this.player || !this.player.mesh) return { hit: false };
+    
+    const playerPosition = new THREE.Vector3();
+    this.player.mesh.getWorldPosition(playerPosition);
+    
+    // Get distance between claw and player
+    const distance = clawPosition.distanceTo(playerPosition);
+    
+    // If close enough, it's a hit
+    if (distance < (clawRadius + 1.0)) { // 1.0 is approximate player radius
+      // Get the direction from claw to player (this is the base direction)
+      const baseDirection = new THREE.Vector3().subVectors(playerPosition, clawPosition).normalize();
+      
+      // Create a slashing direction perpendicular to the base direction
+      // For a right-to-left slash, we use the cross product with UP vector
+      const upVector = new THREE.Vector3(0, 0.5, 0);
+      const slashDirection = new THREE.Vector3().crossVectors(baseDirection, upVector).normalize();
+      
+      // You can also rotate this direction slightly for variability
+      // For example, rotate it 20-40 degrees in a random direction
+      const rotationAxis = baseDirection.clone();
+      const rotationAngle = (Math.random() * 0.4 + 0.2) * (Math.random() > 0.5 ? .25 : -.25);
+      slashDirection.applyAxisAngle(rotationAxis, rotationAngle);
+    
+      // Calculate hit point
+      const hitPoint = clawPosition.clone().add(baseDirection.multiplyScalar(clawRadius));
+      hitPoint.y += 0.75;
+      
+      // Trigger player hit event
+      if (this.player.onHit && slashDirection) {
+        this.player.onHit({
+          position: hitPoint,
+          damage: 10, // Set appropriate damage
+          direction: slashDirection, // Use slash direction instead of direct hit direction
+        });
+      }
+      
+      return {
+        hit: true,
+        position: hitPoint
+      };
+    }
+    
+    return { hit: false };
+  },
   // Add to your CollisionManager
   checkParticlePlayerCollision(particlePosition, particleRadius) {
     if (!this.player.mesh) return { hit: false };

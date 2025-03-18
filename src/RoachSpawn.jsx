@@ -51,8 +51,8 @@ const RoachSpawn = ({
       
       // Ensure we stay within boundaries
       const clampedX = Math.max(minX, Math.min(maxX, spawnX));
-      
-      addEnemy("roach", [clampedX, yPosition, zPosition]);
+      const isRoach = Math.random() > 0.5;
+      addEnemy(isRoach ? "roach" : "chicken", [clampedX, yPosition, zPosition]);
     }
   };
   

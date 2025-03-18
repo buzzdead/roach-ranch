@@ -46,6 +46,10 @@ export const SoundProvider = ({ children }) => {
         manager.preloadSound('Kill1', 'soundeffects/Rancher-Kill1.mp3'),
         manager.preloadSound('Kill2', 'soundeffects/Rancher-Kill2.mp3'),
         manager.preloadSound('Kill3', 'soundeffects/Rancher-Kill3.mp3'),
+        manager.preloadSound('Chicken-Kill1', 'soundeffects/Chicken-Kill1.mp3'),
+        manager.preloadSound('Chicken-Kill2', 'soundeffects/Chicken-Kill2.mp3'),
+        manager.preloadSound('Chicken-Kill3', 'soundeffects/Chicken-Kill3.mp3'),
+        manager.preloadSound('chickenAttack', 'soundeffects/chicken-attack.mp3'),
         // Preload other sounds as needed
       ]).then(() => {
         setSoundManager(manager);

@@ -9,6 +9,9 @@ const SoundEffects = () => {
         kill1: null,
         kill2: null,
         kill3: null,
+        chickenKill1: null,
+        chickenKill2: null,
+        chickenKill3: null,
     });
       
     const soundManager = useSoundManager();
@@ -34,6 +37,21 @@ const SoundEffects = () => {
                     maxDistance: 50,
                     volume: 0.65,
                 }),
+                chickenKill1: soundManager.createPositionalSound('Chicken-Kill1', pos, {
+                    refDistance: 5,
+                    maxDistance: 50,
+                    volume: 0.65,
+                }),
+                chickenKill2: soundManager.createPositionalSound('Chicken-Kill2', pos, {
+                    refDistance: 5,
+                    maxDistance: 50,
+                    volume: 0.65,
+                }),
+                chickenKill3: soundManager.createPositionalSound('Chicken-Kill3', pos, {
+                    refDistance: 5,
+                    maxDistance: 50,
+                    volume: 0.65,
+                }),
             };
     
             return () => {
@@ -46,12 +64,13 @@ const SoundEffects = () => {
     }, [soundManager]);
 
     useEffect(() => {
-        if(triggerKillSound === 0) return;
+        const { type, value } = triggerKillSound;
+        if(value === 0) return;
         
-        console.log("Trying to play kill sound:", triggerKillSound);
+        console.log("Trying to play kill sound:", value);
         console.log("Available sounds:", Object.keys(soundsRef.current));
         
-        const soundKey = `kill${triggerKillSound}`;
+        const soundKey = type === "roach" ? `kill${value}` : `chickenKill${value}`;
         const killSound = soundsRef.current[soundKey];
       
         if (killSound) {
