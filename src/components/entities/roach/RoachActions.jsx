@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useRoachAnimations } from '../../../hooks/useRoachAnimations';
+import { useEnemyAnimations } from '../../../hooks/useRoachAnimations';
 import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
 import { resetAnimation, updateAttackCooldown, getActionRefs } from '../../../utils/animationUtil';
@@ -8,7 +8,6 @@ import { useScanForPlayer } from '../../../hooks/useScanForPlaer';
 
 const MOVE_SPEED = 1.5;
 const ROTATION_SPEED = 3;
-const ATTACK_DISTANCE = 5;
 
 const RoachActions = ({
   originalScene,
@@ -19,12 +18,13 @@ const RoachActions = ({
   attackCooldownRef,
   isAttackingRef,
   deadRef,
-  rigidBodyRef
+  rigidBodyRef,
+  entityType = 'roach'
 }) => {
   // Animation setup
-  const { actions, mixer } = useRoachAnimations(originalScene, animations, isAnimatingRef);
+  const { actions, mixer } = useEnemyAnimations(originalScene, animations, isAnimatingRef, isAttackingRef, entityType);
   const waveLevel = useGameEffectsStore(useShallow((state) => state.waveLevel));
-
+  const ATTACK_DISTANCE = entityType === "chicken" ? 2.5 : 5;
   // State refs
   const { finished, initialize, isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef } = getActionRefs();
   const actionRefs = { isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef };
@@ -69,6 +69,7 @@ const RoachActions = ({
 
   const handleAnimations = () => {
     // Move animation
+    if(entityType == 'roach') {
     if (actions.Move) {
       const shouldPlayMove = isRotatingRef.current || isMovingRef.current;
       resetAnimation(actions.Move, shouldPlayMove);
@@ -97,6 +98,34 @@ const RoachActions = ({
       }
       finished.current = true;
     }
+  }
+  if(entityType == "chicken") {
+    if (actions.Walk) {
+      const shouldPlayWalk = isRotatingRef.current || isMovingRef.current;
+      resetAnimation(actions.Walk, shouldPlayWalk);
+    }
+    
+    if (actions.Attack) {
+      resetAnimation(actions.Attack, isAttackingRef.current);
+    }
+    
+    if (deadRef.current && actions.Dying && !finished.current) {
+      // Chicken death animation logic
+      Object.values(actions).forEach((action) => {
+        if (action && action.isRunning() && action !== actions.Dying) {
+          action.stop();
+        }
+      });
+
+      if (!actions.Dying.isRunning()) {
+        console.log("Playing dying")
+        actions.Dying.reset();
+        actions.Dying.play();
+      }
+      finished.current = true;
+    }
+  
+  }
   };
 
   const handleRotation = (delta, isForAttack) => {

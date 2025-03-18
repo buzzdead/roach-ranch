@@ -1,8 +1,6 @@
 import { Vector3 } from 'three';
 import { modelCache } from '../../../Preloader';
 import { useEffect, useRef, useMemo, useState } from 'react';
-import { useAnimations } from '@react-three/drei';
-import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import CollisionManager from '../../../utils/CollisionManager';
 import { useGameEffectsStore } from '../../../store/gameEffectsStore';
@@ -20,16 +18,17 @@ const Chicken = ({ id, pos }) => {
   const isAttackingRef = useRef(false);
   const deadRef = useRef()
   const { camera } = useThree()
-  const { scene, animations } = modelCache['/chicken2.glb'];
+  const { scene, animations } = modelCache['/chicken.glb'];
   const [isDead, setIsDead] = useState(false);
   const addBleed = useGameEffectsStore(useShallow((state) => state.addBleed));
-  // Use animations hook to access and control animations
-  const { actions, mixer } = useAnimations(animations, modelRef);
+
   const setHealth = (p, m) => {
-    console.log(p);
     
     const newHealth = addBleed(id, p.position, p.bulletDirection, p.damage);
-    if(newHealth <= 0) setIsDead(true); else impactEvent.trigger(p.bulletDirection);
+    console.log(newHealth)
+    if(newHealth > 0)  impactEvent.trigger(p.bulletDirection);
+    if (newHealth === 0) deadRef.current = true;
+    if (newHealth < 0) setIsDead(true);
   };
   useEffect(() => {
     if (!modelRef.current) return;
@@ -47,22 +46,7 @@ const Chicken = ({ id, pos }) => {
     // Unregister when unmounted
     return unregister;
   }, [position]);
-  // State for circular movement
-  const walkRadius = 5; // radius of circle
-  const walkSpeed = 0.5; // speed of rotation
-  const angleRef = useRef(0);
-
-  // Configure and play the "Walk" animation
-  useEffect(() => {
-    if (actions.Idle) {
-      // Configure animation properties
-      actions.Idle.loop = THREE.LoopRepeat;
-      actions.Idle.timeScale = 1.75;
-
-      // Play the animation
-      actions.Idle.play();
-    }
-  }, [actions]);
+ 
 
   const impactEvent = useMemo(() => {
     const subscribers = [];
@@ -127,6 +111,7 @@ const Chicken = ({ id, pos }) => {
         isAttackingRef={isAttackingRef}
         deadRef={deadRef}
         rigidBodyRef={rigidBodyRef}
+        entityType='chicken'
       />
     </>
   );

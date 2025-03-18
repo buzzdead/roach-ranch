@@ -18,7 +18,7 @@ const CollisionManager = {
       { offset: new THREE.Vector3(0, 0, -0.8), radius: .5 }  // tail
     ];
     this.enemies.push(enemy);
-    
+    console.log(enemy)
 
     return () => {
       this.enemies = this.enemies.filter(e => e !== enemy);
@@ -86,39 +86,6 @@ const CollisionManager = {
     const radiusAtHeight = topRadius + (bottomRadius - topRadius) * (heightProjection / coneHeight);
 
     return distanceFromAxis <= radiusAtHeight;
-  },
-
-  // Main collision detection function
-  checkBulletCollisions(bulletPosition, bulletDirection, maxDistance, damage) {
-    const bulletRay = this._createBulletRay(bulletPosition, bulletDirection);
-
-    for (const enemy of this.enemies) {
-      if (!enemy.mesh) continue;
-
-      const meshes = this._findMeshesInGroup(enemy.mesh);
-      for (const mesh of meshes) {
-        if (!mesh.geometry) continue;
-
-        const { worldPosition, radius } = this._getMeshBoundingData(mesh);
-
-        if (this._isRayIntersectingSphere(bulletRay, worldPosition, radius, bulletPosition, maxDistance)) {
-          const hitPoint = this._calculateHitPoint(bulletRay, worldPosition, radius);
-
-          enemy.onHit && enemy.onHit({
-            position: hitPoint,
-            mesh: mesh,
-            damage: damage
-          });
-
-          return {
-            hit: true,
-            position: hitPoint,
-          };
-        }
-      }
-    }
-
-    return { hit: false };
   },
 
   checkBulletPhysicalCollision(bulletPosition, bulletRadius, bulletDirection, damage, bulletId) {
@@ -214,12 +181,6 @@ const CollisionManager = {
     return { hit: false };
   },
 
-  // Helper function to create a bullet ray
-  _createBulletRay(bulletPosition, bulletDirection) {
-    const rayDirection = bulletDirection.clone().normalize();
-    return new THREE.Ray(bulletPosition.clone(), rayDirection);
-  },
-
   // Helper function to find all meshes in a group
   _findMeshesInGroup(group) {
     const meshes = [];
@@ -250,30 +211,6 @@ const CollisionManager = {
    
     return { worldPosition, radius };
   },
-
-  // Helper function to check if ray intersects sphere
-  _isRayIntersectingSphere(ray, sphereCenter, sphereRadius, bulletPosition, maxDistance) {
-    // Calculate distance from sphere center to ray
-    const distanceToRay = ray.distanceToPoint(sphereCenter);
-
-    // Early exit if ray doesn't pass through sphere
-    if (distanceToRay > sphereRadius) return false;
-
-    // Check if intersection is in front of bullet and within max distance
-    const toTarget = new THREE.Vector3().subVectors(sphereCenter, bulletPosition);
-    const projectionDistance = toTarget.dot(ray.direction);
-
-    return projectionDistance > 0 && projectionDistance <= maxDistance;
-  },
-
-  // Helper function to calculate hit point on sphere surface
-  _calculateHitPoint(ray, sphereCenter, radius) {
-    const closestPoint = new THREE.Vector3();
-    ray.closestPointToPoint(sphereCenter, closestPoint);
-
-    const hitNormal = new THREE.Vector3().subVectors(closestPoint, sphereCenter).normalize();
-    return new THREE.Vector3().copy(sphereCenter).add(hitNormal.multiplyScalar(radius));
-  }
 };
 
 export default CollisionManager;
