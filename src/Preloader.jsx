@@ -7,14 +7,14 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 const MODELS = [
   '/revolver.glb',
   '/lantern.glb',
-  '/mutant.glb',
+  '/roach-half.glb',
   '/rancher.glb',
   '/bullet1.glb',
   '/Roach-Chitin.glb',
   '/crafting-bench.glb',
   '/well.glb',
-  '/chicken.glb',
-  '/chicken-talon'
+  '/chicken-opt.glb',
+  '/chicken-talon.glb'
 ];
 
 // List of all textures to preload

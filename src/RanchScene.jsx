@@ -23,6 +23,7 @@ import Game from './Game';
 import SoundEffects from './components/effects/SoundEffects';
 import Test from './test';
 import Tree2 from './components/environment/Tree2';
+import EnemiesContainer from './Enemies';
 
 const RanchScene = () => {
   return (
@@ -52,7 +53,7 @@ const RanchScene = () => {
           <Physics gravity={[0, -9.81, 0]}>
             <Player />
             <RanchHouse position={[0, 0, 0]} dilapidated={true} />
-            <Enemies />
+            <EnemiesContainer />
             <Tree2
             position={[-2, 0, -16]}
             height={7}

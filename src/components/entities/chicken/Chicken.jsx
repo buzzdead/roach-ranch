@@ -1,6 +1,6 @@
 import { Vector3 } from 'three';
 import { modelCache } from '../../../Preloader';
-import { useEffect, useRef, useMemo, useState } from 'react';
+import { useEffect, useRef, useMemo, useState, Suspense } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import CollisionManager from '../../../utils/CollisionManager';
 import { useGameEffectsStore } from '../../../store/gameEffectsStore';
@@ -20,7 +20,7 @@ const Chicken = ({ id, pos }) => {
   const isAttackingRef = useRef(false);
   const deadRef = useRef()
   const { camera } = useThree()
-  const { scene, animations } = modelCache['/chicken.glb'];
+  const { scene, animations } = modelCache['/chicken-opt.glb'];
    const originalScene = useMemo(() => {
       const cloned = SkeletonUtils.clone(scene);
   
@@ -102,7 +102,7 @@ const Chicken = ({ id, pos }) => {
     removeEnemy(id);
   };
   return (
-    <>
+    <Suspense>
      
       <RoachBleedEffect roachId={id} />{' '}
       <ChickenModel
@@ -128,7 +128,7 @@ const Chicken = ({ id, pos }) => {
         rigidBodyRef={rigidBodyRef}
         entityType='chicken'
       />
-    </>
+    </Suspense>
   );
 };
 

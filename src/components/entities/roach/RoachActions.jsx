@@ -275,8 +275,7 @@ const RoachActions = ({
     // Handle AI behavior
     handleBehavior(delta);
 
-    // Update the animation mixer
-    if (mixer) mixer.update(delta);
+   
   });
 
   return entityType === "chicken" ?  <ChickenAttack 

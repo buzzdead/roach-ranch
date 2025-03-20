@@ -139,42 +139,8 @@ const ChickenModel = forwardRef(
       gravityScale={2}
       colliders={false}
       friction={0.7}
-      onContactForce={(payload) => {
-        // Only respond to contacts with other roaches
-        if (payload.target.rigidBodyObject && payload.other.rigidBodyObject) {
-          // Check if the other object is another roach
-          const otherIsRoach = payload.other.rigidBodyObject.name === "roach";
-          
-          if (otherIsRoach && rigidBodyRef.current) {
-            // Calculate repulsion direction away from contact point
-            const myPos = rigidBodyRef.current.translation();
-            const contactPoint = payload.manifold.contactPoint;
-            
-            // Direction from contact point to this roach
-            const repulsionDir = {
-              x: myPos.x - contactPoint.x,
-              y: 10, // Keep it horizontal
-              z: myPos.z - contactPoint.z
-            };
-            
-            // Normalize
-            const length = Math.sqrt(repulsionDir.x * repulsionDir.x + repulsionDir.z * repulsionDir.z);
-            if (length > 0) {
-              repulsionDir.x /= length;
-              repulsionDir.z /= length;
-            }
-            
-            // Apply a small impulse in the repulsion direction
-            const repulsionStrength = 15;
-            rigidBodyRef.current.applyImpulse({
-              x: repulsionDir.x * repulsionStrength,
-              y: 0.5, // Small upward force to prevent stacking
-              z: repulsionDir.z * repulsionStrength
-            }, true);
-          }
-        }
-      }
-      }
+      
+      
       
     >
       <CapsuleCollider args={[0.2, 0.5]} position={[0, 0.75, 0]} />
@@ -185,7 +151,6 @@ const ChickenModel = forwardRef(
           ref={ref}
           object={originalScene}
           position={position}
-          scale={[0.01, 0.01, 0.01]}
         />
       </Suspense>
     );

@@ -134,7 +134,7 @@ const CollisionManager = {
   },
 
   checkBulletPhysicalCollision(bulletPosition, bulletRadius, bulletDirection, damage, bulletId) {
-    const MAX_COLLISION_DISTANCE = 10; // Maximum distance to even consider collision
+    const MAX_COLLISION_DISTANCE = 5; // Maximum distance to even consider collision
     const SKIP_FRAMES = 5; // Number of frames to skip checking distant enemies
     
     for (const enemy of this.enemies) {

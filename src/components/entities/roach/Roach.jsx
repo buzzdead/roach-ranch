@@ -12,7 +12,7 @@ import { modelCache } from '../../../Preloader';
 import { SkeletonUtils } from 'three/examples/jsm/Addons.js';
 
 const Roach = ({ id, position }) => {
-  const { scene, animations } = modelCache['/mutant.glb'];
+  const { scene, animations } = modelCache['/roach-half.glb'];
   
   // Clone the scene
   const originalScene = useMemo(() => {
