@@ -5,7 +5,6 @@ import { PerspectiveCamera, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
 import Player from './components/entities/player/Player';
-import Tree from './components/entities/Tree';
 import Ground from './components/environment/Ground';
 import RanchHouse from './components/environment/RanchHouse';
 import AnimatedGrassBillboards from './components/environment/AnimatedGrassBillboards';
@@ -15,13 +14,11 @@ import MysteriousBoundary from './components/effects/AtmosphericBoundary';
 import HorrorMoon from './components/environment/SpookyMoon';
 import { SoundProvider } from './context/SoundContext';
 import { PlayerProvider } from './context/PlayerContext';
-import Enemies from './Enemies';
 import { Stats } from '@react-three/drei';
 import Loot from './Loot';
 import MysteriousWall from './components/effects/MysteriousWall';
 import Game from './Game';
 import SoundEffects from './components/effects/SoundEffects';
-import Test from './test';
 import Tree2 from './components/environment/Tree2';
 import EnemiesContainer from './Enemies';
 
