@@ -3,7 +3,7 @@ import { useThree, useFrame } from '@react-three/fiber';
 import { useShallow } from 'zustand/shallow';
 import { SkeletonUtils } from 'three/examples/jsm/Addons.js';
 import { useGameEffectsStore } from '../../store/gameEffectsStore';
-import { modelCache } from '../../Preloader';
+import { modelCache } from '../../utils/Preloader';
 import CollisionManager from '../../utils/CollisionManager';
 import useRoachDeathEffect from '../../hooks/useRoachDeathEffect';
 
@@ -25,6 +25,12 @@ const ENTITY_CONFIG = {
       collider: [0.2, 0.5],
       colliderPosition: [0, 0.2, 0],
       scale: 1.25
+    },
+    warhog: {
+        mass: 2,
+        collider: [0.6, 0.8],
+        colliderPosition: [0, 0.5, 0],
+        scale: 1
     }
   };
 

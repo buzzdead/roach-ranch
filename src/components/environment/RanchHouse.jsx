@@ -3,12 +3,10 @@ import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { RigidBody, CuboidCollider } from '@react-three/rapier';
-import { modelCache } from '../../Preloader';
 import { CraftingBench } from './CraftingBench';
 
 const RanchHouse = ({ position = [0, 0, 0], dilapidated = true }) => {
   const houseRef = useRef();
-  const { scene } = modelCache["/crafting-bench.glb"]
 
   // Create procedural textures for the house
   const textures = useMemo(() => {

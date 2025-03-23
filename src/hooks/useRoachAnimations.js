@@ -12,7 +12,7 @@ export const useEnemyAnimations = (originalScene, animations, isAnimatingRef, is
       configureRoachAnimations(actions, mixer, isAnimatingRef);
     } else if (entityType === 'chicken') {
       configureChickenAnimations(actions, mixer, isAnimatingRef, isAttackingRef);
-    } else if (entityType === 'mootant') {
+    } else if (entityType === 'mootant' || entityType === 'warhog') {
       configureMootantAnimations(actions, mixer, isAnimatingRef, isAttackingRef);
     }
   }, [actions, mixer, isAnimatingRef, isAttackingRef, entityType]);

@@ -1,13 +1,13 @@
 import React, { memo, useRef, useState, useEffect } from 'react';
-import { useGameEffectsStore } from './store/gameEffectsStore';
+import { useGameEffectsStore } from '../store/gameEffectsStore';
 import { useFrame, useThree } from '@react-three/fiber';
 import { MeshStandardMaterial, Color, Vector3 } from 'three';
 import { Html } from '@react-three/drei';
 import { useShallow } from 'zustand/shallow';
-import { modelCache } from './Preloader';
-import useFrameInterval from './utils/useFrameInterval';
+import { modelCache } from '../utils/Preloader';
+import useFrameInterval from '../utils/useFrameInterval';
 import * as THREE from 'three'
-import { useSoundManager } from './context/SoundContext';
+import { useSoundManager } from '../context/SoundContext';
 
 const LootItem = memo(({ id, position, type, autoCollect = false }) => {
     const { scene } = modelCache['/Roach-Chitin.glb'];

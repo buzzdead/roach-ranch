@@ -1,14 +1,12 @@
 // Revolver.jsx
 import React, { useRef, useMemo, useEffect, useState } from 'react';
-import { useGLTF } from '@react-three/drei';
 import { useAttachToObject } from '../../hooks/useAttachToObject';
-import { ShaderMaterial } from 'three';
 import { usePlayerContext } from '../../context/PlayerContext';
 import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import RevolverBullet from './RevolverBullet';
 import RevolverAudio from './RevolverAudio';
-import { modelCache } from '../../Preloader'
+import { modelCache } from '../../utils/Preloader'
 import { useGameEffectsStore } from '../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
 // Constants for configuration

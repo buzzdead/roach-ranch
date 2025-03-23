@@ -15,13 +15,12 @@ import HorrorMoon from './components/environment/SpookyMoon';
 import { SoundProvider } from './context/SoundContext';
 import { PlayerProvider } from './context/PlayerContext';
 import { Stats } from '@react-three/drei';
-import Loot from './Loot';
+import Loot from './components/Loot';
 import MysteriousWall from './components/effects/MysteriousWall';
-import Game from './Game';
+import Game from './components/Game';
 import SoundEffects from './components/effects/SoundEffects';
 import Tree2 from './components/environment/Tree2';
-import EnemiesContainer from './Enemies';
-import Fire3D from './components/effects/FireShader';
+import EnemiesContainer from './components/Enemies';
 import Test from './test';
 
 const RanchScene = () => {

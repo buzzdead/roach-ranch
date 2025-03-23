@@ -11,7 +11,7 @@ import {
   addWobbleMovement,
   checkGroundHit,
 } from '../../utils/particleUtils';
-import { textureCache } from '../../Preloader';
+import { textureCache } from '../../utils/Preloader';
 import CollisionManager from '../../utils/CollisionManager';
 
 const MutantGoo = ({ position, target, onComplete, bleeding = false }) => {

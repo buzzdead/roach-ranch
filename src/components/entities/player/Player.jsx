@@ -8,7 +8,7 @@ import { PlayerEquipment } from './PlayerEquipment';
 import { PlayerAnimation } from './PlayerAnimation';
 import { PlayerAudio } from './PlayerAudio';
 import PlayerCursor from './PlayerCursor';
-import { modelCache } from '../../../Preloader';
+import { modelCache } from '../../../utils/Preloader';
 import PlayerHealth from './PlayerHealth';
 import PlayerBleed from './PlayerBleed';
 

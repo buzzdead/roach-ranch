@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import CollisionManager from '../../utils/CollisionManager';
-import { modelCache } from '../../Preloader';
+import { modelCache } from '../../utils/Preloader';
 
 // Create a pre-calculated rotation matrix and quaternion outside component
 const calculateBulletQuaternion = (direction) => {

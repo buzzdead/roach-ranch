@@ -1,10 +1,10 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { RigidBody } from '@react-three/rapier';
 import { useGameEffectsStore } from '../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
 import { useThree } from '@react-three/fiber';
 import useFrameInterval from '../../utils/useFrameInterval';
-import { modelCache } from '../../Preloader';
+import { modelCache } from '../../utils/Preloader';
 import { Vector3 } from 'three';
 import { Html } from '@react-three/drei';
 import { useSpring, animated } from '@react-spring/web'; // You'll need to install this
@@ -32,7 +32,7 @@ export const CraftingBench = () => {
         return new Vector3(craftingBench.position[0], craftingBench.position[1], craftingBench.position[2])
     }, [craftingBench])
 
-    useFrameInterval((state, delta) => {
+    useFrameInterval(() => {
         const playerPos = camera.userData.characterPos;
         if(!playerPos) return 
         if (playerPos.distanceTo(benchVector) <= pickupRadius && !toggleInquire)

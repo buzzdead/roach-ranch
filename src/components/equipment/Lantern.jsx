@@ -1,11 +1,10 @@
 // Lantern.jsx
 import React, { useRef, useMemo, useEffect } from 'react';
-import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useAttachToObject } from '../../hooks/useAttachToObject';
 import { LanternLight } from './LanternLight';
-import { modelCache } from '../../Preloader';
+import { modelCache } from '../../utils/Preloader';
 
 // Constants for configuration
 const LANTERN_CONFIG = {

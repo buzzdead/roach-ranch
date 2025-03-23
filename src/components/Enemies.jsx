@@ -1,14 +1,16 @@
 import React, { memo } from 'react';
-import { useGameEffectsStore } from './store/gameEffectsStore';
-import Roach from './components/entities/roach/Roach';
+import { useGameEffectsStore } from '../store/gameEffectsStore';
+import Roach from './entities/roach/Roach';
 import { useShallow } from 'zustand/shallow';
-import Chicken from './components/entities/chicken/Chicken';
-import Mootant from './components/entities/mootant/Mootant';
+import Chicken from './entities/chicken/Chicken';
+import Mootant from './entities/mootant/Mootant';
+import Warhog from './entities/warhog/Warhog';
 
 // Memoize the Roach component
 const MemoizedRoach = memo(Roach);
 const MemoizedChicken = memo(Chicken);
 const MemoizedMootant = memo(Mootant);
+const MemoizedWarhog = memo(Warhog)
 
 // This is the container component that fetches data
 const EnemiesContainer = () => {
@@ -27,6 +29,8 @@ const Enemies = ({ enemies }) => {
           ? <MemoizedRoach key={enemy.id} id={enemy.id} position={enemy.position} /> 
           : enemy.type === "mootant"
           ? <MemoizedMootant key={enemy.id} id={enemy.id} position={enemy.position} />
+          : enemy.type === "warhog" 
+          ? <MemoizedWarhog key={enemy.id} id={enemy.id} position={enemy.position} />
           : <MemoizedChicken key={enemy.id} id={enemy.id} pos={enemy.position} />
       ))}
     </>

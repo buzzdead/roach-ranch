@@ -1,11 +1,11 @@
-import React, { useEffect, useRef } from 'react';
-import { useGameEffectsStore } from './store/gameEffectsStore';
+import { useEffect, useRef } from 'react';
+import { useGameEffectsStore } from '../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
 
 /**
  * RoachSpawn - Spawns roaches periodically based on wave level and activity
  */
-const RoachSpawn = ({
+const EnemyGenerator = ({
   baseSpawnRate = 5000, // Base time between spawns in ms
   minX = -45,          // Minimum X position for spawning
   maxX = 45,           // Maximum X position for spawning
@@ -88,4 +88,4 @@ const RoachSpawn = ({
   return null;
 };
 
-export default RoachSpawn;
+export default EnemyGenerator;

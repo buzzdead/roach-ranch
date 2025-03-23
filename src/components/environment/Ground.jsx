@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { CuboidCollider } from '@react-three/rapier';
-import { modelCache, textureCache } from '../../Preloader';
+import { modelCache, textureCache } from '../../utils/Preloader';
 
 const Ground = () => {
   const [maps, setMaps] = useState({

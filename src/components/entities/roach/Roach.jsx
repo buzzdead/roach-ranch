@@ -7,7 +7,7 @@ import RoachEffects from './Effects/RoachEffects';
 import CollisionManager from '../../../utils/CollisionManager';
 import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/react/shallow';
-import { modelCache } from '../../../Preloader';
+import { modelCache } from '../../../utils/Preloader';
 import { SkeletonUtils } from 'three/examples/jsm/Addons.js';
 import EntityActions from '../EntityActions';
 
@@ -83,8 +83,6 @@ const Roach = ({ id, position }) => {
   }, [position]);
   const handleDeath = () => {
     if (Math.random() > 0.3) {
-      // Add chitin at the roach's position
-      const pos = modelRef.current.position.clone()
       addLoot('chitin', position);
     }
     removeEnemy(id);

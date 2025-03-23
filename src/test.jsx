@@ -8,6 +8,7 @@ const Test = () => {
         addEnemy("chicken", [0,0,-10])
         addEnemy("roach", [5, 0, -10])
         addEnemy("mootant", [10, 0, -10])
+        addEnemy("warhog", [15, 0, -10])
     }, [])
     return null;
 }
