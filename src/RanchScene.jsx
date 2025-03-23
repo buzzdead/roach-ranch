@@ -21,6 +21,8 @@ import Game from './Game';
 import SoundEffects from './components/effects/SoundEffects';
 import Tree2 from './components/environment/Tree2';
 import EnemiesContainer from './Enemies';
+import Fire3D from './components/effects/FireShader';
+import Test from './test';
 
 const RanchScene = () => {
   return (
@@ -102,6 +104,7 @@ const RanchScene = () => {
           </Suspense>
         </PlayerProvider>
         <SoundEffects />
+   
       </SoundProvider>
     </Canvas>
   );

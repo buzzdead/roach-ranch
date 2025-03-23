@@ -14,7 +14,8 @@ const MODELS = [
   '/crafting-bench.glb',
   '/well.glb',
   '/chicken-opt.glb',
-  '/chicken-talon.glb'
+  '/chicken-talon.glb',
+  '/mootant.glb'
 ];
 
 // List of all textures to preload

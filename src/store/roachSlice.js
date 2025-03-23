@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 const enemyConfigs = {
   roach: { health: 75 },
   chicken: { health: 100 },
+  mootant: { health: 150 },
 };
 const createEnemy = (type, position) => {
   const config = enemyConfigs[type]

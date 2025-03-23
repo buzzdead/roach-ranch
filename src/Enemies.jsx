@@ -3,26 +3,30 @@ import { useGameEffectsStore } from './store/gameEffectsStore';
 import Roach from './components/entities/roach/Roach';
 import { useShallow } from 'zustand/shallow';
 import Chicken from './components/entities/chicken/Chicken';
+import Mootant from './components/entities/mootant/Mootant';
 
 // Memoize the Roach component
 const MemoizedRoach = memo(Roach);
 const MemoizedChicken = memo(Chicken);
+const MemoizedMootant = memo(Mootant);
 
 // This is the container component that fetches data
 const EnemiesContainer = () => {
   const enemies = useGameEffectsStore(useShallow((state) => state.enemies));
-  console.log("E container")
+
   return <MemoizedEnemies enemies={enemies} />;
 };
 
 // This is the memoized component that only re-renders when the array length changes
 const Enemies = ({ enemies }) => {
-  console.log("EEE")
+
   return (
     <>
       {enemies.map((enemy) => (
         enemy.type === "roach" 
           ? <MemoizedRoach key={enemy.id} id={enemy.id} position={enemy.position} /> 
+          : enemy.type === "mootant"
+          ? <MemoizedMootant key={enemy.id} id={enemy.id} position={enemy.position} />
           : <MemoizedChicken key={enemy.id} id={enemy.id} pos={enemy.position} />
       ))}
     </>

@@ -7,10 +7,9 @@ import { resetAnimation, updateAttackCooldown, getActionRefs } from '../../../ut
 import { useScanForPlayer } from '../../../hooks/useScanForPlaer';
 import ChickenAttack from '../chicken/ChickenAttack';
 
-const MOVE_SPEED = 1.5;
 const ROTATION_SPEED = 3;
 
-const RoachActions = ({
+const   RoachActions = ({
   originalScene,
   animations,
   isAnimatingRef,
@@ -26,7 +25,9 @@ const RoachActions = ({
   const { actions, mixer } = useEnemyAnimations(originalScene, animations, isAnimatingRef, isAttackingRef, entityType);
   const waveLevel = useGameEffectsStore(useShallow((state) => state.waveLevel));
   const setTriggerKillSound = useGameEffectsStore(useShallow((state) => state.setTriggerKillSound));
-  const ATTACK_DISTANCE = entityType === "chicken" ? 2.5 : 5;
+  const ATTACK_DISTANCE = entityType === "chicken" ? 2.5 : 
+                       entityType === "mootant" ? 2 : 5;
+  const MOVE_SPEED = entityType === "mootant" ? 15 : 1.5;
   // State refs
   const { finished, initialize, isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef } = getActionRefs();
   const actionRefs = { isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef };
@@ -128,6 +129,39 @@ const RoachActions = ({
       finished.current = true;
     }
   
+  }
+
+  else if (entityType === "mootant") {
+    if (actions.Walk) {
+      const shouldPlayWalk = isRotatingRef.current || isMovingRef.current;
+      resetAnimation(actions.Walk, shouldPlayWalk);
+    }
+    
+    if (actions.Attack) {
+      resetAnimation(actions.Attack, isAttackingRef.current);
+    }
+    
+    if (deadRef.current && !finished.current) {
+      // Mootant death logic - use Idle animation if no specific death animation exists
+      // Stop all other animations
+      Object.values(actions).forEach((action) => {
+        if (action && action.isRunning()) {
+          action.stop();
+        }
+      });
+      
+      // Set as finished immediately since we don't have a specific death animation
+      // Or use a default animation if available
+      if (actions.Idle) {
+        actions.Idle.reset();
+        actions.Idle.timeScale = 0.3; // Slow down for death effect
+        actions.Idle.play();
+      }
+      
+      // Trigger death sound effect
+      setTriggerKillSound("mootant");
+      finished.current = true;
+    }
   }
   };
 

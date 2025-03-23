@@ -12,8 +12,10 @@ export const useEnemyAnimations = (originalScene, animations, isAnimatingRef, is
       configureRoachAnimations(actions, mixer, isAnimatingRef);
     } else if (entityType === 'chicken') {
       configureChickenAnimations(actions, mixer, isAnimatingRef, isAttackingRef);
+    } else if (entityType === 'mootant') {
+      configureMootantAnimations(actions, mixer, isAnimatingRef, isAttackingRef);
     }
-  }, [actions, mixer, isAnimatingRef, entityType]);
+  }, [actions, mixer, isAnimatingRef, isAttackingRef, entityType]);
 
   return { actions, mixer };
 };
@@ -87,5 +89,34 @@ function configureChickenAnimations(actions, mixer, isAnimatingRef, isAttackingR
     actions.Dying.loop = THREE.LoopOnce;
     actions.Dying.clampWhenFinished = true;
     actions.Dying.timeScale = 2.0;
+  }
+}
+
+function configureMootantAnimations(actions, mixer, isAnimatingRef, isAttackingRef) {
+  // Configure Idle animation
+  if (actions.Idle) {
+    actions.Idle.loop = THREE.LoopRepeat;
+    actions.Idle.timeScale = 0.9; // Slightly slower for a larger creature
+    actions.Idle.play();
+  }
+  
+  // Configure Walk animation
+  if (actions.Walk) {
+    actions.Walk.loop = THREE.LoopRepeat;
+    actions.Walk.timeScale = 1.0; // Normal speed movement
+  }
+  
+  // Configure Attack animation
+  if (actions.Attack) {
+    actions.Attack.loop = THREE.LoopOnce;
+    actions.Attack.clampWhenFinished = true;
+    actions.Attack.timeScale = 1.1; // Slightly faster attack
+    
+    mixer.addEventListener('finished', (e) => {
+      if (e.action === actions.Attack) {
+        isAnimatingRef.current = false;
+        isAttackingRef.current = false; // Reset attack state when animation completes
+      }
+    });
   }
 }
