@@ -1,7 +1,7 @@
 // RoachEffects.jsx
 import React from 'react';
 import RoachAttackEffect from './RoachAttackEffect';
-import RoachBleedEffect from './RoachBleedEffect';
+import BleedEffect from '../../BleedEffect';
 
 const RoachEffects = ({
   position,
@@ -21,7 +21,7 @@ const RoachEffects = ({
         onAttackComplete={onAttackComplete}
         handleJump={handleJump}
       />
-      <RoachBleedEffect roachId={roachId} />
+      <BleedEffect roachId={roachId} />
     </>
   );
 };

@@ -1,15 +1,15 @@
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useEnemyAnimations } from '../../../hooks/useRoachAnimations';
-import { useGameEffectsStore } from '../../../store/gameEffectsStore';
+import { useEnemyAnimations } from '../../hooks/useRoachAnimations';
+import { useGameEffectsStore } from '../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
-import { resetAnimation, updateAttackCooldown, getActionRefs } from '../../../utils/animationUtil';
-import { useScanForPlayer } from '../../../hooks/useScanForPlaer';
-import ChickenAttack from '../chicken/ChickenAttack';
+import { resetAnimation, updateAttackCooldown, getActionRefs } from '../../utils/animationUtil';
+import { useScanForPlayer } from '../../hooks/useScanForPlaer';
+import ChickenAttack from './chicken/ChickenAttack';
 
 const ROTATION_SPEED = 3;
 
-const   RoachActions = ({
+const EntityActions = ({
   originalScene,
   animations,
   isAnimatingRef,
@@ -320,4 +320,4 @@ const   RoachActions = ({
  /> : null;
 };
 
-export default RoachActions;
+export default EntityActions;

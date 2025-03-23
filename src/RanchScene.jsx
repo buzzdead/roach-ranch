@@ -104,7 +104,7 @@ const RanchScene = () => {
           </Suspense>
         </PlayerProvider>
         <SoundEffects />
-   
+            <Test />
       </SoundProvider>
     </Canvas>
   );

@@ -2,7 +2,6 @@
 import React, { Suspense, useMemo, useRef, useEffect, useState } from 'react';
 import { useThree } from '@react-three/fiber';
 import RoachModel from './RoachModel';
-import RoachAction from './RoachActions';
 import RoachAudio from './RoachAudio';
 import RoachEffects from './Effects/RoachEffects';
 import CollisionManager from '../../../utils/CollisionManager';
@@ -10,6 +9,7 @@ import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/react/shallow';
 import { modelCache } from '../../../Preloader';
 import { SkeletonUtils } from 'three/examples/jsm/Addons.js';
+import EntityActions from '../EntityActions';
 
 const Roach = ({ id, position }) => {
   const { scene, animations } = modelCache['/roach-half.glb'];
@@ -101,7 +101,7 @@ const Roach = ({ id, position }) => {
         onDeathComplete={handleDeath}
         rigidBodyRef={rigidBodyRef}
       />
-      <RoachAction
+      <EntityActions
         originalScene={originalScene}
         animations={animations}
         isAnimatingRef={isAnimatingRef}

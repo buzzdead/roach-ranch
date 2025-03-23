@@ -1,10 +1,10 @@
 import React from 'react';
 import { useFrame } from '@react-three/fiber';
-import RoachBleed from '../RoachBleed';
-import { useGameEffectsStore } from '../../../../store/gameEffectsStore';
+import RoachBleed from './roach/RoachBleed';
+import { useGameEffectsStore } from '../../store/gameEffectsStore';
 import { useShallow } from 'zustand/react/shallow';
 
-const RoachBleedEffect = ({ roachId }) => {
+const BleedEffect = ({ roachId }) => {
   const bleeds = useGameEffectsStore(
     useShallow(
       (state) =>
@@ -31,4 +31,4 @@ const RoachBleedEffect = ({ roachId }) => {
   );
 };
 
-export default React.memo(RoachBleedEffect);
+export default React.memo(BleedEffect);

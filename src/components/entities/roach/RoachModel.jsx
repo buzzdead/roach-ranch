@@ -1,8 +1,6 @@
 // RoachModel.jsx - Improved version
 import React, { forwardRef, Suspense, useEffect, useRef } from 'react';
-import * as THREE from 'three';
 import { RigidBody, CapsuleCollider } from '@react-three/rapier';
-import RoachLighting from './RoachLighting';
 import useRoachDeathEffect from '../../../hooks/useRoachDeathEffect';
 import { useFrame } from '@react-three/fiber';
 

@@ -1,136 +1,77 @@
-// Mootant.jsx
-import React, { Suspense, useMemo, useRef, useEffect, useState } from 'react';
-import { useThree } from '@react-three/fiber';
-import RoachAction from '../roach/RoachActions'; 
-import CollisionManager from '../../../utils/CollisionManager';
-import { useGameEffectsStore } from '../../../store/gameEffectsStore';
-import { useShallow } from 'zustand/react/shallow';
-import { modelCache } from '../../../Preloader';
-import { SkeletonUtils } from 'three/examples/jsm/Addons.js';
-import RoachBleedEffect from '../roach/Effects/RoachBleedEffect';
+// entity/Mootant.jsx
+import React, { Suspense } from 'react';
+import { getEntityRefs, useEntityLogic } from '../entity';
 import MootantAttack from './MootantAttack';
-import MootantModel from './MootantModel';
+import { useGameEffectsStore } from '../../../store/gameEffectsStore';
+import { useShallow } from 'zustand/shallow';
+import EntityModel from '../EntityModel';
+import EntityActions from '../EntityActions';
+import BleedEffect from '../BleedEffect';
 
 const Mootant = ({ id, position }) => {
-  const { scene, animations } = modelCache['/mootant.glb'];
-  
-  // Clone the scene
-  const originalScene = useMemo(() => {
-    return SkeletonUtils.clone(scene);
-  }, [scene]);
+  const refs = getEntityRefs();
 
-  const { camera } = useThree();
-  const modelRef = useRef();
-  const rigidBodyRef = useRef();
-  const deadRef = useRef(false);
-  const isAnimatingRef = useRef(false);
-  const [isDead, setIsDead] = useState(false);
-  const attackCooldownRef = useRef(0);
-  const addBleed = useGameEffectsStore(useShallow((state) => state.addBleed));
-  const removeEnemy = useGameEffectsStore(
-    useShallow((state) => state.removeEnemy)
-  );
-  const addLoot = useGameEffectsStore(useShallow((state) => state.addLoot));
-  // References instead of state to prevent rerenders
-  const isAttackingRef = useRef(false);
+  const {
+    isDead,
+    camera,
+    originalScene,
+    animations,
+    impactEvent,
+    jumpEvent,
+    handleDeath: baseHandleDeath,
+    handleAttackComplete
+  } = useEntityLogic({
+    id,
+    position,
+    entityType: 'mootant',
+    modelPath: '/mootant.glb',
+    refs
+  });
 
-  const handleAttackComplete = () => {
-    isAttackingRef.current = false;
-  };
+  // Add custom loot logic
+  const addLoot = useGameEffectsStore(useShallow(state => state.addLoot));
 
-  const impactEvent = useMemo(() => {
-    const subscribers = [];
-    return {
-      trigger: (direction) => subscribers.forEach((fn) => fn(direction)),
-      subscribe: (fn) => subscribers.push(fn),
-      unsubscribe: (fn) => subscribers.splice(subscribers.indexOf(fn), 1),
-    };
-  }, []);
-
-  const jumpEvent = useMemo(() => {
-    const subscribers = [];
-    return {
-      trigger: () => subscribers.forEach((fn) => fn()),
-      subscribe: (fn) => subscribers.push(fn),
-      unsubscribe: (fn) => subscribers.splice(subscribers.indexOf(fn), 1),
-    };
-  }, []);
-
-  const setHealth = (p, m) => {
-    impactEvent.trigger(p.bulletDirection);
-    const newHealth = addBleed(id, p.position, p.bulletDirection, p.damage);
-    if (newHealth <= 0) deadRef.current = true;
-    if (newHealth < 0) setIsDead(true);
-  };
-
-  useEffect(() => {
-    if (!modelRef.current) return;
-
-    // Register with collision manager when mounted
-    const unregister = CollisionManager.registerEnemy({
-      mesh: modelRef.current,
-      position,
-      onHit: (p, m) => {
-        setHealth(p, m);
-      },
-      type: 'mootant'
-    });
-
-    // Unregister when unmounted
-    return unregister;
-  }, [position]);
-  
   const handleDeath = () => {
     if (Math.random() > 0.2) {
-      // Add loot at the mootant's position
-      const pos = modelRef.current.position.clone();
       addLoot('chitin', position);
     }
-    removeEnemy(id);
+    baseHandleDeath();
   };
-  
+
   return (
     <>
-      <MootantModel
-        ref={modelRef}
+      <EntityModel
+        ref={refs.modelRef}
+        entityType="mootant"
         originalScene={originalScene}
         position={position}
         triggerImpact={impactEvent}
         triggerJump={jumpEvent}
         isDead={isDead}
         onDeathComplete={handleDeath}
-        rigidBodyRef={rigidBodyRef}
+        rigidBodyRef={refs.rigidBodyRef}
       />
-      <RoachAction
+      <EntityActions
         originalScene={originalScene}
         animations={animations}
-        isAnimatingRef={isAnimatingRef}
+        isAnimatingRef={refs.isAnimatingRef}
         position={position}
         camera={camera}
-        attackCooldownRef={attackCooldownRef}
-        isAttackingRef={isAttackingRef}
-        deadRef={deadRef}
-        rigidBodyRef={rigidBodyRef}
+        attackCooldownRef={refs.attackCooldownRef}
+        isAttackingRef={refs.isAttackingRef}
+        deadRef={refs.deadRef}
+        rigidBodyRef={refs.rigidBodyRef}
         entityType='mootant'
       />
-
-      {/* Uncomment when you create these components */}
-      {/* <MootantAudio
-        position={position}
-        isAnimatingRef={isAnimatingRef}
-        isAttackingRef={isAttackingRef}
-        deadRef={deadRef}
-      /> */}
-
       <Suspense fallback={null}>
-        <RoachBleedEffect roachId={id} />
+        <BleedEffect roachId={id} />
         <MootantAttack
           position={position}
           camera={camera}
-          isAttackingRef={isAttackingRef}
+          isAttackingRef={refs.isAttackingRef}
           onAttackComplete={handleAttackComplete}
           handleJump={jumpEvent}
-          modelRef={modelRef}
+          modelRef={refs.modelRef}
         />
       </Suspense>
     </>
