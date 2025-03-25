@@ -28,9 +28,9 @@ const ENTITY_CONFIG = {
     },
     warhog: {
         mass: 2,
-        collider: [0.6, 0.8],
+        collider: [0.6, 0.4],
         colliderPosition: [0, 0.5, 0],
-        scale: 1
+        scale: 1.3
     }
   };
 
@@ -203,7 +203,7 @@ export function getEntityRefs() {
         const handleJump = () => {
           if (rigidBodyRef.current) {
             // Entity-specific jump height
-            const jumpHeight = entityType === 'mootant' ? 2.25 : 6.25;
+            const jumpHeight = entityType === 'mootant' ? 2.25 : entityType === "warhog" ? 5 : 6.25;
             const jump = { x: 0, y: jumpHeight, z: 0 };
             rigidBodyRef.current.applyImpulse(jump, true);
           }

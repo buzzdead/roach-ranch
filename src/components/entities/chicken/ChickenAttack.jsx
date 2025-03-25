@@ -47,7 +47,6 @@ const ChickenAttack = ({
                 actions.Attack.time > 0.9 && actions.Attack.time < 1.0;
 
             if (attackInStrikePhase) {
-                console.log(actions.Attack.time)
                 // Get world position of claw
                 const clawPosition = new THREE.Vector3();
                 clawRef.current.getWorldPosition(clawPosition);
@@ -57,7 +56,6 @@ const ChickenAttack = ({
 
                 if (result.hit) {
                     attackSound.current.play()
-                    console.log("Chicken claw hit player!");
                     hasHitRef.current = true;
                 }
 

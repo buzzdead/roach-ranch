@@ -12,7 +12,7 @@ import { SkeletonUtils } from 'three/examples/jsm/Addons.js';
 import EntityActions from '../EntityActions';
 
 const Roach = ({ id, position }) => {
-  const { scene, animations } = modelCache['/roach-half.glb'];
+  const { scene, animations } = modelCache['/roach.glb'];
   
   // Clone the scene
   const originalScene = useMemo(() => {

@@ -105,6 +105,10 @@ function configureMootantAnimations(actions, mixer, isAnimatingRef, isAttackingR
     actions.Walk.loop = THREE.LoopRepeat;
     actions.Walk.timeScale = 1.0; // Normal speed movement
   }
+  if (actions.Move) {
+    actions.Move.loop = THREE.LoopRepeat;
+    actions.Move.timeScale = 1.0; // Normal speed movement
+  }
   
   // Configure Attack animation
   if (actions.Attack) {

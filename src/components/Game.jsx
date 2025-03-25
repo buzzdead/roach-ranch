@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import NextWaveCircle from './NextWave';
 import EnemyGenerator from './EnemyGenerator';
 
@@ -17,4 +17,4 @@ const Game = () => {
   );
 };
 
-export default Game
+export default memo(Game)

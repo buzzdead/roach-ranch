@@ -146,7 +146,7 @@ const Tree2 = ({
       <RigidBody
            position={[0,0,0]}
            enabledRotations={[false, false, false]}
-           type="dynamic"
+           type="kinematicPosition"
            mass={1}
            colliders={false}
            friction={0.7}

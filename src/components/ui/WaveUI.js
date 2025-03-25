@@ -15,7 +15,7 @@ const WaveTimerUI = () => {
   );
 
   const [timeRemaining, setTimeRemaining] = useState(60);
-  const [prewaveCountdown, setPrewaveCountdown] = useState(8);
+  const [prewaveCountdown, setPrewaveCountdown] = useState(5);
   const [waveStarted, setWaveStarted] = useState(false);
   const [uiSoundManager, setUISoundManager] = useState(null);
   const countdownSound = useRef();
@@ -59,7 +59,7 @@ const WaveTimerUI = () => {
   useEffect(() => {
     if (!waveActive || !waveEndTime) {
       setTimeRemaining(60);
-      setPrewaveCountdown(8);
+      setPrewaveCountdown(5);
       setWaveStarted(false);
       prevCountdownRef.current = null;
       return;

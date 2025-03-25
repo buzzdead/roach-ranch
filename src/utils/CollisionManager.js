@@ -18,11 +18,17 @@ const CollisionManager = {
       { offset: new THREE.Vector3(0, 0, -0.8), radius: .5 }  // tail
     ];
     this.enemies.push(enemy);
-    console.log(enemy)
 
     return () => {
       this.enemies = this.enemies.filter(e => e !== enemy);
     };
+  },
+  justDealDamageToPlayer() {
+    if(this.player) {
+      this.player.onHit({
+        damage: 10, // Set appropriate damage
+      });
+    }
   },
   checkClawPlayerCollision(clawPosition, clawRadius) {
     if (!this.player || !this.player.mesh) return { hit: false };

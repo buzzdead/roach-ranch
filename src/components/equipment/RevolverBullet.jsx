@@ -21,7 +21,7 @@ const calculateBulletQuaternion = (direction) => {
 
 // Create a shared geometry for all bullets
 const BULLET_CONFIG = {
-  modelPath: '/bullet1.glb',
+  modelPath: '/mybullet.glb',
   scale: [0.1, 0.1, 0.1],
   speed: 25,
   maxDistance: 100,

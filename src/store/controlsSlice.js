@@ -10,7 +10,7 @@ export const createControlsSlice = (set, get) => ({
   setWaveActive: () => set({
     waveActive: true,
     waveStartTime: Date.now(),
-    waveEndTime: Date.now() + 38000 // 60 seconds in milliseconds
+    waveEndTime: Date.now() + 35000 // 60 seconds in milliseconds
   }),
   
   setNextLevel: () => set(state => ({

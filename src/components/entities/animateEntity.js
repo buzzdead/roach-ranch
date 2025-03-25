@@ -55,7 +55,12 @@ export const animateEntity = (actions, entityType, refs, setTriggerKillSound) =>
   }
   else if (entityType === "mootant" || entityType === "warhog") {
     if (actions.Walk) {
+      actions.Idle.stop()
       resetAnimation(actions.Walk, isRotatingRef.current || isMovingRef.current);
+    }
+    else if (actions.Move) {
+      actions.Idle.stop()
+      resetAnimation(actions.Move, isRotatingRef.current || isMovingRef.current);
     }
     
     if (actions.Attack) {

@@ -1,11 +1,11 @@
 import React, { Suspense } from 'react';
 import { getEntityRefs, useEntityLogic } from '../entity';
 import WarhogAttack from './WarhogAttack';
-import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
 import EntityModel from '../EntityModel';
 import EntityActions from '../EntityActions';
 import BleedEffect from '../BleedEffect';
+import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 
 const Warhog = ({ id, position }) => {
  const refs = getEntityRefs();

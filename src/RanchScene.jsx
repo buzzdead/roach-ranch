@@ -1,26 +1,16 @@
-// RanchScene.jsx - Adding ranch house lighting
-import React, { Suspense } from 'react';
+// RanchScene.jsx - Refactored
+import React from 'react';
 import { Canvas } from '@react-three/fiber';
-import { PerspectiveCamera, Stars } from '@react-three/drei';
+import { PerspectiveCamera, Stars, Stats } from '@react-three/drei';
 import * as THREE from 'three';
-
-import Player from './components/entities/player/Player';
-import Ground from './components/environment/Ground';
-import RanchHouse from './components/environment/RanchHouse';
-import AnimatedGrassBillboards from './components/environment/AnimatedGrassBillboards';
-import SceneEffects from './components/effects/SceneEffects';
 import { Physics } from '@react-three/rapier';
-import MysteriousBoundary from './components/effects/AtmosphericBoundary';
-import HorrorMoon from './components/environment/SpookyMoon';
 import { SoundProvider } from './context/SoundContext';
 import { PlayerProvider } from './context/PlayerContext';
-import { Stats } from '@react-three/drei';
-import Loot from './components/Loot';
-import MysteriousWall from './components/effects/MysteriousWall';
-import Game from './components/Game';
-import SoundEffects from './components/effects/SoundEffects';
-import Tree2 from './components/environment/Tree2';
-import EnemiesContainer from './components/Enemies';
+
+// Grouped imports for better organization
+import Environment from './components/scene/Environment';
+import GameplayLayer from './components/scene/GameplayLayer';
+import EffectsLayer from './components/scene/EffectsLayer';
 import Test from './test';
 
 const RanchScene = () => {
@@ -38,7 +28,8 @@ const RanchScene = () => {
         gl.setClearColor('#050505');
       }}
     >
-      <Stats />
+      {process.env.NODE_ENV === 'development' && <Stats />}
+      
       <SoundProvider>
         <PlayerProvider>
           <PerspectiveCamera
@@ -48,36 +39,19 @@ const RanchScene = () => {
             far={10000}
             near={0.1}
           />
+          
           <Physics gravity={[0, -9.81, 0]}>
-            <Player />
-            <RanchHouse position={[0, 0, 0]} dilapidated={true} />
-            <EnemiesContainer />
-            <Tree2
-            position={[-2, 0, -16]}
-            height={7}
-            foliageSize={3.75}
-            type="dense"
-            scale={1.3}
-          />
-          <Tree2
-            position={[8, 0, -16]}
-            height={7}
-            foliageSize={3.75}
-            type="dense"
-            scale={1.3}
-          />
-          <Tree2
-            position={[20, 0, -16]}
-            height={8}
-            foliageSize={3.75}
-            type="dense"
-            scale={1.3}
-          />
-            <Ground />
+            {/* Environment contains static elements */}
+            <Environment />
+            
+            {/* GameplayLayer contains interactive elements */}
+            <GameplayLayer />
           </Physics>
-          <MysteriousWall />
-          <Loot />
-          <HorrorMoon />
+          
+          {/* EffectsLayer contains visual/audio effects outside physics */}
+          <EffectsLayer />
+          
+          {/* Stars are kept at root level for rendering order control */}
           <group renderOrder={9}>
             <Stars
               radius={300}
@@ -92,18 +66,9 @@ const RanchScene = () => {
               ]}
             />
           </group>
-          <Game />
-          <AnimatedGrassBillboards count={35000} />
-       
-          <MysteriousBoundary intensity={1.5} />
+          {/* Low intensity ambient light as a scene baseline */}
           <ambientLight intensity={0.25125} />
-
-          <Suspense>
-            <SceneEffects />
-          </Suspense>
         </PlayerProvider>
-        <SoundEffects />
-            <Test />
       </SoundProvider>
     </Canvas>
   );

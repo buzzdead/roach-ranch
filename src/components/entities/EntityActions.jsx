@@ -27,8 +27,8 @@ const EntityActions = ({
   const waveLevel = useGameEffectsStore(useShallow((state) => state.waveLevel));
   const setTriggerKillSound = useGameEffectsStore(useShallow((state) => state.setTriggerKillSound));
   const ATTACK_DISTANCE = entityType === "chicken" ? 2.5 : 
-                       entityType === "mootant" ? 2 : 5;
-  const MOVE_SPEED = entityType === "mootant" ? 15 : 1.5;
+                       (entityType === "mootant" || entityType === "warhog") ? 2 : 5;
+  const MOVE_SPEED = entityType === "mootant" || entityType === "warhog" ? 20 : 19.5
   // State refs
   const { finished, initialize, isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef } = getActionRefs();
   const actionRefs = { isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef };
@@ -167,10 +167,10 @@ const EntityActions = ({
 
     // Apply impulse to rigidBody in the movement direction
     const baseImpulse = waveLevel > 5 ? 0.177 : 0.168;
-    const boostMultiplier = distanceToTarget > 20 ? 1.07 : 1;
+    const boostMultiplier = distanceToTarget > 15 ? 3 : 1;
     const impulseStrength = MOVE_SPEED * baseImpulse * boostMultiplier;
 
-    rigidBodyRef.current.applyImpulse(
+    rigidBodyRef.current.setLinvel(
       { x: direction.x * impulseStrength, y: 0, z: direction.z * impulseStrength },
       true
     );

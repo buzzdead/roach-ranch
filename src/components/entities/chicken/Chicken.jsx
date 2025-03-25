@@ -22,7 +22,7 @@ const Chicken = ({ id, pos }) => {
    id,
    position: pos,
    entityType: 'chicken',
-   modelPath: '/chicken-opt.glb',
+   modelPath: '/chicken.glb',
    refs
  });
  

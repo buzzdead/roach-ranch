@@ -9,8 +9,8 @@ import useFrameInterval from '../utils/useFrameInterval';
 import * as THREE from 'three'
 import { useSoundManager } from '../context/SoundContext';
 
-const LootItem = memo(({ id, position, type, autoCollect = false }) => {
-    const { scene } = modelCache['/Roach-Chitin.glb'];
+const LootItem = memo(({ id, position, type, model, autoCollect = false }) => {
+    const { scene } = modelCache[model];
     const [removeLoot, pickupLoot] = useGameEffectsStore(useShallow((state) => [
       state.removeLoot, 
       state.pickupLoot
@@ -360,7 +360,7 @@ const Loot = () => {
           id={item.id}
           position={item.position}
           type="chitin"
-          model="Roach-Chitin.glb"
+          model="/chitin.glb"
           autoCollect={collectingItems[item.id] || false}
         />
       ))}

@@ -9,7 +9,7 @@ export const createLootSlice = (set, get) => ({
       id: nanoid(),
       position: position.clone ? position.clone() : position,
       type: type,
-      model: type === 'chitin' ? 'Roach-Chitin.glb' : null,
+      model: type === 'chitin' ? 'chitin.glb' : null,
       createdAt: Date.now()
     };
 

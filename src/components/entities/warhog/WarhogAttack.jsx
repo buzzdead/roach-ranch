@@ -4,6 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
+import CollisionManager from '../../../utils/CollisionManager';
 
 const WarhogAttack = ({
  position,
@@ -64,6 +65,7 @@ const WarhogAttack = ({
          
          // Deal damage if close enough
          if (distanceToPlayer < 2.5) {
+           (!damageDealt.current) && CollisionManager.justDealDamageToPlayer();
            damageDealt.current = true;
            
            if (rigidBody && rigidBody.current) {
@@ -74,9 +76,9 @@ const WarhogAttack = ({
              
              // Apply stronger horizontal knockback
              rigidBody.current.applyImpulse({
-               x: knockbackDir.x * 30,
-               y: 8, // Less vertical than mootant
-               z: knockbackDir.z * 30
+               x: knockbackDir.x * 15,
+               y: 2, // Less vertical than mootant
+               z: knockbackDir.z * 15
              }, true);
            }
          }

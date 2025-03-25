@@ -7,13 +7,12 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 const MODELS = [
   '/revolver.glb',
   '/lantern.glb',
-  '/roach-half.glb',
+  '/roach.glb',
   '/rancher.glb',
-  '/bullet1.glb',
-  '/Roach-Chitin.glb',
+  '/mybullet.glb',
+  '/chitin.glb',
   '/crafting-bench.glb',
-  '/well.glb',
-  '/chicken-opt.glb',
+  '/chicken.glb',
   '/chicken-talon.glb',
   '/mootant.glb',
   '/warhog.glb'
@@ -47,8 +46,6 @@ const Preload = ({ onComplete }) => {
     const totalLoaded = modelsLoaded + texturesLoaded;
     const percentage = Math.floor((totalLoaded / totalAssets) * 100);
     setProgress(percentage);
-    
-    console.log(`Progress: ${percentage}%, Models: ${modelsLoaded}, Textures: ${texturesLoaded}`);
     
     if (totalLoaded === totalAssets) {
       // All assets loaded, notify parent component

@@ -4,6 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
+import CollisionManager from '../../../utils/CollisionManager';
 
 const MootantAttack = ({
   position,
@@ -104,6 +105,7 @@ const MootantAttack = ({
           
           // If close enough, deal damage
           if (distanceToPlayer < 3.0) {
+            if(!damageDealt.current) CollisionManager.justDealDamageToPlayer()
             damageDealt.current = true;
             
             // Deal damage to player (if you have a damage system)
