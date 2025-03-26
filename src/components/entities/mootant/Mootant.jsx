@@ -32,8 +32,8 @@ const Mootant = ({ id, position }) => {
   const addLoot = useGameEffectsStore(useShallow(state => state.addLoot));
 
   const handleDeath = () => {
-    if (Math.random() > 0.2) {
-      addLoot('chitin', position);
+    if (Math.random() > 0.01) {
+      addLoot('tail', position);
     }
     baseHandleDeath();
   };

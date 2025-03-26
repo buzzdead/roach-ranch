@@ -31,7 +31,7 @@ const Warhog = ({ id, position }) => {
  const addLoot = useGameEffectsStore(useShallow(state => state.addLoot));
 
  const handleDeath = () => {
-   if (Math.random() > 0.3) {
+   if (Math.random() > 0.01) {
      addLoot('meat', position);
    }
    baseHandleDeath();

@@ -1,7 +1,17 @@
 import { nanoid } from 'nanoid';
+
+const LootTypeMap = {
+  chitin: '/chitin.glb',
+  talon: '/chicken-talon.glb',
+  tail: '/cow-tail.glb',
+  meat: '/warhog-meat.glb'
+}
 export const createLootSlice = (set, get) => ({
   loot: {
-    chitin: []
+    chitin: [],
+    talon: [],
+    tail: [],
+    meat: []
   },
 
   addLoot: (type, position) => set((state) => {
@@ -9,7 +19,7 @@ export const createLootSlice = (set, get) => ({
       id: nanoid(),
       position: position.clone ? position.clone() : position,
       type: type,
-      model: type === 'chitin' ? 'chitin.glb' : null,
+      model: LootTypeMap[type],
       createdAt: Date.now()
     };
 

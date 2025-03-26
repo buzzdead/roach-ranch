@@ -18,9 +18,9 @@ const RanchScene = () => {
     <Canvas
       shadows
       gl={{
-        powerPreference: 'high-performance',
+        powerPreference: "high-performance",
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 0.8,
+        toneMappingExposure: 1,
       }}
       style={{ width: '100vw', height: '100vh' }}
       onCreated={({ gl, scene }) => {
@@ -70,6 +70,7 @@ const RanchScene = () => {
           <ambientLight intensity={0.25125} />
         </PlayerProvider>
       </SoundProvider>
+      <Test />
     </Canvas>
   );
 };

@@ -15,7 +15,9 @@ const MODELS = [
   '/chicken.glb',
   '/chicken-talon.glb',
   '/mootant.glb',
-  '/warhog.glb'
+  '/warhog.glb',
+  '/warhog-meat.glb',
+  '/cow-tail.glb'
 ];
 
 // List of all textures to preload

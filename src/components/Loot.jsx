@@ -353,19 +353,19 @@ const Loot = () => {
 
   return (
     <>
-      {/* Render chitin loot */}
-      {loot.chitin?.map((item) => (
-        <LootItem
-          key={item.id}
-          id={item.id}
-          position={item.position}
-          type="chitin"
-          model="/chitin.glb"
-          autoCollect={collectingItems[item.id] || false}
-        />
+      {Object.entries(loot).map(([type, items]) => (
+        // Only render if items exist and it's an array
+        items?.map((item) => (
+          <LootItem
+            key={item.id}
+            id={item.id}
+            position={item.position}
+            type={type}
+            model={item.model}
+            autoCollect={collectingItems[item.id] || false}
+          />
+        ))
       ))}
-      
-      {/* Add other loot types here as you expand your game */}
     </>
   );
 };

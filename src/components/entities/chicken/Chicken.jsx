@@ -32,7 +32,7 @@ const Chicken = ({ id, pos }) => {
    if (Math.random() > 0.3) {
      // Add loot at chicken's position
      const position = refs.modelRef.current?.position.clone();
-     addLoot('chitin', pos);
+     addLoot('talon', pos);
    }
    baseHandleDeath();
  };

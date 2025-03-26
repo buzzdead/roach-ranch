@@ -82,7 +82,7 @@ const Roach = ({ id, position }) => {
     return unregister;
   }, [position]);
   const handleDeath = () => {
-    if (Math.random() > 0.3) {
+    if (Math.random() > 0.2) {
       addLoot('chitin', position);
     }
     removeEnemy(id);
