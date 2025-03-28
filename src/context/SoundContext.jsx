@@ -1,12 +1,12 @@
 // context/SoundContext.jsx
+import { useThree } from '@react-three/fiber';
 import React, {
   createContext,
   useContext,
   useEffect,
-  useState,
   useRef,
+  useState,
 } from 'react';
-import { useThree } from '@react-three/fiber';
 import SoundManager from '../utils/SoundManager';
 
 const SoundContext = createContext(null);
@@ -33,6 +33,7 @@ export const SoundProvider = ({ children }) => {
         manager.preloadSound('Intro3', 'soundeffects/Rancher-Intro3.mp3'),
         manager.preloadSound('roachAttack', 'soundeffects/Roach-Goo.mp3'),
         manager.preloadSound('Revolver-Fire', 'soundeffects/revolver-fire.mp3'),
+        manager.preloadSound('Shotgun-Fire', 'soundeffects/shotgun-fire.mp3'),
         manager.preloadSound('PickUp', 'soundeffects/Pickup.mp3'),
         manager.preloadSound(
           'UpgradeWeapon',
@@ -49,7 +50,10 @@ export const SoundProvider = ({ children }) => {
         manager.preloadSound('Chicken-Kill1', 'soundeffects/Chicken-Kill1.mp3'),
         manager.preloadSound('Chicken-Kill2', 'soundeffects/Chicken-Kill2.mp3'),
         manager.preloadSound('Chicken-Kill3', 'soundeffects/Chicken-Kill3.mp3'),
-        manager.preloadSound('chickenAttack', 'soundeffects/chicken-attack.mp3'),
+        manager.preloadSound(
+          'chickenAttack',
+          'soundeffects/chicken-attack.mp3'
+        ),
         // Preload other sounds as needed
       ]).then(() => {
         setSoundManager(manager);

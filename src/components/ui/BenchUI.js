@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/shallow';
 import { useGameEffectsStore } from '../../store/gameEffectsStore';
 import { useSoundManager } from '../../context/SoundContext';
 import UISoundManager from '../../utils/UISoundManager';
+import WeaponSelector from './WeaponSelector';
 
 export const CraftingBenchUI = () => {
   const {
@@ -126,17 +127,7 @@ export const CraftingBenchUI = () => {
 
       {/* Weapon selection (only shown if on weapons tab) */}
       {craftingBench.selectedCategory === "weapons" && (
-        <div className="weapon-selector">
-          {Object.entries(weapons).map(([weaponType, weapon]) => (
-            <button
-              key={weaponType}
-              className={craftingBench.selectedWeapon === weaponType ? "active" : ""}
-              onClick={() => setSelectedWeapon(weaponType)}
-            >
-              {weapon.name}
-            </button>
-          ))}
-        </div>
+       <WeaponSelector />
       )}
 
       {/* Available upgrades */}

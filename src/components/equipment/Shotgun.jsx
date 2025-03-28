@@ -1,4 +1,4 @@
-// Revolver.jsx
+// Shotgun.jsx
 import { useThree } from '@react-three/fiber';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
@@ -8,38 +8,40 @@ import { useAttachToObject } from '../../hooks/useAttachToObject';
 import { useGameEffectsStore } from '../../store/gameEffectsStore';
 import { modelCache } from '../../utils/Preloader';
 import MuzzleFlash from './Effects/MuzzleFlash';
-import RevolverAudio from './RevolverAudio';
 import RevolverBullet from './RevolverBullet';
-import { useMuzzleEffect, useRevolverBullets } from './hooks/useRevolver';
+import ShotgunAudio from './ShotgunAudio';
+import { useMuzzleEffect, useShotgunBullets } from './hooks/useShotgun';
 
-const REVOLVER_CONFIG = {
-  modelPath: '/revolver.glb',
+const SHOTGUN_CONFIG = {
+  modelPath: '/shotgun.glb',
   position: [0.1, 0.2, -0.02],
-  rotation: [Math.PI, Math.PI * 1.5, 0],
-  scale: [0.25, 0.25, 0.25],
+  rotation: [Math.PI, Math.PI * 1.45, 0],
+  scale: [0.35, 0.35, 0.35],
   primitive: {
-    position: [-0.25, -0.51, 0.2],
-    rotation: [-1.2, 0, 0],
+    position: [-0.15, -0.65, -0.0075],
+    rotation: [-1.2, Math.PI * 1.5, 0],
   },
   muzzle: {
-    position: [0.2, 0.2, 0],
+    position: [0.25, -0.2, 0],
     flashOffset: [0, 0.75, -0.75],
-    flashSize: 0.05,
+    flashSize: 0.08,
   },
   bullet: {
-    baseDamage: 25,
-    maxDistance: 25,
+    baseDamage: 10,
+    maxDistance: 20,
+    spreadRadius: 0.1,
+    pelletCount: 5,
   },
 };
 
-export const Revolver = ({ bone }) => {
-  const { scene } = modelCache[REVOLVER_CONFIG.modelPath];
-  const revolverScene = useMemo(() => scene.clone(), [scene]);
+export const Shotgun = ({ bone }) => {
+  const { scene } = modelCache[SHOTGUN_CONFIG.modelPath];
+  const shotgunScene = useMemo(() => scene.clone(), [scene]);
   const groupRef = useRef();
   const { animationState } = usePlayerContext();
   const { camera } = useThree();
 
-  const { bullets, createBullet, removeBullet } = useRevolverBullets();
+  const { bullets, createPellets, removeBullet } = useShotgunBullets();
   const { muzzleFlash, muzzlePosition, triggerMuzzleFlash } = useMuzzleEffect();
 
   const [lastFireCount, setLastFireCount] = useState(0);
@@ -48,20 +50,23 @@ export const Revolver = ({ bone }) => {
   const weapons = useGameEffectsStore(useShallow((state) => state.weapons));
   const { damage, shootingSpeed } = useMemo(
     () => ({
-      damage: weapons.revolver.upgrades.damage,
-      shootingSpeed: weapons.revolver.upgrades.shootingSpeed,
+      damage: weapons.shotgun?.upgrades.damage || { level: 0, increment: 5 },
+      shootingSpeed: weapons.shotgun?.upgrades.shootingSpeed || {
+        level: 0,
+        increment: 0.1,
+      },
     }),
     [weapons]
   );
+  console.log(weapons);
 
   const currentRotation = useMemo(() => {
-    const baseRotation = [...REVOLVER_CONFIG.primitive.rotation];
+    const baseRotation = [...SHOTGUN_CONFIG.primitive.rotation];
     if (animationState.aiming) {
-      baseRotation[1] += 0.22;
-      baseRotation[2] -= 0.22;
-      baseRotation[0] -= 0.1;
+      baseRotation[1] += 0.15;
+      baseRotation[2] += 0.1;
+      baseRotation[0] -= 0.15;
     }
-
     return baseRotation;
   }, [animationState.aiming]);
 
@@ -74,7 +79,7 @@ export const Revolver = ({ bone }) => {
     groupRef.current.getWorldPosition(muzzleWorldPos);
     groupRef.current.getWorldQuaternion(worldQuat);
 
-    const muzzleOffset = new THREE.Vector3(...REVOLVER_CONFIG.muzzle.position);
+    const muzzleOffset = new THREE.Vector3(...SHOTGUN_CONFIG.muzzle.position);
     muzzleOffset.applyQuaternion(worldQuat);
     muzzleWorldPos.add(muzzleOffset);
 
@@ -90,14 +95,12 @@ export const Revolver = ({ bone }) => {
       .add(
         bulletDirection
           .clone()
-          .multiplyScalar(REVOLVER_CONFIG.bullet.maxDistance)
+          .multiplyScalar(SHOTGUN_CONFIG.bullet.maxDistance)
       );
 
-    const firingDirection = new THREE.Vector3()
+    return new THREE.Vector3()
       .subVectors(targetPoint, muzzleWorldPos)
       .normalize();
-
-    return firingDirection;
   };
 
   useEffect(() => {
@@ -112,11 +115,12 @@ export const Revolver = ({ bone }) => {
     const muzzleWorldPos = getMuzzleWorldPos();
     triggerMuzzleFlash([muzzleWorldPos.x, muzzleWorldPos.y, muzzleWorldPos.z]);
     const firingDirection = getFiringDirection(muzzleWorldPos);
-    createBullet(muzzleWorldPos, firingDirection);
+
+    createPellets(muzzleWorldPos, firingDirection, SHOTGUN_CONFIG.bullet);
 
     setIsFiring(true);
     const cooldownTime =
-      750 * (1 - shootingSpeed.level * shootingSpeed.increment);
+      1000 * (1 - shootingSpeed.level * shootingSpeed.increment);
 
     setTimeout(() => {
       setIsFiring(false);
@@ -127,56 +131,53 @@ export const Revolver = ({ bone }) => {
     lastFireCount,
     camera,
     isFiring,
-    createBullet,
+    createPellets,
     triggerMuzzleFlash,
     shootingSpeed,
   ]);
 
   useEffect(() => {
     return () => {
-      revolverScene.traverse((child) => {
+      shotgunScene.traverse((child) => {
         if (child.isMesh) {
           child.geometry.dispose();
           if (child.material.dispose) child.material.dispose();
         }
       });
     };
-  }, [revolverScene]);
+  }, [shotgunScene]);
 
   const bulletDamage =
-    REVOLVER_CONFIG.bullet.baseDamage + damage.level * damage.increment;
-
+    SHOTGUN_CONFIG.bullet.baseDamage + damage.level * damage.increment;
+  console.log(bullets);
   return (
     <>
       <group ref={groupRef}>
         <group
-          position={REVOLVER_CONFIG.position}
-          rotation={REVOLVER_CONFIG.rotation}
-          scale={REVOLVER_CONFIG.scale}
+          position={SHOTGUN_CONFIG.position}
+          rotation={SHOTGUN_CONFIG.rotation}
+          scale={SHOTGUN_CONFIG.scale}
         >
           <primitive
-            object={revolverScene}
-            position={REVOLVER_CONFIG.primitive.position}
+            object={shotgunScene}
+            position={SHOTGUN_CONFIG.primitive.position}
             rotation={currentRotation}
           />
 
           {muzzleFlash && (
-            <mesh position={REVOLVER_CONFIG.muzzle.flashOffset}>
-              <sphereGeometry
-                args={[REVOLVER_CONFIG.muzzle.flashSize, 16, 16]}
-              />
-              <MuzzleFlash />
+            <mesh position={SHOTGUN_CONFIG.muzzle.flashOffset}>
+              <MuzzleFlash intensity={1.5} />
             </mesh>
           )}
         </group>
       </group>
-
-      <RevolverAudio position={muzzlePosition} isFiring={isFiring} />
+      <ShotgunAudio position={muzzlePosition} isFiring={isFiring} />
 
       {bullets.map((bullet) => (
         <RevolverBullet
           key={bullet.id}
           bulletId={bullet.id}
+          scaleMultiplier={0.75}
           position={bullet.position}
           direction={bullet.direction}
           removeBullet={() => removeBullet(bullet.id)}
@@ -186,3 +187,5 @@ export const Revolver = ({ bone }) => {
     </>
   );
 };
+
+export default Shotgun;

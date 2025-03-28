@@ -1,0 +1,84 @@
+/* components/ui/weaponSelector.css */
+.weapon-selector-container {
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    padding: 15px;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 300px;
+  }
+  
+  .weapon-selector-container h3 {
+    margin-top: 0;
+    color: #ff6830;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 8px;
+  }
+  
+  .weapon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .weapon-item {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+  }
+  
+  .weapon-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  .weapon-item.equipped {
+    border-color: #ff6830;
+    background: rgba(255, 104, 48, 0.2);
+  }
+  
+  .weapon-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+  }
+  
+  .weapon-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+  
+  .weapon-item.purchasable .weapon-description {
+    font-size: 0.9rem;
+    margin: 5px 0 12px;
+    color: #aaa;
+  }
+  
+  .purchase-button {
+    background: #ff6830;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+  }
+  
+  .purchase-button:hover {
+    background: #ff8050;
+    transform: translateY(-2px);
+  }
+  
+  .weapon-item.disabled .purchase-button {
+    background: #666;
+    cursor: not-allowed;
+  }
+  
+  .weapon-item.disabled .purchase-button:hover {
+    transform: none;
+  }

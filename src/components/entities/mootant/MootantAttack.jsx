@@ -35,7 +35,7 @@ const MootantAttack = ({
       }
     };
   }, []);
-
+  
   useFrame((_, delta) => {
     // Starting attack
     if (isAttackingRef.current && !attackActive && !jumpTriggeredRef.current) {
@@ -52,7 +52,7 @@ const MootantAttack = ({
         targetPosition.current.set(
           camera.userData.characterPos.x, 
           camera.userData.characterPos.y, 
-          camera.userData.characterPos.z
+          camera.userData.characterPos.z  
         );
         
         // Calculate direction

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 // List of all 3D models to preload
 const MODELS = [
@@ -17,7 +17,8 @@ const MODELS = [
   '/mootant.glb',
   '/warhog.glb',
   '/warhog-meat.glb',
-  '/cow-tail.glb'
+  '/cow-tail.glb',
+  '/shotgun.glb'
 ];
 
 // List of all textures to preload

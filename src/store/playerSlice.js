@@ -5,7 +5,7 @@ export const createPlayerSlice = (set, get) => ({
     totalLoot: 0,
     maxHealth: 100,
     resources: {
-      chitin: 10
+      chitin: 100
     },
     effects: {
       bleeds: [] // Add this to track player bleeds
