@@ -1,5 +1,5 @@
 // Shotgun.jsx
-import { useThree } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useShallow } from 'zustand/shallow';
@@ -38,6 +38,12 @@ export const Shotgun = ({ bone }) => {
   const { scene } = modelCache[SHOTGUN_CONFIG.modelPath];
   const shotgunScene = useMemo(() => scene.clone(), [scene]);
   const groupRef = useRef();
+  const shotgunRef = useRef();
+  const isChanging = useRef(false);
+  const hasFlipped = useRef(false);
+  const fullRotation = Math.PI * 2; // 360 degrees
+  const rotationSpeed = 0.2;
+  const currentFlipRotation = useRef(0);
   const { animationState } = usePlayerContext();
   const { camera } = useThree();
 
@@ -59,7 +65,40 @@ export const Shotgun = ({ bone }) => {
     [weapons]
   );
   console.log(weapons);
+  useFrame(() => {
+    if (!shotgunRef.current) return;
 
+    // Going from not aiming to aiming - rotate clockwise
+    if (animationState.aiming && !hasFlipped.current) {
+      isChanging.current = true;
+
+      // Increment rotation
+      currentFlipRotation.current += rotationSpeed;
+      shotgunRef.current.rotation.z += rotationSpeed;
+
+      // Check if we've completed one full rotation
+      if (currentFlipRotation.current >= fullRotation) {
+        currentFlipRotation.current = fullRotation;
+        isChanging.current = false;
+        hasFlipped.current = true;
+      }
+    }
+    // Going from aiming to not aiming - rotate counter-clockwise
+    else if (!animationState.aiming && hasFlipped.current) {
+      isChanging.current = true;
+
+      // Decrement rotation
+      currentFlipRotation.current -= rotationSpeed * 1.5;
+      shotgunRef.current.rotation.z -= rotationSpeed * 1.5;
+
+      // Check if we've returned to initial rotation
+      if (currentFlipRotation.current <= 0) {
+        currentFlipRotation.current = 0;
+        isChanging.current = false;
+        hasFlipped.current = false;
+      }
+    }
+  });
   const currentRotation = useMemo(() => {
     const baseRotation = [...SHOTGUN_CONFIG.primitive.rotation];
     if (animationState.aiming) {
@@ -68,6 +107,14 @@ export const Shotgun = ({ bone }) => {
       baseRotation[0] -= 0.15;
     }
     return baseRotation;
+  }, [animationState.aiming]);
+  const currentPosition = useMemo(() => {
+    const basePosition = [...SHOTGUN_CONFIG.primitive.position];
+    if (animationState.aiming) {
+      basePosition[1] += 0.51;
+      basePosition[2] += 0.05;
+    }
+    return basePosition;
   }, [animationState.aiming]);
 
   useAttachToObject(groupRef, bone);
@@ -160,8 +207,9 @@ export const Shotgun = ({ bone }) => {
         >
           <primitive
             object={shotgunScene}
-            position={SHOTGUN_CONFIG.primitive.position}
+            position={currentPosition}
             rotation={currentRotation}
+            ref={shotgunRef}
           />
 
           {muzzleFlash && (
