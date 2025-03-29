@@ -1,35 +1,33 @@
 // PlayerPhysics.jsx
-import React, { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { RigidBody, CapsuleCollider } from '@react-three/rapier';
+import { CapsuleCollider, RigidBody } from '@react-three/rapier';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { useInputManager } from '../../../hooks/useInputManager';
-import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
+import { useInputManager } from '../../../hooks/useInputManager';
+import { useGameStore } from '../../../store/gameStore';
 
 const PlayerPhysics = ({ playerRef }) => {
   const inputState = useInputManager();
   const jumpCooldownRef = useRef(0);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     setTimeout(() => setLoading(false), 500);
   }, []);
-  
-  const setRigidBody = useGameEffectsStore(
-    useShallow((state) => state.setRigidBody)
-  );
+
+  const setRigidBody = useGameStore(useShallow((state) => state.setRigidBody));
 
   useEffect(() => {
     setRigidBody(playerRef);
   }, [playerRef, setRigidBody]);
 
   useFrame((_, delta) => {
-    if(loading || !playerRef.current) return;
-    
+    if (loading || !playerRef.current) return;
+
     // Get current rigid body position
     const physicsPosition = playerRef.current.translation();
-    
+
     // Check if player is on or near the ground
     const isGrounded = physicsPosition.y <= -1;
 
@@ -59,10 +57,7 @@ const PlayerPhysics = ({ playerRef }) => {
     const cameraAngle = inputState.current.rotation.x;
 
     const horizontalQuat = new THREE.Quaternion();
-    horizontalQuat.setFromAxisAngle(
-      new THREE.Vector3(0, 1, 0),
-      cameraAngle
-    );
+    horizontalQuat.setFromAxisAngle(new THREE.Vector3(0, 1, 0), cameraAngle);
 
     const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(horizontalQuat);
     const right = new THREE.Vector3(1, 0, 0).applyQuaternion(horizontalQuat);

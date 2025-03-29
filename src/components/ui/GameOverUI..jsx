@@ -1,25 +1,31 @@
 // components/ui/GameOver.jsx
-import React, { useState, useEffect } from "react";
-import { useShallow } from "zustand/shallow";
-import { useGameEffectsStore } from "../../store/gameEffectsStore";
-import "./gameover.css";
-import { createUser, updateUserScore, getUserById, getAllUsers } from "../../drizzleFunctions"
+import React, { useEffect, useState } from 'react';
+import { useShallow } from 'zustand/shallow';
+import {
+  createUser,
+  getAllUsers,
+  getUserById,
+  updateUserScore,
+} from '../../drizzleFunctions';
+import { useGameStore } from '../../store/gameStore';
+import './gameover.css';
 
 const GameOver = () => {
-  const { gameOver, waveLevel, totalLoot, setGameActive, setControlsEnabled } = useGameEffectsStore(
-    useShallow((state) => ({
-      gameOver: state.gameOver,
-      waveLevel: state.waveLevel,
-      totalLoot: state.player.totalLoot,
-      setGameActive: state.setGameActive,
-      setControlsEnabled: state.setControlsEnabled
-    }))
-  );
+  const { gameOver, waveLevel, totalLoot, setGameActive, setControlsEnabled } =
+    useGameStore(
+      useShallow((state) => ({
+        gameOver: state.gameOver,
+        waveLevel: state.waveLevel,
+        totalLoot: state.player.totalLoot,
+        setGameActive: state.setGameActive,
+        setControlsEnabled: state.setControlsEnabled,
+      }))
+    );
 
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState('');
   const [userId, setUserId] = useState(null);
   const [score, setScore] = useState(0);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -28,21 +34,23 @@ const GameOver = () => {
   // Calculate score based on wave level
   useEffect(() => {
     if (gameOver) {
-      setControlsEnabled(false)
+      setControlsEnabled(false);
       document.exitPointerLock();
       setScore(totalLoot);
-      
+
       // Check for existing user ID in cookies
-      const savedUserId = getCookie("userId");
+      const savedUserId = getCookie('userId');
       if (savedUserId) {
         setUserId(savedUserId);
-        getUserById(savedUserId).then(user => {
-          if (user && user.length > 0) {
-            setUserName(user[0].name);
-          }
-        }).catch(err => {
-          console.error("Error fetching user:", err);
-        });
+        getUserById(savedUserId)
+          .then((user) => {
+            if (user && user.length > 0) {
+              setUserName(user[0].name);
+            }
+          })
+          .catch((err) => {
+            console.error('Error fetching user:', err);
+          });
       }
     }
   }, [gameOver, waveLevel, totalLoot]);
@@ -58,7 +66,7 @@ const GameOver = () => {
   // Helper function to set cookie
   const setCookie = (name, value, days) => {
     const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
     const expires = `expires=${date.toUTCString()}`;
     document.cookie = `${name}=${value};${expires};path=/`;
   };
@@ -72,8 +80,8 @@ const GameOver = () => {
       setLeaderboard(sortedUsers);
       setShowLeaderboard(true);
     } catch (error) {
-      console.error("Error fetching leaderboard:", error);
-      setMessage("Failed to load leaderboard");
+      console.error('Error fetching leaderboard:', error);
+      setMessage('Failed to load leaderboard');
     } finally {
       setIsLoadingLeaderboard(false);
     }
@@ -81,7 +89,7 @@ const GameOver = () => {
 
   const handleSubmitScore = async () => {
     if (!userName.trim()) {
-      setMessage("Please enter a name");
+      setMessage('Please enter a name');
       return;
     }
 
@@ -92,10 +100,10 @@ const GameOver = () => {
         const user = await getUserById(userId);
         if (user && user.length > 0 && score > user[0].score) {
           await updateUserScore(userId, score);
-          setMessage("Score updated successfully!");
+          setMessage('Score updated successfully!');
           fetchLeaderboard();
         } else {
-          setMessage("Your previous score was higher!");
+          setMessage('Your previous score was higher!');
           fetchLeaderboard();
         }
       } else {
@@ -103,21 +111,21 @@ const GameOver = () => {
         const newUser = await createUser({ name: userName, score });
         if (newUser && newUser.length > 0) {
           setUserId(newUser[0].id);
-          setCookie("userId", newUser[0].id, 30); // Store for 30 days
-          setMessage("Score submitted successfully!");
+          setCookie('userId', newUser[0].id, 30); // Store for 30 days
+          setMessage('Score submitted successfully!');
           fetchLeaderboard();
         }
       }
     } catch (error) {
-      console.error("Error submitting score:", error);
-      setMessage("Error submitting score. Please try again.");
+      console.error('Error submitting score:', error);
+      setMessage('Error submitting score. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handlePlayAgain = () => {
-    setGameActive(false)
+    setGameActive(false);
   };
 
   if (!gameOver) return null;
@@ -127,21 +135,25 @@ const GameOver = () => {
       <div className="game-over-container">
         <h1>Game Over</h1>
         <div className="score-info">
-          <p>Waves Survived: <span className="highlight">{waveLevel - 1}</span></p>
-          <p>Final Score: <span className="highlight">{score}</span></p>
+          <p>
+            Waves Survived: <span className="highlight">{waveLevel - 1}</span>
+          </p>
+          <p>
+            Final Score: <span className="highlight">{score}</span>
+          </p>
         </div>
-        
+
         {!showLeaderboard ? (
           <div className="user-form">
             {userId ? (
               <div className="welcome-back">
                 <p>Welcome back, {userName}!</p>
-                <button 
-                  onClick={handleSubmitScore} 
+                <button
+                  onClick={handleSubmitScore}
                   disabled={isSubmitting}
                   className="submit-button"
                 >
-                  {isSubmitting ? "Updating..." : "Update Score"}
+                  {isSubmitting ? 'Updating...' : 'Update Score'}
                 </button>
               </div>
             ) : (
@@ -154,16 +166,16 @@ const GameOver = () => {
                   placeholder="Enter your name"
                   className="name-input"
                 />
-                <button 
-                  onClick={handleSubmitScore} 
+                <button
+                  onClick={handleSubmitScore}
                   disabled={isSubmitting}
                   className="submit-button"
                 >
-                  {isSubmitting ? "Submitting..." : "Submit Score"}
+                  {isSubmitting ? 'Submitting...' : 'Submit Score'}
                 </button>
               </div>
             )}
-            
+
             {message && <p className="message">{message}</p>}
           </div>
         ) : (
@@ -179,9 +191,11 @@ const GameOver = () => {
                   <span className="score">Score</span>
                 </div>
                 {leaderboard.map((user, index) => (
-                  <div 
-                    key={user.id} 
-                    className={`leaderboard-item ${user.id === parseInt(userId) ? 'current-user' : ''}`}
+                  <div
+                    key={user.id}
+                    className={`leaderboard-item ${
+                      user.id === parseInt(userId) ? 'current-user' : ''
+                    }`}
                   >
                     <span className="rank">{index + 1}</span>
                     <span className="name">{user.name}</span>
@@ -192,11 +206,14 @@ const GameOver = () => {
             )}
           </div>
         )}
-        
+
         <div className="game-actions">
           {showLeaderboard ? (
             <>
-              <button onClick={() => setShowLeaderboard(false)} className="back-button">
+              <button
+                onClick={() => setShowLeaderboard(false)}
+                className="back-button"
+              >
                 Back
               </button>
               <button onClick={handlePlayAgain} className="play-again-button">

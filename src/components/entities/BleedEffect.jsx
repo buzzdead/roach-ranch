@@ -1,19 +1,17 @@
 import { useFrame } from '@react-three/fiber';
 import React from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { useGameEffectsStore } from '../../store/gameEffectsStore';
+import { useGameStore } from '../../store/gameStore';
 import RoachBleed from './roach/RoachBleed';
 
 const BleedEffect = ({ roachId }) => {
-  const bleeds = useGameEffectsStore(
+  const bleeds = useGameStore(
     useShallow(
       (state) =>
         state.enemies.find((r) => r.id === roachId)?.effects.bleeds || []
     )
   );
-  const removeBleed = useGameEffectsStore(
-    useShallow((state) => state.removeBleed)
-  );
+  const removeBleed = useGameStore(useShallow((state) => state.removeBleed));
   console.log(roachId, bleeds);
   useFrame(() => {
     const now = Date.now();

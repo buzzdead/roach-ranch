@@ -1,20 +1,20 @@
 // components/ui/WeaponSelector.jsx
 import React from 'react';
 import { useShallow } from 'zustand/shallow';
-import { useGameEffectsStore } from '../../store/gameEffectsStore';
+import { useGameStore } from '../../store/gameStore';
 import './weaponSelector.css'; // You'll need to create this CSS file
 
 const PELLET_COUNT = 10;
 
 const WeaponSelector = () => {
-  const { weapons, equipWeapon, craftingBench, player, purchaseWeapon } =
-    useGameEffectsStore(
+  const { weapons, equipWeapon, player, purchaseWeapon, setSelectedWeapon } =
+    useGameStore(
       useShallow((state) => ({
         weapons: state.weapons,
         equipWeapon: state.equipWeapon,
-        craftingBench: state.craftingBench,
         player: state.player,
         purchaseWeapon: state.purchaseWeapon,
+        setSelectedWeapon: state.setSelectedWeapon,
       }))
     );
 
@@ -22,6 +22,11 @@ const WeaponSelector = () => {
   const shotgunPurchased = weapons.shotgun && weapons.shotgun.purchased;
   const shotgunPrice = 30; // Price in chitin
   const canAffordShotgun = player.resources.chitin >= shotgunPrice;
+
+  const handleEquipWeapon = (weapon) => {
+    setSelectedWeapon(weapon);
+    equipWeapon(weapon);
+  };
 
   return (
     <div className="weapon-selector-container">
@@ -32,7 +37,7 @@ const WeaponSelector = () => {
           className={`weapon-item ${
             weapons.revolver.equipped ? 'equipped' : ''
           }`}
-          onClick={() => equipWeapon('revolver')}
+          onClick={() => handleEquipWeapon('revolver')}
         >
           <div className="weapon-name">Revolver</div>
           <div className="weapon-stats">
@@ -60,7 +65,7 @@ const WeaponSelector = () => {
             className={`weapon-item ${
               weapons.shotgun.equipped ? 'equipped' : ''
             }`}
-            onClick={() => equipWeapon('shotgun')}
+            onClick={() => handleEquipWeapon('shotgun')}
           >
             <div className="weapon-name">Shotgun</div>
             <div className="weapon-stats">

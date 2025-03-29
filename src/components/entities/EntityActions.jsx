@@ -1,12 +1,12 @@
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useEnemyAnimations } from '../../hooks/useRoachAnimations';
-import { useGameEffectsStore } from '../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
-import { updateAttackCooldown, getActionRefs } from '../../utils/animationUtil';
+import { useEnemyAnimations } from '../../hooks/useRoachAnimations';
 import { useScanForPlayer } from '../../hooks/useScanForPlaer';
-import ChickenAttack from './chicken/ChickenAttack';
+import { useGameStore } from '../../store/gameStore';
+import { getActionRefs, updateAttackCooldown } from '../../utils/animationUtil';
 import { animateEntity } from './animateEntity';
+import ChickenAttack from './chicken/ChickenAttack';
 
 const ROTATION_SPEED = 3;
 
@@ -20,19 +20,50 @@ const EntityActions = ({
   isAttackingRef,
   deadRef,
   rigidBodyRef,
-  entityType = 'roach'
+  entityType = 'roach',
 }) => {
   // Animation setup
-  const { actions } = useEnemyAnimations(originalScene, animations, isAnimatingRef, isAttackingRef, entityType);
-  const waveLevel = useGameEffectsStore(useShallow((state) => state.waveLevel));
-  const setTriggerKillSound = useGameEffectsStore(useShallow((state) => state.setTriggerKillSound));
-  const ATTACK_DISTANCE = entityType === "chicken" ? 2.5 : 
-                       (entityType === "mootant" || entityType === "warhog") ? 2 : 5;
-  const MOVE_SPEED = entityType === "mootant" || entityType === "warhog" ? 20 : 19.5
+  const { actions } = useEnemyAnimations(
+    originalScene,
+    animations,
+    isAnimatingRef,
+    isAttackingRef,
+    entityType
+  );
+  const waveLevel = useGameStore(useShallow((state) => state.waveLevel));
+  const setTriggerKillSound = useGameStore(
+    useShallow((state) => state.setTriggerKillSound)
+  );
+  const ATTACK_DISTANCE =
+    entityType === 'chicken'
+      ? 2.5
+      : entityType === 'mootant' || entityType === 'warhog'
+      ? 2
+      : 5;
+  const MOVE_SPEED =
+    entityType === 'mootant' || entityType === 'warhog' ? 20 : 19.5;
   // State refs
-  const { finished, initialize, isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef } = getActionRefs();
-  const actionRefs = { isRotatingRef, isMovingRef, targetPositionRef, targetRotationRef };
-  const enemyRefs = { deadRef, rigidBodyRef, isAttackingRef, attackCooldownRef, isAnimatingRef };
+  const {
+    finished,
+    initialize,
+    isRotatingRef,
+    isMovingRef,
+    targetPositionRef,
+    targetRotationRef,
+  } = getActionRefs();
+  const actionRefs = {
+    isRotatingRef,
+    isMovingRef,
+    targetPositionRef,
+    targetRotationRef,
+  };
+  const enemyRefs = {
+    deadRef,
+    rigidBodyRef,
+    isAttackingRef,
+    attackCooldownRef,
+    isAnimatingRef,
+  };
 
   // Player detection
   const { scanForPlayer, updateScanTimer } = useScanForPlayer({
@@ -41,7 +72,7 @@ const EntityActions = ({
     attackDistance: ATTACK_DISTANCE,
     ...enemyRefs,
     ...actionRefs,
-    waveLevel
+    waveLevel,
   });
 
   // Helper functions
@@ -61,8 +92,16 @@ const EntityActions = ({
 
   const getPlayerInfo = () => {
     const playerPosition = camera.userData.characterPos;
-    const currentPosition = new THREE.Vector3(position[0], position[1], position[2]);
-    const playerPos = new THREE.Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
+    const currentPosition = new THREE.Vector3(
+      position[0],
+      position[1],
+      position[2]
+    );
+    const playerPos = new THREE.Vector3(
+      playerPosition.x,
+      playerPosition.y,
+      playerPosition.z
+    );
     const distance = currentPosition.distanceTo(playerPos);
     const dx = playerPosition.x - position[0];
     const dz = playerPosition.z - position[2];
@@ -73,15 +112,15 @@ const EntityActions = ({
 
   const handleAnimations = () => {
     animateEntity(
-      actions, 
-      entityType, 
+      actions,
+      entityType,
       {
-        isAttackingRef, 
-        deadRef, 
-        isRotatingRef, 
-        isMovingRef, 
-        finished
-      }, 
+        isAttackingRef,
+        deadRef,
+        isRotatingRef,
+        isMovingRef,
+        finished,
+      },
       setTriggerKillSound
     );
   };
@@ -98,7 +137,8 @@ const EntityActions = ({
     while (rotationDiff < -Math.PI) rotationDiff += 2 * Math.PI;
 
     if (Math.abs(rotationDiff) > 0.05) {
-      originalScene.rotation.y += rotationDiff * Math.min(ROTATION_SPEED * delta, 1);
+      originalScene.rotation.y +=
+        rotationDiff * Math.min(ROTATION_SPEED * delta, 1);
     } else {
       // We've reached the target rotation
       isRotatingRef.current = false;
@@ -171,7 +211,11 @@ const EntityActions = ({
     const impulseStrength = MOVE_SPEED * baseImpulse * boostMultiplier;
 
     rigidBodyRef.current.setLinvel(
-      { x: direction.x * impulseStrength, y: 0, z: direction.z * impulseStrength },
+      {
+        x: direction.x * impulseStrength,
+        y: 0,
+        z: direction.z * impulseStrength,
+      },
       true
     );
   };
@@ -201,13 +245,21 @@ const EntityActions = ({
       handleRotation(delta, distance < ATTACK_DISTANCE);
     }
     // Move towards target if not attacking or rotating
-    else if (isMovingRef.current && targetPositionRef.current &&
-      !isAttackingRef.current && !isAnimatingRef.current) {
+    else if (
+      isMovingRef.current &&
+      targetPositionRef.current &&
+      !isAttackingRef.current &&
+      !isAnimatingRef.current
+    ) {
       moveTowardsTarget(delta);
     }
     // If we're not doing anything, scan for player
-    else if (!isAttackingRef.current && !isAnimatingRef.current &&
-      !isRotatingRef.current && !isMovingRef.current) {
+    else if (
+      !isAttackingRef.current &&
+      !isAnimatingRef.current &&
+      !isRotatingRef.current &&
+      !isMovingRef.current
+    ) {
       scanForPlayer(true); // Force a scan
     }
   };
@@ -229,16 +281,16 @@ const EntityActions = ({
 
     // Handle AI behavior
     handleBehavior(delta);
-
-   
   });
 
-  return entityType === "chicken" ?  <ChickenAttack 
-  originalScene={originalScene}
-  isAttackingRef={isAttackingRef}
-  position={position}
-  actions={actions}
- /> : null;
+  return entityType === 'chicken' ? (
+    <ChickenAttack
+      originalScene={originalScene}
+      isAttackingRef={isAttackingRef}
+      position={position}
+      actions={actions}
+    />
+  ) : null;
 };
 
 export default EntityActions;

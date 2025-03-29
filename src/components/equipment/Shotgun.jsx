@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { useShallow } from 'zustand/shallow';
 import { usePlayerContext } from '../../context/PlayerContext';
 import { useAttachToObject } from '../../hooks/useAttachToObject';
-import { useGameEffectsStore } from '../../store/gameEffectsStore';
+import { useGameStore } from '../../store/gameStore';
 import { modelCache } from '../../utils/Preloader';
 import MuzzleFlash from './Effects/MuzzleFlash';
 import RevolverBullet from './RevolverBullet';
@@ -18,7 +18,7 @@ const SHOTGUN_CONFIG = {
   rotation: [Math.PI, Math.PI * 1.45, 0],
   scale: [0.35, 0.35, 0.35],
   primitive: {
-    position: [-0.15, -0.65, -0.0075],
+    position: [-0.1, -0.65, -0.0075],
     rotation: [-1.2, Math.PI * 1.5, 0],
   },
   muzzle: {
@@ -53,7 +53,7 @@ export const Shotgun = ({ bone }) => {
   const [lastFireCount, setLastFireCount] = useState(0);
   const [isFiring, setIsFiring] = useState(false);
 
-  const weapons = useGameEffectsStore(useShallow((state) => state.weapons));
+  const weapons = useGameStore(useShallow((state) => state.weapons));
   const { damage, shootingSpeed } = useMemo(
     () => ({
       damage: weapons.shotgun?.upgrades.damage || { level: 0, increment: 5 },

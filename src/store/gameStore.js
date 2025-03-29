@@ -1,17 +1,17 @@
 import { create } from 'zustand';
 
-import { createEnemySlice } from './roachSlice';
+import { createCraftingSlice } from './craftingSlice';
+import { createEnemySlice } from './enemySlice';
 import { createLootSlice } from './lootSlice';
 import { createPlayerSlice } from './playerSlice';
-import { createCraftingSlice } from './craftingSlice';
-import { createControlsSlice } from './controlsSlice';
+import { createSettingSlice } from './settingSlice';
 import { createWeaponsSlice } from './weaponSlice';
 
-export const useGameEffectsStore = create((set, get) => ({
+export const useGameStore = create((set, get) => ({
   ...createEnemySlice(set, get),
   ...createLootSlice(set, get),
   ...createPlayerSlice(set, get),
   ...createCraftingSlice(set, get),
-  ...createControlsSlice(set, get),
+  ...createSettingSlice(set, get),
   ...createWeaponsSlice(set, get)
 }));

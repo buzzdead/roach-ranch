@@ -1,38 +1,42 @@
-import { useState, useRef, useEffect, memo } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
-import { Vector3 } from 'three'
-import * as THREE from 'three'
-import { useGameEffectsStore } from '../store/gameEffectsStore';
+import { useFrame, useThree } from '@react-three/fiber';
+import { memo, useEffect, useRef, useState } from 'react';
+import * as THREE from 'three';
+import { Vector3 } from 'three';
 import { useShallow } from 'zustand/shallow';
+import { useGameStore } from '../store/gameStore';
 import useFrameInterval from '../utils/useFrameInterval';
 
-const NextWaveCircle = ({ position = [0, 0, 0], radius = 5, onActivateWave }) => {
-  const { camera } = useThree()
-  const [playerInside, setPlayerInside] = useState(false)
-  const activationTimer = useRef(0)
-  const meshRef = useRef()
-  const materialRef = useRef()
-  const { waveActive, waveEndTime, setNextLevel, setWaveActive } = useGameEffectsStore(
-    useShallow(state => ({
+const NextWaveCircle = ({
+  position = [0, 0, 0],
+  radius = 5,
+  onActivateWave,
+}) => {
+  const { camera } = useThree();
+  const [playerInside, setPlayerInside] = useState(false);
+  const activationTimer = useRef(0);
+  const meshRef = useRef();
+  const materialRef = useRef();
+  const { waveActive, waveEndTime, setNextLevel, setWaveActive } = useGameStore(
+    useShallow((state) => ({
       waveActive: state.waveActive,
       waveEndTime: state.waveEndTime,
       setNextLevel: state.setNextLevel,
-      setWaveActive: state.setWaveActive
+      setWaveActive: state.setWaveActive,
     }))
   );
 
   const handleStart = () => {
-    setWaveActive()
-  }
+    setWaveActive();
+  };
   const handleEnd = () => {
-    setNextLevel()
-  }
+    setNextLevel();
+  };
 
   useFrameInterval(() => {
     if (waveActive && Date.now() >= waveEndTime) {
-        setNextLevel();
-      }
-  }, 30)
+      setNextLevel();
+    }
+  }, 30);
   // Create shader material with uniforms
   useEffect(() => {
     const shaderMaterial = new THREE.ShaderMaterial({
@@ -127,37 +131,37 @@ const NextWaveCircle = ({ position = [0, 0, 0], radius = 5, onActivateWave }) =>
         playerInside: { value: 0 },
         activationProgress: { value: 0 },
         waveActive: { value: 0 },
-        dissipateTime: { value: 0 }
+        dissipateTime: { value: 0 },
       },
       transparent: true,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
     });
-    
+
     materialRef.current = shaderMaterial;
-    
+
     if (meshRef.current) {
       meshRef.current.material = shaderMaterial;
     }
   }, []);
-  
+
   // Add a ref to track when dissipation started
   const dissipateStartTime = useRef(0);
   const dissipatingRef = useRef(false);
-  
+
   useFrame((state, delta) => {
     if (!camera.userData.characterPos || !materialRef.current) return;
-    
+
     const playerPos = new Vector3(
       camera.userData.characterPos.x,
       camera.userData.characterPos.y,
       camera.userData.characterPos.z
     );
-    
+
     const circlePos = new Vector3(position[0], position[1], position[2]);
     const distance = playerPos.distanceTo(circlePos);
-    
+
     const isInside = distance < radius;
-    
+
     // Handle wave activation
     if (isInside !== playerInside) {
       setPlayerInside(isInside);
@@ -165,7 +169,7 @@ const NextWaveCircle = ({ position = [0, 0, 0], radius = 5, onActivateWave }) =>
         activationTimer.current = 0;
       }
     }
-    
+
     // Update activation timer
     if (isInside && !waveActive) {
       activationTimer.current += delta;
@@ -180,33 +184,38 @@ const NextWaveCircle = ({ position = [0, 0, 0], radius = 5, onActivateWave }) =>
     } else if (!isInside || waveActive) {
       activationTimer.current = 0;
     }
-    
+
     // Calculate dissipation progress
     let dissipateProgress = 0;
     if (dissipatingRef.current) {
-        const timeSinceDissipate = state.clock.getElapsedTime() - dissipateStartTime.current;
-        dissipateProgress = Math.min(timeSinceDissipate / 3.0, 1.0); // Complete over 3 seconds instead of 2
-        
-        // Reset effect when completed or when wave ends
-        if (dissipateProgress >= 1.0 || !waveActive) {
-          if (!waveActive) {
-            dissipatingRef.current = false;
-          }
+      const timeSinceDissipate =
+        state.clock.getElapsedTime() - dissipateStartTime.current;
+      dissipateProgress = Math.min(timeSinceDissipate / 3.0, 1.0); // Complete over 3 seconds instead of 2
+
+      // Reset effect when completed or when wave ends
+      if (dissipateProgress >= 1.0 || !waveActive) {
+        if (!waveActive) {
+          dissipatingRef.current = false;
         }
       }
-    
+    }
+
     // Update shader uniforms
     materialRef.current.uniforms.time.value = state.clock.getElapsedTime();
-    materialRef.current.uniforms.playerInside.value = (isInside && !waveActive) ? 1.0 : 0.0;
-    materialRef.current.uniforms.activationProgress.value = (!waveActive && isInside) ? Math.min(activationTimer.current / 2, 1.0) : 0.0;
+    materialRef.current.uniforms.playerInside.value =
+      isInside && !waveActive ? 1.0 : 0.0;
+    materialRef.current.uniforms.activationProgress.value =
+      !waveActive && isInside
+        ? Math.min(activationTimer.current / 2, 1.0)
+        : 0.0;
     materialRef.current.uniforms.waveActive.value = waveActive ? 1.0 : 0.0;
     materialRef.current.uniforms.dissipateTime.value = dissipateProgress;
   });
-  
+
   return (
-    <mesh 
+    <mesh
       ref={meshRef}
-      position={[position[0], position[1] + 0.1, position[2]]} 
+      position={[position[0], position[1] + 0.1, position[2]]}
       rotation={[-Math.PI / 2, 0, 0]}
     >
       <ringGeometry args={[radius - 0.5, radius, 64]} />

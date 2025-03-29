@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
-import './wave.css';
-import { useGameEffectsStore } from '../../store/gameEffectsStore';
+import { useGameStore } from '../../store/gameStore';
 import UISoundManager from '../../utils/UISoundManager';
+import './wave.css';
 
 const WaveTimerUI = () => {
-  const { waveActive, waveStartTime, waveEndTime, waveLevel } = useGameEffectsStore(
+  const { waveActive, waveEndTime, waveLevel } = useGameStore(
     useShallow(state => ({
       waveActive: state.waveActive,
-      waveStartTime: state.waveStartTime,
       waveEndTime: state.waveEndTime,
       waveLevel: state.waveLevel
     }))
@@ -25,7 +24,7 @@ const WaveTimerUI = () => {
   // Initialize sound manager
   useEffect(() => {
     const soundMgr = new UISoundManager();
-    
+
     // Preload your sounds
     Promise.all([
       soundMgr.preloadSound('Count', '/soundeffects/count.mp3'),
@@ -33,7 +32,7 @@ const WaveTimerUI = () => {
     ]).then(() => {
       setUISoundManager(soundMgr);
     });
-    
+
     return () => {
       if (soundMgr) {
         soundMgr.dispose();
@@ -48,7 +47,7 @@ const WaveTimerUI = () => {
         volume: 0.6,
         playbackRate: 1.250
       });
-      
+
       waveStartSound.current = uiSoundManager.createSound('WaveStart', {
         volume: 0.3,
         playbackRate: .750
@@ -64,21 +63,21 @@ const WaveTimerUI = () => {
       prevCountdownRef.current = null;
       return;
     }
-    
+
     const updateTimer = () => {
       const now = Date.now();
       const totalRemaining = Math.max(0, Math.ceil((waveEndTime - now) / 1000));
-      
+
       // First 5 seconds are pre-wave countdown
       if (totalRemaining > 30) {
         const newCountdown = totalRemaining - 30;
         setPrewaveCountdown(newCountdown);
-        
+
         // Play countdown sound when the number changes
-        if (prevCountdownRef.current !== null && 
-            newCountdown !== prevCountdownRef.current &&
-            countdownSound.current) {
-          
+        if (prevCountdownRef.current !== null &&
+          newCountdown !== prevCountdownRef.current &&
+          countdownSound.current) {
+
           // Play wave start sound on the last second (when countdown reaches 1)
           if (newCountdown === 1 && waveStartSound.current) {
             waveStartSound.current.play();
@@ -86,7 +85,7 @@ const WaveTimerUI = () => {
             countdownSound.current.play();
           }
         }
-        
+
         prevCountdownRef.current = newCountdown;
         setWaveStarted(false);
       } else {
@@ -94,11 +93,11 @@ const WaveTimerUI = () => {
         setWaveStarted(true);
       }
     };
-    
+
     // Update immediately and then every second
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
-    
+
     return () => clearInterval(interval);
   }, [waveActive, waveEndTime]);
 
@@ -131,7 +130,7 @@ const WaveTimerUI = () => {
             <div className="ready-message">
               Enter the circle to start wave {waveLevel}
             </div>
-            {<div style={{color: 'white'}} className="ready-message">
+            {<div style={{ color: 'white' }} className="ready-message">
               (Go inside for upgrades)
             </div>}
           </div>

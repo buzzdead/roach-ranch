@@ -5,7 +5,7 @@ export const createPlayerSlice = (set, get) => ({
     totalLoot: 0,
     maxHealth: 100,
     resources: {
-      chitin: 100
+      chitin: 10
     },
     effects: {
       bleeds: [] // Add this to track player bleeds
@@ -25,7 +25,7 @@ export const createPlayerSlice = (set, get) => ({
     rigidBody: rigidBodyRef,
   })),
   takeDamage: (damage) => set(() => ({
-    
+
   })),
   updatePlayerResource: (resourceType, amount) => {
     if (get().player.resources[resourceType]) {
@@ -65,7 +65,7 @@ export const createPlayerSlice = (set, get) => ({
         }
       }
     }));
-    
+
     // Return current health after damage for UI updates
     return get().player.maxHealth - damage;
   },
@@ -83,9 +83,9 @@ export const createPlayerSlice = (set, get) => ({
   clearPlayerBleeds: () => set((state) => ({
     player: {
       ...state.player,
-      effects: { 
-        ...state.player.effects, 
-        bleeds: [] 
+      effects: {
+        ...state.player.effects,
+        bleeds: []
       },
     }
   })),

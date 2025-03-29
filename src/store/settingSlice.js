@@ -1,5 +1,5 @@
-export const createControlsSlice = (set, get) => ({
-  triggerKillSound: {type: "roach", value: 0},
+export const createSettingSlice = (set, get) => ({
+  triggerKillSound: { type: "roach", value: 0 },
   gameOver: false,
   controlsEnabled: true,
   waveActive: false,
@@ -12,7 +12,7 @@ export const createControlsSlice = (set, get) => ({
     waveStartTime: Date.now(),
     waveEndTime: Date.now() + 35000 // 60 seconds in milliseconds
   }),
-  
+
   setNextLevel: () => set(state => ({
     waveLevel: state.waveLevel + 1,
     waveActive: false,
@@ -23,8 +23,8 @@ export const createControlsSlice = (set, get) => ({
   setTriggerKillSound: (type = "roach") => {
     const shouldPlay = Math.random() > 0.85;
     const randomKill = Math.floor(Math.random() * 3) + 1;
-    if(shouldPlay) set(state => ({ triggerKillSound: {type: type, value: randomKill} }));
+    if (shouldPlay) set(state => ({ triggerKillSound: { type: type, value: randomKill } }));
   },
   setGameOver: (b = true) => set({ gameOver: b }),
-  setGameActive: (active) => set({gameActive: active })
+  setGameActive: (active) => set({ gameActive: active })
 });

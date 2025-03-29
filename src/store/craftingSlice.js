@@ -28,47 +28,47 @@ export const createCraftingSlice = (set, get) => ({
   })),
 
   // Add to your gameEffectsStore.js
-purchaseWeapon: (weaponType, price) => {
-  const state = get();
-  
-  // Check if player can afford it
-  if (state.player.resources.chitin < price) {
-    return false;
-  }
-  
-  // Check if weapon exists
-  if (!state.weapons[weaponType]) {
-    return false;
-  }
-  
-  // Update player resources
-  get().updatePlayerResource('chitin', -price);
-  
-  // Mark weapon as purchased and equip it
-  set((state) => {
-    // Create new weapons object with target weapon purchased and equipped
-    const updatedWeapons = { ...state.weapons };
-    
-    // Unequip all weapons
-    Object.keys(updatedWeapons).forEach(type => {
-      updatedWeapons[type] = {
-        ...updatedWeapons[type],
-        equipped: false
+  purchaseWeapon: (weaponType, price) => {
+    const state = get();
+
+    // Check if player can afford it
+    if (state.player.resources.chitin < price) {
+      return false;
+    }
+
+    // Check if weapon exists
+    if (!state.weapons[weaponType]) {
+      return false;
+    }
+
+    // Update player resources
+    get().updatePlayerResource('chitin', -price);
+
+    // Mark weapon as purchased and equip it
+    set((state) => {
+      // Create new weapons object with target weapon purchased and equipped
+      const updatedWeapons = { ...state.weapons };
+
+      // Unequip all weapons
+      Object.keys(updatedWeapons).forEach(type => {
+        updatedWeapons[type] = {
+          ...updatedWeapons[type],
+          equipped: false
+        };
+      });
+
+      // Set target weapon as purchased and equipped
+      updatedWeapons[weaponType] = {
+        ...updatedWeapons[weaponType],
+        purchased: true,
+        equipped: true
       };
+
+      return { weapons: updatedWeapons };
     });
-    
-    // Set target weapon as purchased and equipped
-    updatedWeapons[weaponType] = {
-      ...updatedWeapons[weaponType],
-      purchased: true,
-      equipped: true
-    };
-    
-    return { weapons: updatedWeapons };
-  });
-  
-  return true;
-},
+
+    return true;
+  },
 
   // Universal purchase method that works for both weapons and player upgrades
   purchaseUpgrade: (upgradeType) => {
@@ -105,6 +105,7 @@ purchaseWeapon: (weaponType, price) => {
 
     // Perform the upgrade based on category
     if (selectedCategory === "weapons") {
+      console.log(selectedWeapon)
       set((state) => ({
         weapons: {
           ...state.weapons,
@@ -124,29 +125,29 @@ purchaseWeapon: (weaponType, price) => {
       // Get the upgrade details
       const upgrade = state.player.upgrades[upgradeType];
       const newLevel = upgrade.level + 1;
-      
+
       // Calculate the new value based on the upgrade
       let updatedPlayerProperties = {};
-      
+
       if (upgradeType === "maxHealth") {
-          updatedPlayerProperties.maxHealth = state.player.maxHealth + upgrade.increment;
+        updatedPlayerProperties.maxHealth = state.player.maxHealth + upgrade.increment;
       }
       // Add other upgrade types with their effects here
-      
+
       set((state) => ({
-          player: {
-              ...state.player,
-              ...updatedPlayerProperties,
-              upgrades: {
-                  ...state.player.upgrades,
-                  [upgradeType]: {
-                      ...state.player.upgrades[upgradeType],
-                      level: newLevel
-                  }
-              }
+        player: {
+          ...state.player,
+          ...updatedPlayerProperties,
+          upgrades: {
+            ...state.player.upgrades,
+            [upgradeType]: {
+              ...state.player.upgrades[upgradeType],
+              level: newLevel
+            }
           }
+        }
       }));
-  }
+    }
 
     // Deduct resources
     get().updatePlayerResource('chitin', -cost);

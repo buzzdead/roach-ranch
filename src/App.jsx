@@ -1,16 +1,15 @@
 // src/App.jsx
-import React, { useEffect, useState } from 'react';
-import RanchScene from './RanchScene';
-import { Suspense } from 'react';
 import { KeyboardControls } from '@react-three/drei';
-import Preload from './utils/Preloader';
-import MainMenu from './components/MainMenu';
-import ResourcesUI from './components/ui/ResourceUi';
-import { CraftingBenchUI } from './components/ui/BenchUI';
-import WaveTimerUI from './components/ui/WaveUI';
-import GameOver from './components/ui/GameOverUI.';
-import { useGameEffectsStore } from './store/gameEffectsStore';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
+import MainMenu from './components/MainMenu';
+import { CraftingBenchUI } from './components/ui/BenchUI';
+import GameOver from './components/ui/GameOverUI.';
+import ResourcesUI from './components/ui/ResourceUi';
+import WaveTimerUI from './components/ui/WaveUI';
+import RanchScene from './RanchScene';
+import { useGameStore } from './store/gameStore';
+import Preload from './utils/Preloader';
 
 // Common transition component for both states
 const GameTransition = ({ message = 'Entering Nightmare...' }) => {
@@ -74,15 +73,28 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [showTransition, setShowTransition] = useState(false);
   const [showGame, setShowGame] = useState(false);
-  const { gameActive, setGameActive, setGameOver, setControlsEnabled } = useGameEffectsStore(useShallow((state) => ({gameActive: state.gameActive, setGameActive: state.setGameActive, setGameOver: state.setGameOver, setControlsEnabled: state.setControlsEnabled})))
+  const { gameActive, setGameActive, setGameOver, setControlsEnabled } =
+    useGameStore(
+      useShallow((state) => ({
+        gameActive: state.gameActive,
+        setGameActive: state.setGameActive,
+        setGameOver: state.setGameOver,
+        setControlsEnabled: state.setControlsEnabled,
+      }))
+    );
 
   useEffect(() => {
-    if(gameStarted) {setGameActive(true); setControlsEnabled(true)}
-      
-  }, [gameStarted])
+    if (gameStarted) {
+      setGameActive(true);
+      setControlsEnabled(true);
+    }
+  }, [gameStarted]);
   useEffect(() => {
-    if(gameStarted && !gameActive) {setGameStarted(false); setGameOver(false)}
-  }, [gameActive])
+    if (gameStarted && !gameActive) {
+      setGameStarted(false);
+      setGameOver(false);
+    }
+  }, [gameActive]);
 
   const handlePreloadComplete = () => {
     setAssetsLoaded(true);

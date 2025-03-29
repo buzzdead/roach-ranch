@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { useShallow } from 'zustand/shallow';
 import { usePlayerContext } from '../../context/PlayerContext';
 import { useAttachToObject } from '../../hooks/useAttachToObject';
-import { useGameEffectsStore } from '../../store/gameEffectsStore';
+import { useGameStore } from '../../store/gameStore';
 import { modelCache } from '../../utils/Preloader';
 import MuzzleFlash from './Effects/MuzzleFlash';
 import RevolverAudio from './RevolverAudio';
@@ -45,7 +45,7 @@ export const Revolver = ({ bone }) => {
   const [lastFireCount, setLastFireCount] = useState(0);
   const [isFiring, setIsFiring] = useState(false);
 
-  const weapons = useGameEffectsStore(useShallow((state) => state.weapons));
+  const weapons = useGameStore(useShallow((state) => state.weapons));
   const { damage, shootingSpeed } = useMemo(
     () => ({
       damage: weapons.revolver.upgrades.damage,

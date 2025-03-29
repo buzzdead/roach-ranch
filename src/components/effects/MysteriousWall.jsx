@@ -1,8 +1,8 @@
-import React, { useRef, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
+import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { useGameEffectsStore } from '../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
+import { useGameStore } from '../../store/gameStore';
 
 // Simple noise texture for mist effect (you can replace with a real texture later)
 const createNoiseTexture = () => {
@@ -26,7 +26,7 @@ const EnhancedMysteriousWall = ({
   repulsionStrength = 500,
   wallHeight = 2,
 }) => {
-  const rigidBody = useGameEffectsStore(useShallow((state) => state.rigidBody));
+  const rigidBody = useGameStore(useShallow((state) => state.rigidBody));
   const { camera } = useThree();
   const wallRef = useRef(null);
   const materialRef = useRef(null);
@@ -144,7 +144,6 @@ const EnhancedMysteriousWall = ({
         y: 0,
         z: dirZ * force,
       });
-
     }
   });
 

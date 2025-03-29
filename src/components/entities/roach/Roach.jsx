@@ -1,19 +1,19 @@
 // Roach.jsx (modified)
-import React, { Suspense, useMemo, useRef, useEffect, useState } from 'react';
 import { useThree } from '@react-three/fiber';
-import RoachModel from './RoachModel';
-import RoachAudio from './RoachAudio';
-import RoachEffects from './Effects/RoachEffects';
-import CollisionManager from '../../../utils/CollisionManager';
-import { useGameEffectsStore } from '../../../store/gameEffectsStore';
-import { useShallow } from 'zustand/react/shallow';
-import { modelCache } from '../../../utils/Preloader';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { SkeletonUtils } from 'three/examples/jsm/Addons.js';
+import { useShallow } from 'zustand/react/shallow';
+import { useGameStore } from '../../../store/gameStore';
+import CollisionManager from '../../../utils/CollisionManager';
+import { modelCache } from '../../../utils/Preloader';
 import EntityActions from '../EntityActions';
+import RoachEffects from './Effects/RoachEffects';
+import RoachAudio from './RoachAudio';
+import RoachModel from './RoachModel';
 
 const Roach = ({ id, position }) => {
   const { scene, animations } = modelCache['/roach.glb'];
-  
+
   // Clone the scene
   const originalScene = useMemo(() => {
     const cloned = SkeletonUtils.clone(scene);
@@ -23,16 +23,14 @@ const Roach = ({ id, position }) => {
 
   const { camera } = useThree();
   const modelRef = useRef();
-  const rigidBodyRef = useRef()
+  const rigidBodyRef = useRef();
   const deadRef = useRef(false);
   const isAnimatingRef = useRef(false);
   const [isDead, setIsDead] = useState(false);
   const attackCooldownRef = useRef(0);
-  const addBleed = useGameEffectsStore(useShallow((state) => state.addBleed));
-  const removeEnemy = useGameEffectsStore(
-    useShallow((state) => state.removeEnemy)
-  );
-  const addLoot = useGameEffectsStore(useShallow((state) => state.addLoot));
+  const addBleed = useGameStore(useShallow((state) => state.addBleed));
+  const removeEnemy = useGameStore(useShallow((state) => state.removeEnemy));
+  const addLoot = useGameStore(useShallow((state) => state.addLoot));
   // References instead of state to prevent rerenders
   const isAttackingRef = useRef(false);
 

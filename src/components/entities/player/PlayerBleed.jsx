@@ -1,17 +1,17 @@
 // src/components/entities/player/PlayerBleedEffect.jsx
-import React from 'react';
 import { useFrame } from '@react-three/fiber';
-import RoachBleed from '../roach/RoachBleed';
+import React from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { useGameEffectsStore } from '../../../store/gameEffectsStore';
+import { useGameStore } from '../../../store/gameStore';
+import RoachBleed from '../roach/RoachBleed';
 
 const PlayerBleedEffect = () => {
-  const bleeds = useGameEffectsStore(
-    useShallow(
-      (state) => state.player.effects.bleeds || []
-    )
+  const bleeds = useGameStore(
+    useShallow((state) => state.player.effects.bleeds || [])
   );
-  const removePlayerBleed = useGameEffectsStore(useShallow((state) => state.removePlayerBleed));
+  const removePlayerBleed = useGameStore(
+    useShallow((state) => state.removePlayerBleed)
+  );
 
   useFrame(() => {
     const now = Date.now();

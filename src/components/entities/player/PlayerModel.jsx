@@ -1,26 +1,28 @@
+import { useFrame } from '@react-three/fiber';
 import React, {
   forwardRef,
+  useEffect,
   useImperativeHandle,
   useRef,
-  useEffect,
 } from 'react';
-import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import CollisionManager from '../../../utils/CollisionManager';
-import { useThirdPersonCamera } from '../../../hooks/useThirdPersonCamera';
-import PlayerPhysics from './PlayerPhysics';
-import PlayerHealth from './PlayerHealth';
-import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
+import { useThirdPersonCamera } from '../../../hooks/useThirdPersonCamera';
+import { useGameStore } from '../../../store/gameStore';
+import CollisionManager from '../../../utils/CollisionManager';
+import PlayerHealth from './PlayerHealth';
+import PlayerPhysics from './PlayerPhysics';
 
 export const PlayerModel = forwardRef(
   ({ scene, camera, showHitbox = false }, ref) => {
     const localRef = useRef();
-    const damageRef = useRef(0)
-    const playerRef = useRef()
+    const damageRef = useRef(0);
+    const playerRef = useRef();
     const coneHelperRef = useRef();
     useThirdPersonCamera(playerRef);
-    const addPlayerBleed = useGameEffectsStore(useShallow((state) => state.addPlayerBleed))
+    const addPlayerBleed = useGameStore(
+      useShallow((state) => state.addPlayerBleed)
+    );
 
     useImperativeHandle(ref, () => localRef.current);
 
@@ -87,13 +89,14 @@ export const PlayerModel = forwardRef(
         coneHelperRef.current.rotation.y = localRef.current.rotation.y;
       }
     });
-    
+
     const playerTakeDamage = (d) => {
-      damageRef.current += d.damage
-     d.direction && addPlayerBleed(d.position, d.direction, d.damage)
-    }
+      damageRef.current += d.damage;
+      d.direction && addPlayerBleed(d.position, d.direction, d.damage);
+    };
     useEffect(() => {
-      if (localRef.current) CollisionManager.registerPlayer(localRef, playerTakeDamage);
+      if (localRef.current)
+        CollisionManager.registerPlayer(localRef, playerTakeDamage);
 
       return () => {
         // Cleanup when component unmounts
@@ -102,16 +105,17 @@ export const PlayerModel = forwardRef(
       };
     }, [localRef]);
 
-    return (<>
-    <PlayerPhysics playerRef={playerRef} />
-      <primitive
-        ref={localRef}
-        object={scene}
-        position={[0, 0, 5]}
-        scale={[1, 1, 1]}
-        castShadow
-      />
-      <PlayerHealth modelRef={ref} damageRef={damageRef} />
+    return (
+      <>
+        <PlayerPhysics playerRef={playerRef} />
+        <primitive
+          ref={localRef}
+          object={scene}
+          position={[0, 0, 5]}
+          scale={[1, 1, 1]}
+          castShadow
+        />
+        <PlayerHealth modelRef={ref} damageRef={damageRef} />
       </>
     );
   }

@@ -1,12 +1,12 @@
 // entity/Mootant.jsx
 import React, { Suspense } from 'react';
-import { getEntityRefs, useEntityLogic } from '../entity';
-import MootantAttack from './MootantAttack';
-import { useGameEffectsStore } from '../../../store/gameEffectsStore';
 import { useShallow } from 'zustand/shallow';
-import EntityModel from '../EntityModel';
-import EntityActions from '../EntityActions';
+import { useGameStore } from '../../../store/gameStore';
 import BleedEffect from '../BleedEffect';
+import { getEntityRefs, useEntityLogic } from '../entity';
+import EntityActions from '../EntityActions';
+import EntityModel from '../EntityModel';
+import MootantAttack from './MootantAttack';
 
 const Mootant = ({ id, position }) => {
   const refs = getEntityRefs();
@@ -19,17 +19,17 @@ const Mootant = ({ id, position }) => {
     impactEvent,
     jumpEvent,
     handleDeath: baseHandleDeath,
-    handleAttackComplete
+    handleAttackComplete,
   } = useEntityLogic({
     id,
     position,
     entityType: 'mootant',
     modelPath: '/mootant.glb',
-    refs
+    refs,
   });
 
   // Add custom loot logic
-  const addLoot = useGameEffectsStore(useShallow(state => state.addLoot));
+  const addLoot = useGameStore(useShallow((state) => state.addLoot));
 
   const handleDeath = () => {
     if (Math.random() > 0.01) {
@@ -61,7 +61,7 @@ const Mootant = ({ id, position }) => {
         isAttackingRef={refs.isAttackingRef}
         deadRef={refs.deadRef}
         rigidBodyRef={refs.rigidBodyRef}
-        entityType='mootant'
+        entityType="mootant"
       />
       <Suspense fallback={null}>
         <BleedEffect roachId={id} />

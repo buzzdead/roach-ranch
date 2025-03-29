@@ -1,10 +1,9 @@
 // components/ui/CraftingBenchUI.jsx
 import React, { useEffect, useRef, useState } from 'react';
-import './craftingBench.css'
 import { useShallow } from 'zustand/shallow';
-import { useGameEffectsStore } from '../../store/gameEffectsStore';
-import { useSoundManager } from '../../context/SoundContext';
+import { useGameStore } from '../../store/gameStore';
 import UISoundManager from '../../utils/UISoundManager';
+import './craftingBench.css';
 import WeaponSelector from './WeaponSelector';
 
 export const CraftingBenchUI = () => {
@@ -12,24 +11,18 @@ export const CraftingBenchUI = () => {
     craftingBench,
     setCraftingActive,
     setSelectedCategory,
-    setSelectedWeapon,
     purchaseUpgrade,
-    weapons,
-    player,
     availableUpgrades,
     playerChitin
-  } = useGameEffectsStore(
+  } = useGameStore(
     useShallow(state => ({
       // Crafting bench controls
       craftingBench: state.craftingBench,
       setCraftingActive: state.setCraftingActive,
       setSelectedCategory: state.setSelectedCategory,
-      setSelectedWeapon: state.setSelectedWeapon,
       purchaseUpgrade: state.purchaseUpgrade,
 
       // Data
-      weapons: state.weapons,
-      player: state.player,
       availableUpgrades: state.getAvailableUpgrades(),
       playerChitin: state.player.resources.chitin
     }))
@@ -38,10 +31,10 @@ export const CraftingBenchUI = () => {
   const [uiSoundManager, setUISoundManager] = useState(null);
   const weaponUpgradeSound = useRef()
   const otherUpgradeSound = useRef()
- 
- useEffect(() => {
+
+  useEffect(() => {
     const soundMgr = new UISoundManager();
-    
+
     // Preload your sounds
     Promise.all([
       soundMgr.preloadSound('UpgradeWeapon', '/soundeffects/weapon-upgrade.mp3'),
@@ -49,7 +42,7 @@ export const CraftingBenchUI = () => {
     ]).then(() => {
       setUISoundManager(soundMgr);
     });
-    
+
     return () => {
       if (soundMgr) {
         soundMgr.dispose();
@@ -63,7 +56,7 @@ export const CraftingBenchUI = () => {
         volume: 0.75,
         playbackRate: 1.025
       });
-      
+
       otherUpgradeSound.current = uiSoundManager.createSound('UpgradeOther', {
         volume: 0.25,
         playbackRate: 1.025
@@ -72,7 +65,7 @@ export const CraftingBenchUI = () => {
   }, [uiSoundManager]);
 
   const handleSetControls = () => {
-    useGameEffectsStore.getState().setControlsEnabled(true);
+    useGameStore.getState().setControlsEnabled(true);
     setCraftingActive(false);
     // Re-lock pointer
     document.body.requestPointerLock();
@@ -127,7 +120,7 @@ export const CraftingBenchUI = () => {
 
       {/* Weapon selection (only shown if on weapons tab) */}
       {craftingBench.selectedCategory === "weapons" && (
-       <WeaponSelector />
+        <WeaponSelector />
       )}
 
       {/* Available upgrades */}
