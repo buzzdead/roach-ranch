@@ -105,7 +105,7 @@ export const createCraftingSlice = (set, get) => ({
 
     // Perform the upgrade based on category
     if (selectedCategory === "weapons") {
-      console.log(selectedWeapon)
+
       set((state) => ({
         weapons: {
           ...state.weapons,

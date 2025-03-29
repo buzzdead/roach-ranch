@@ -64,7 +64,7 @@ export const Shotgun = ({ bone }) => {
     }),
     [weapons]
   );
-  console.log(weapons);
+
   useFrame(() => {
     if (!shotgunRef.current) return;
 
@@ -196,7 +196,7 @@ export const Shotgun = ({ bone }) => {
 
   const bulletDamage =
     SHOTGUN_CONFIG.bullet.baseDamage + damage.level * damage.increment;
-  console.log(bullets);
+
   return (
     <>
       <group ref={groupRef}>

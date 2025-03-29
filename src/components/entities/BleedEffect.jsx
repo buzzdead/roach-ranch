@@ -12,7 +12,6 @@ const BleedEffect = ({ roachId }) => {
     )
   );
   const removeBleed = useGameStore(useShallow((state) => state.removeBleed));
-  console.log(roachId, bleeds);
   useFrame(() => {
     const now = Date.now();
     bleeds.forEach((bleed) => {
