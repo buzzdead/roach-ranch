@@ -52,7 +52,7 @@ const PlayerPhysics = ({ playerRef }) => {
     }
 
     // Calculate move direction based on camera angle
-    const moveSpeed = 2 * delta;
+    const moveSpeed = 3 * delta;
     const direction = new THREE.Vector3();
     const cameraAngle = inputState.current.rotation.x;
 
