@@ -122,8 +122,8 @@ export const PlayerAnimation = ({
       movementBufferRef.current.shift(); // Remove oldest entry
       movementBufferRef.current.push(isMovingNow); // Add newest entry
 
-      // Only consider a state change if all buffer entries match
-      const isConsistentlyMoving = movementBufferRef.current.every(
+      // Start walking as soon as any recent frame has movement; only stop when consistently still
+      const isConsistentlyMoving = movementBufferRef.current.some(
         (state) => state === true
       );
       const isConsistentlyStopped = movementBufferRef.current.every(
